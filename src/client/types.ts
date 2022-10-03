@@ -28,6 +28,7 @@ export interface Nft {
   url: string;
   ownerAddress: string
   owner: ObjectOwner
+  type: string
 }
 
 export interface GetNftsParams {

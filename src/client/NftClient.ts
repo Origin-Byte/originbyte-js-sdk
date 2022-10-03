@@ -48,6 +48,7 @@ export class NftClient {
             url: data.metadata.fields.url,
             owner,
             ownerAddress,
+            type: _.details.data.type,
           };
         }
         return undefined;
