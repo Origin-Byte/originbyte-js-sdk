@@ -1,16 +1,16 @@
 {
-  "name": "typescript-module-boilerplate",
-  "version": "2.0.0",
+  "name": "@originbyte/js-sdk",
+  "version": "0.0.2",
   "scripts": {
     "test": "yarn jest --detectOpenHandles",
     "typecheck": "yarn tsc --project ./tsconfig-typecheck.json",
-    "lint": "eslint 'src/**/*.{ts,tsx}'",
-    "format": "prettier --write 'src/**/*.{ts,tsx}'",
+    "lint": "eslint 'src/**/*.{ts}'",
+    "format": "prettier --write 'src/**/*.{ts}'",
     "build": "./scripts/build.sh"
   },
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
-  "license": "MIT",
+  "license": "Apache",
   "files": [
     "dist/"
   ],
