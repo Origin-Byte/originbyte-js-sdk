@@ -1,6 +1,13 @@
 {
   "name": "@originbyte/js-sdk",
-  "version": "0.1.0",
+  "version": "0.1.1",
+  "keywords": [
+    "originbyte",
+    "sdk",
+    "javascript",
+    "sui",
+    "move"
+  ],
   "scripts": {
     "test": "yarn jest --detectOpenHandles",
     "typecheck": "yarn tsc --project ./tsconfig-typecheck.json",

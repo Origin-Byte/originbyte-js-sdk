@@ -34,7 +34,7 @@ const getNfts = async () => {
 getNfts();
 ```
 
-More examples could be found [there](https://github.com/Origin-Byte/originbyte-js-sdk/tree/main/example).
+More examples could be found [there](https://github.com/Origin-Byte/originbyte-js-sdk/tree/main/examples).
 
 ## Useful Links
 
