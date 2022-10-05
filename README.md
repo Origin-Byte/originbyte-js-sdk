@@ -1,5 +1,10 @@
 # OriginByte JS SDK
 
+[![npm version](https://badge.fury.io/js/@originbyte%2Fjs-sdk.svg)](https://badge.fury.io/js/@originbyte%2Fjs-sdk)
+[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+
+Javascipt/Typescript SDK to work with Origin Byte NFT protocol.
+
 ## Installation
 
 ```
@@ -28,3 +33,10 @@ const getNfts = async () => {
 
 getNfts();
 ```
+
+More examples could be found [there](https://github.com/Origin-Byte/originbyte-js-sdk/tree/main/example).
+
+## Useful Links
+
+- [Website](https://originbyte.io)
+- [Protocol Source Code](https://github.com/Origin-Byte/nft-protocol)
