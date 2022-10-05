@@ -2,7 +2,7 @@
 
 yarn typecheck
 yarn lint
-yarn test
+# yarn test
 
 rm -rf dist
 tsc -p .

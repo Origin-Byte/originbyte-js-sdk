@@ -1,5 +1,5 @@
 /* eslint-disable camelcase */
-import { ObjectOwner } from '@mysten/sui.js';
+import { GetObjectDataResponse, ObjectOwner } from '@mysten/sui.js';
 
 export interface NftCollectionRpcResponse {
   name: string
@@ -88,3 +88,10 @@ export interface BuildNftParams {
   recepient: string
   coin: string
 }
+
+export interface BuildBurnCollectionParams {
+  collectionId: string
+  packageObjectId: string
+}
+
+export type FetchFnParser<T> = (_: GetObjectDataResponse) => T | undefined

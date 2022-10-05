@@ -20,6 +20,7 @@ module.exports = {
     'import/prefer-default-export': 'off',
     'import/no-default-export': 'error',
     'import/extensions': 'off',
+    'no-unused-vars': 'warn',
   },
   settings: {
     'import/parsers': {

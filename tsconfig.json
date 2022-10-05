@@ -5,6 +5,7 @@
     "module": "commonjs",
     "moduleResolution": "node",
     "noEmitOnError": true,
+    "esModuleInterop": true,
     "target": "es5",
     "declaration": true,
     "removeComments": false,

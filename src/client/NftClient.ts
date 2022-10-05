@@ -1,15 +1,17 @@
 import { JsonRpcProvider, MoveCallTransaction } from '@mysten/sui.js';
 import { strToByteArray } from '../utils';
 import {
+  BuildBurnCollectionParams,
+  BuildNftCollectionParams,
   BuildNftParams,
+  BuildPrivateNftCollectionParams,
+  FetchFnParser,
+  GetCollectionsParams,
   GetNftsParams,
   Nft,
-  NftRpcResponse,
-  GetCollectionsParams,
   NftCollection,
   NftCollectionRpcResponse,
-  BuildNftCollectionParams,
-  BuildPrivateNftCollectionParams,
+  NftRpcResponse,
 } from './types';
 import { isObjectExists } from './utils';
 
@@ -25,29 +27,36 @@ export class NftClient {
     this.provider = _provider;
   }
 
-  getCollectionsById = async (params: GetCollectionsParams): Promise<NftCollection[]> => {
-    const objects = await this.provider.getObjectBatch(params.objectIds);
+  private fetchAndParseObjects = async <T>(
+    ids: string[], parser: FetchFnParser<T>): Promise<T[]> => {
+    const objects = await this.provider.getObjectBatch(ids);
 
     const collections = objects
       .filter(isObjectExists)
-      .map((_) => {
-        if (typeof _.details === 'object' && 'data' in _.details && 'fields' in _.details.data && _.details.data.type.match(NFT_COLLECTION_REGEX)) {
-          const data = _.details.data.fields as NftCollectionRpcResponse;
-          return {
-            name: data.name,
-            symbol: data.symbol,
-            currentSupply: data.current_supply,
-            totalSupply: data.total_supply,
-            initialPrice: data.initial_price,
-            receiver: data.receiver,
-            type: _.details.data.type,
-            id: data.id,
-          };
-        }
-        return undefined;
-      });
+      .map((obj) => parser(obj))
+      .filter((_): _ is T => !!_);
 
-    return collections.filter((_): _ is NftCollection => !!_);
+    return collections;
+  }
+
+  getCollectionsById = async (params: GetCollectionsParams): Promise<NftCollection[]> => {
+    const parser: FetchFnParser<NftCollection> = (_) => {
+      if (typeof _.details === 'object' && 'data' in _.details && 'fields' in _.details.data && _.details.data.type.match(NFT_COLLECTION_REGEX)) {
+        const data = _.details.data.fields as NftCollectionRpcResponse;
+        return {
+          name: data.name,
+          symbol: data.symbol,
+          currentSupply: data.current_supply,
+          totalSupply: data.total_supply,
+          initialPrice: data.initial_price,
+          receiver: data.receiver,
+          type: _.details.data.type,
+          id: data.id,
+        };
+      }
+      return undefined;
+    };
+    return this.fetchAndParseObjects(params.objectIds, parser);
   }
 
   getCollectionsForAddress = async (address: string) => {
@@ -60,45 +69,40 @@ export class NftClient {
   }
 
   getNftsById = async (params: GetNftsParams) => {
-    const objects = await this.provider.getObjectBatch(params.objectIds);
+    const parser: FetchFnParser<Nft> = (_) => {
+      if (typeof _.details === 'object' && 'data' in _.details && 'fields' in _.details.data && _.details.data.type.match(NFT_REGEX)) {
+        const data = _.details.data.fields as NftRpcResponse;
 
-    const nfts = objects
-      .filter(isObjectExists)
-      .map((_) => {
-        if (typeof _.details === 'object' && 'data' in _.details && 'fields' in _.details.data && _.details.data.type.match(NFT_REGEX)) {
-          const data = _.details.data.fields as NftRpcResponse;
+        const { owner } = _.details;
+        let ownerAddress = '';
 
-          const { owner } = _.details;
-          let ownerAddress = '';
-
-          if (typeof owner === 'object') {
-            if ('AddressOwner' in owner) {
-              ownerAddress = owner.AddressOwner;
-            }
-            if ('ObjectOwner' in owner) {
-              ownerAddress = owner.ObjectOwner;
-            }
-            if ('SingleOwner' in owner) {
-              ownerAddress = owner.SingleOwner;
-            }
+        if (typeof owner === 'object') {
+          if ('AddressOwner' in owner) {
+            ownerAddress = owner.AddressOwner;
           }
-          return {
-            name: data.metadata.fields.name,
-            collectionId: data.collection_id,
-            attributes: data.metadata.fields.attributes.fields.keys.reduce((acc, key, index) => {
-              acc[key] = data.metadata.fields.attributes.fields.values[index];
-              return acc;
-            }, {} as { [c: string]: string }),
-            url: data.metadata.fields.url,
-            owner,
-            ownerAddress,
-            type: _.details.data.type,
-          };
+          if ('ObjectOwner' in owner) {
+            ownerAddress = owner.ObjectOwner;
+          }
+          if ('SingleOwner' in owner) {
+            ownerAddress = owner.SingleOwner;
+          }
         }
-        return undefined;
-      }).filter((_): _ is Nft => !!_);
-
-    return nfts;
+        return {
+          name: data.metadata.fields.name,
+          collectionId: data.collection_id,
+          attributes: data.metadata.fields.attributes.fields.keys.reduce((acc, key, index) => {
+            acc[key] = data.metadata.fields.attributes.fields.values[index];
+            return acc;
+          }, {} as { [c: string]: string }),
+          url: data.metadata.fields.url,
+          owner,
+          ownerAddress,
+          type: _.details.data.type,
+        };
+      }
+      return undefined;
+    };
+    return this.fetchAndParseObjects(params.objectIds, parser);
   }
 
   getNftsForAddress = async (address: string) => {
@@ -110,7 +114,7 @@ export class NftClient {
     return this.getNftsById({ objectIds });
   }
 
-  buildSharedCreateCollectionTransaction =
+  buildCreateSharedCollectionTransaction =
     (params: BuildNftCollectionParams): MoveCallTransaction => ({
       packageObjectId: params.packageObjectId,
       module: 'std_collection',
@@ -178,4 +182,15 @@ export class NftClient {
       gasBudget: 2000,
     };
   }
+
+  buildBurnCollectionTransaction = (params: BuildBurnCollectionParams): MoveCallTransaction => ({
+    packageObjectId: params.packageObjectId,
+    module: 'std_nft',
+    function: 'mint_and_transfer',
+    typeArguments: [],
+    arguments: [
+      params.collectionId,
+    ],
+    gasBudget: 2000,
+  })
 }
