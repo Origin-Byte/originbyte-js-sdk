@@ -34,6 +34,7 @@ export const ArtNftParser: SuiObjectParser<ArtNftRpcResponse, ArtNft> = {
         owner,
         ownerAddress,
         type: suiData.data.dataType,
+        id: data.id.id,
         rawResponse: _,
       };
     }

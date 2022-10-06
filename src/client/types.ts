@@ -55,6 +55,7 @@ export interface ArtNft {
   ownerAddress: string
   owner: ObjectOwner
   type: string
+  id: string
   rawResponse: GetObjectDataResponse
 }
 
