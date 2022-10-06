@@ -67,7 +67,6 @@ export class NftClient {
     const collections = await this.getCollectionsById({ objectIds: collectionIds });
     const collectionById = toMap(collections, (_) => _.id);
 
-    console.log('collections', collections);
     return nfts.map((nft) => {
       const collection = collectionById.get(nft.collectionId);
       return {
