@@ -1,6 +1,6 @@
 {
   "name": "@originbyte/js-sdk",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "keywords": [
     "originbyte",
     "sdk",
@@ -47,7 +47,7 @@
   },
   "dependencies": {
     "@mysten/sui.js": "^0.11.0",
-    "@originbyte/js-sdk": "^0.0.4",
+    "@originbyte/js-sdk": "^0.2.0",
     "bip39-light": "^1.0.7"
   }
 }

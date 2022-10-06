@@ -1,5 +1,7 @@
 /* eslint-disable camelcase */
-import { GetObjectDataResponse, ObjectOwner } from '@mysten/sui.js';
+import {
+  GetObjectDataResponse, ObjectOwner, SuiObject,
+} from '@mysten/sui.js';
 
 export interface NftCollectionRpcResponse {
   name: string
@@ -9,10 +11,10 @@ export interface NftCollectionRpcResponse {
   total_supply: number
   current_supply: number
   has_public_transfer: boolean
-  id: string
+  id: { id: string }
 }
 
-export interface NftRpcResponse {
+export interface ArtNftRpcResponse {
   type: string
   // eslint-disable-next-line camelcase
   collection_id: string
@@ -42,9 +44,10 @@ export interface NftCollection {
   receiver: string
   type: string
   id: string
+  rawResponse: GetObjectDataResponse
 }
 
-export interface Nft {
+export interface ArtNft {
   name: string;
   attributes: { [c: string]: string };
   collectionId: string;
@@ -52,6 +55,12 @@ export interface Nft {
   ownerAddress: string
   owner: ObjectOwner
   type: string
+  rawResponse: GetObjectDataResponse
+}
+
+export interface ArtNftWithCollection {
+  data: ArtNft
+  collection: NftCollection
 }
 
 export interface WithIds {
@@ -77,7 +86,7 @@ export interface BuildNftCollectionParams {
 
 export interface BuildPrivateNftCollectionParams extends BuildNftCollectionParams {
   recepient: string
- }
+}
 
 export interface BuildNftParams {
   packageObjectId: string
@@ -94,4 +103,13 @@ export interface BuildBurnCollectionParams {
   packageObjectId: string
 }
 
-export type FetchFnParser<T> = (_: GetObjectDataResponse) => T | undefined
+export type FetchFnParser<RpcResponse, DataModel> = (
+  typedData: RpcResponse,
+  suiObject: SuiObject,
+  rpcResponse: GetObjectDataResponse
+) => DataModel | undefined
+
+export interface SuiObjectParser<RpcResponse, DataModel> {
+  parser: FetchFnParser<RpcResponse, DataModel>
+  regex: RegExp
+}

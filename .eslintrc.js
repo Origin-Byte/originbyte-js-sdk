@@ -21,6 +21,8 @@ module.exports = {
     'import/no-default-export': 'error',
     'import/extensions': 'off',
     'no-unused-vars': 'warn',
+    'arrow-body-style': 'off',
+    'max-len': ['error', { code: 140 }],
   },
   settings: {
     'import/parsers': {

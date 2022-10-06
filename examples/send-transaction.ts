@@ -16,7 +16,7 @@ const createCollection = async () => {
   const client = new NftClient(provider);
   console.log('Keypair public address', keypair.getPublicKey().toSuiAddress());
 
-  const createSharedCollectionTransaction = client.buildSharedCreateCollectionTransaction({
+  const createSharedCollectionTransaction = client.buildCreateSharedCollectionTransaction({
     name: 'Test',
     symbol: 'TEST',
     initialPrice: 100,

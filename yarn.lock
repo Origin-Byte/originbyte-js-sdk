@@ -828,6 +828,15 @@
     "@originbyte/js-sdk" "^0.0.3"
     "@types/bn.js" "^5.1.1"
 
+"@originbyte/js-sdk@^0.2.0":
+  version "0.2.0"
+  resolved "https://registry.yarnpkg.com/@originbyte/js-sdk/-/js-sdk-0.2.0.tgz#c093890addfd81c04d7d2e30cb2a9c0e5a937b6b"
+  integrity sha512-xbSKKgpGpcbu1IxxN75VSCeDydwlB192+E/erdbH//T+p5MO3/ypoH3DH8TaNf9tn21hp9MVk/u5z2gCHeJLqA==
+  dependencies:
+    "@mysten/sui.js" "^0.11.0"
+    "@originbyte/js-sdk" "^0.0.4"
+    bip39-light "^1.0.7"
+
 "@pkgr/utils@^2.3.1":
   version "2.3.1"
   resolved "https://registry.yarnpkg.com/@pkgr/utils/-/utils-2.3.1.tgz#0a9b06ffddee364d6642b3cd562ca76f55b34a03"
