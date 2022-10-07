@@ -2,9 +2,13 @@ import { JsonRpcProvider } from '@mysten/sui.js';
 import { toMap } from '../utils';
 import { ArtNftParser, CollectionParser } from './parsers';
 import {
-  buildBurnCollectionTransaction, buildCreateSharedCollectionTransaction,
+  buildBurnCollectionTransaction,
+  buildCreateSharedCollectionTransaction,
   buildMintNftTransaction,
-  buildPrivatedCreateCollectionTransaction,
+  buildCreatePrivateCollectionTransaction,
+  buildCreateFixedPriceSlingshotTransaction,
+  buildMintToLaunchpadTransaction,
+  buildBuyNftCertiicateTransaction,
 } from './txBuilders';
 import {
   ArtNftWithCollection,
@@ -83,9 +87,15 @@ export class NftClient {
 
   buildCreateSharedCollectionTransaction = buildCreateSharedCollectionTransaction
 
-  buildPrivatedCreateCollectionTransaction = buildPrivatedCreateCollectionTransaction
+  buildCreatePrivateCollectionTransaction = buildCreatePrivateCollectionTransaction
 
   buildMintNftTransaction = buildMintNftTransaction
 
   buildBurnCollectionTransaction = buildBurnCollectionTransaction
+
+  buildCreateFixedPriceSlingshotTransaction = buildCreateFixedPriceSlingshotTransaction
+
+  buildMintToLaunchpadTransaction = buildMintToLaunchpadTransaction
+
+  buildBuyNftCertiicateTransaction = buildBuyNftCertiicateTransaction
 }

@@ -104,6 +104,39 @@ export interface BuildBurnCollectionParams {
   packageObjectId: string
 }
 
+export interface BuildFixedPriceSlingshotParams {
+  collectionId: string
+  packageObjectId: string
+  admin: string,
+  receiver: string,
+  price: number,
+}
+
+export interface BuildBuyNftCertificateParams {
+  coin: string
+  launchpadId: string
+  packageObjectId: string
+}
+
+export interface BuildClaimNftParams {
+  nft: string
+  launchpadId: string
+  certificate: string
+  recepient: string
+  packageObjectId: string
+}
+
+export interface BuildMintToLaunchpadParams {
+  name: string
+  url: string
+  isMutable: boolean
+  attributes: { [c: string]: string };
+  collectionId: string
+  packageObjectId: string
+  launchpadId: string
+  coin: string
+}
+
 export type FetchFnParser<RpcResponse, DataModel> = (
   typedData: RpcResponse,
   suiObject: SuiObject,

@@ -1,21 +1,8 @@
-import { Ed25519Keypair, JsonRpcProvider, RawSigner } from '@mysten/sui.js';
-import { NftClient } from '@originbyte/js-sdk';
-import * as bip39 from 'bip39-light';
+import {
+  client, keypair, PACKAGE_OBJECT_ID, signer,
+} from './common';
 
-// PLEASE DON't USE THIS CODE IN PRODUCTION
-const mnemonic = 'finger wonder priority theme vibrant indoor cause man rib urban wine betray';
-
-const PACKAGE_OBJECT_ID = '0x5927d212da88a4124681751ee9fb803781e72724'; // Change to your deployed contract
 const createCollection = async () => {
-  const seed = bip39.mnemonicToSeed(mnemonic);
-
-  const keypair = Ed25519Keypair.fromSeed(new Uint8Array(seed.toJSON().data.slice(0, 32)));
-
-  const provider = new JsonRpcProvider('https://gateway.devnet.sui.io');
-  const signer = new RawSigner(keypair, provider);
-  const client = new NftClient(provider);
-  console.log('Keypair public address', keypair.getPublicKey().toSuiAddress());
-
   const createSharedCollectionTransaction = client.buildCreateSharedCollectionTransaction({
     name: 'Test',
     symbol: 'TEST',
