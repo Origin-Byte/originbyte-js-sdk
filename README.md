@@ -27,7 +27,6 @@ However, under the hood the `NftClient` data fetcher use idea of parsers approac
 The parser, by itself, is an object which implements interface: 
 
 ```typescript
-export type FetchFnParser<RpcResponse, DataModel> = 
 
 export interface SuiObjectParser<RpcResponse, DataModel> {
   parser: (
