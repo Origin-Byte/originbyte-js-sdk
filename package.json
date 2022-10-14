@@ -1,6 +1,6 @@
 {
   "name": "@originbyte/js-sdk",
-  "version": "0.2.5",
+  "version": "0.2.6",
   "keywords": [
     "originbyte",
     "sdk",
@@ -19,7 +19,8 @@
   "typings": "dist/index.d.ts",
   "license": "Apache",
   "files": [
-    "dist/"
+    "dist/",
+    "src/"
   ],
   "devDependencies": {
     "@types/bn.js": "^5.1.1",
