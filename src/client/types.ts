@@ -5,13 +5,79 @@ import {
 
 export interface NftCollectionRpcResponse {
   name: string
+  description: string
   symbol: string
   receiver: string
-  initial_price: number
-  total_supply: number
-  current_supply: number
-  has_public_transfer: boolean
-  id: { id: string }
+  royalty_fee_bps: number
+  mint_authority: string
+  creators: string
+  // cap: {
+  //   type: string
+  //   fields: {
+  //     supply: {
+  //       type: string
+  //       fields: {
+  //         cap: number
+  //         current: number
+  //         frozen: boolean
+  //       }
+  //     }
+  //   }
+  // }
+  tags: {
+    type: string
+    fields: {
+      enumerations: {
+        type: string
+        fields: {
+          contents: {
+            type: string
+            fields: {
+              key: 0
+              value: string
+            }
+          }[]
+        }
+      }
+    }
+  }
+  metadata: {
+    type: string
+    fields: {
+      id: {
+        id: string
+      }
+      json: string
+    }
+  }
+}
+
+export interface MintAuthorityRPCResponse {
+  collection_id: string
+  supply_policy: {
+    type: string
+    fields: {
+      is_blind: boolean,
+      supply: {
+        type: string
+        fields: {
+          current: number,
+          frozen: boolean,
+          max: number
+        }
+      }
+    }
+  }
+}
+
+export interface MintAuthority {
+  id: string
+  collectionId: string
+  isBlind: boolean
+  currentSupply: number
+  maxSupply: number
+  frozen: boolean
+  rawResponse: GetObjectDataResponse
 }
 
 export interface ArtNftRpcResponse {
@@ -37,13 +103,16 @@ export interface ArtNftRpcResponse {
 
 export interface NftCollection {
   name: string
+  description: string
+  creators: string
   symbol: string
-  currentSupply: number
-  totalSupply: number
-  initialPrice: number
+  // currentSupply: number
+  // totalSupply: number
   receiver: string
+  mintAuthorityId: string
   type: string
   id: string
+  tags: string[]
   rawResponse: GetObjectDataResponse
 }
 
@@ -72,36 +141,10 @@ export interface GetNftsParams extends WithIds {
 }
 
 export interface GetCollectionsParams extends WithIds {
+  resolveAuthorities?: boolean
 }
 
-export interface BuildNftCollectionParams {
-  name: string
-  symbol: string
-  maxSupply: number
-  initialPrice: number
-  receiver: string
-  tags?: string[]
-  packageObjectId: string
-  royalty?: number
-}
-
-export interface BuildPrivateNftCollectionParams extends BuildNftCollectionParams {
-  recepient: string
-}
-
-export interface BuildNftParams {
-  packageObjectId: string
-  name: string
-  uri: string
-  attributes: { [c: string]: string }
-  collectionId: string
-  recepient: string
-  coin: string
-}
-
-export interface BuildBurnCollectionParams {
-  collectionId: string
-  packageObjectId: string
+export interface GetAuthoritiesParams extends WithIds {
 }
 
 export interface BuildFixedPriceSlingshotParams {
@@ -126,15 +169,16 @@ export interface BuildClaimNftParams {
   packageObjectId: string
 }
 
-export interface BuildMintToLaunchpadParams {
+export interface BuildMintNftParams {
   name: string
+  description: string
   url: string
-  isMutable: boolean
   attributes: { [c: string]: string };
-  collectionId: string
+  mintAuthority: string
   packageObjectId: string
   launchpadId: string
-  coin: string
+  index: number
+  saleIndex?: number
 }
 
 export type FetchFnParser<RpcResponse, DataModel> = (

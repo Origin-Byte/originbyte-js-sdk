@@ -1,19 +1,19 @@
 import { JsonRpcProvider } from '@mysten/sui.js';
+import { buildMintNftTx } from './txBuilders';
 import { toMap } from '../utils';
-import { ArtNftParser, CollectionParser } from './parsers';
 import {
-  buildBurnCollectionTransaction,
-  buildCreateSharedCollectionTransaction,
-  buildMintNftTransaction,
-  buildCreatePrivateCollectionTransaction,
-  buildCreateFixedPriceSlingshotTransaction,
-  buildMintToLaunchpadTransaction,
-  buildBuyNftCertiicateTransaction,
-} from './txBuilders';
+  ArtNftParser,
+  CollectionParser,
+  MintAuthorityParser,
+} from './parsers';
 import {
+  GetAuthoritiesParams,
   ArtNftWithCollection,
   GetCollectionsParams,
-  GetNftsParams, SuiObjectParser,
+  GetNftsParams,
+  SuiObjectParser,
+  MintAuthority,
+  NftCollection,
 } from './types';
 import { isObjectExists } from './utils';
 
@@ -34,7 +34,7 @@ export class NftClient {
         .map((_) => _.objectId);
     }
 
-  private fetchAndParseObjectsById = async <RpcResponse, DataModel>(
+  fetchAndParseObjectsById = async <RpcResponse, DataModel>(
     ids: string[], parser: SuiObjectParser<RpcResponse, DataModel>): Promise<DataModel[]> => {
     const objects = await this.provider.getObjectBatch(ids);
 
@@ -51,24 +51,51 @@ export class NftClient {
     return parsedObjects;
   }
 
-  private fetchAndParseObjectsForAddress =
+  fetchAndParseObjectsForAddress =
     async <RpcResponse, DataModel>(address: string, parser: SuiObjectParser<RpcResponse, DataModel>) => {
       const objectIds = await this.fetchObjectIdsForAddress(address, parser);
       return this.fetchAndParseObjectsById(objectIds, parser);
     }
 
+  getMintAuthoritiesById = async (params: GetAuthoritiesParams) => {
+    return this.fetchAndParseObjectsById(params.objectIds, MintAuthorityParser);
+  }
+
+  private mergeAuthoritiesWithCollections = (collections: NftCollection[], authorities: MintAuthority[]) => {
+    const collectionsMap = toMap(collections, (_) => _.id);
+    return authorities.map((mintAuthority) => ({
+      ...collectionsMap.get(mintAuthority.collectionId),
+      mintAuthority,
+    }));
+  }
+
   getCollectionsById = async (params: GetCollectionsParams) => {
-    return this.fetchAndParseObjectsById(params.objectIds, CollectionParser);
+    const collections = await this.fetchAndParseObjectsById(params.objectIds, CollectionParser);
+    if (!params.resolveAuthorities) {
+      return collections;
+    }
+    const authoritiesId = collections.map((_) => _.mintAuthorityId);
+    const authorities = await this.getMintAuthoritiesById({ objectIds: authoritiesId });
+    return this.mergeAuthoritiesWithCollections(collections, authorities);
   }
 
   getCollectionsForAddress = async (address: string) => {
-    return this.fetchAndParseObjectsForAddress(address, CollectionParser);
+    // Since collectiona are shared object, we have to fetch MintAuthorities first
+    const authoritiesIds = await this.fetchObjectIdsForAddress(address, MintAuthorityParser);
+    if (!authoritiesIds.length) {
+      return [];
+    }
+    const authorities = await this.getMintAuthoritiesById({ objectIds: authoritiesIds });
+    const collectionIds = authorities.map((_) => _.collectionId);
+    const collections = await this.getCollectionsById({ objectIds: collectionIds, resolveAuthorities: false });
+
+    return this.mergeAuthoritiesWithCollections(collections, authorities);
   }
 
   getNftsById = async (params: GetNftsParams): Promise<ArtNftWithCollection[]> => {
     const nfts = await this.fetchAndParseObjectsById(params.objectIds, ArtNftParser);
     const collectionIds = nfts.map((_) => _.collectionId);
-    const collections = await this.getCollectionsById({ objectIds: collectionIds });
+    const collections = await this.getCollectionsById({ objectIds: collectionIds, resolveAuthorities: true });
     const collectionById = toMap(collections, (_) => _.id);
 
     return nfts.map((nft) => {
@@ -85,17 +112,5 @@ export class NftClient {
     return this.getNftsById({ objectIds });
   }
 
-  buildCreateSharedCollectionTransaction = buildCreateSharedCollectionTransaction
-
-  buildCreatePrivateCollectionTransaction = buildCreatePrivateCollectionTransaction
-
-  buildMintNftTransaction = buildMintNftTransaction
-
-  buildBurnCollectionTransaction = buildBurnCollectionTransaction
-
-  buildCreateFixedPriceSlingshotTransaction = buildCreateFixedPriceSlingshotTransaction
-
-  buildMintToLaunchpadTransaction = buildMintToLaunchpadTransaction
-
-  buildBuyNftCertiicateTransaction = buildBuyNftCertiicateTransaction
+  buildMintNftTx = buildMintNftTx
 }

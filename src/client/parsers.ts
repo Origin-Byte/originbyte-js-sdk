@@ -4,6 +4,8 @@ import {
   NftCollectionRpcResponse,
   ArtNftRpcResponse,
   SuiObjectParser,
+  MintAuthority,
+  MintAuthorityRPCResponse,
 } from './types';
 
 export const ArtNftParser: SuiObjectParser<ArtNftRpcResponse, ArtNft> = {
@@ -46,15 +48,32 @@ export const ArtNftParser: SuiObjectParser<ArtNftRpcResponse, ArtNft> = {
 export const CollectionParser: SuiObjectParser<NftCollectionRpcResponse, NftCollection> = {
   parser: (data, suiData, _) => ({
     name: data.name,
+    description: data.description,
+    creators: data.creators,
     symbol: data.symbol,
-    currentSupply: data.current_supply,
-    totalSupply: data.total_supply,
-    initialPrice: data.initial_price,
+    // currentSupply: data.cap.fields.supply.fields.current,
+    // totalSupply: data.cap.fields.supply.fields.cap,
     receiver: data.receiver,
     type: suiData.data.dataType,
-    id: data.id.id,
+    id: suiData.reference.objectId,
+    tags: data.tags.fields.enumerations.fields.contents.map((__) => __.fields.value),
+    mintAuthorityId: data.mint_authority,
     rawResponse: _,
   }),
   // eslint-disable-next-line max-len
-  regex: /0x[a-f0-9]{40}::collection::Collection<0x[a-f0-9]{40}::std_collection::StdCollection, 0x[a-f0-9]{40}::std_collection::CollectionMeta>/,
+  regex: /0x[a-f0-9]{40}::collection::Collection<0x[a-f0-9]{40}::[a-zA-Z]{1,}::[a-zA-Z]{1,}, 0x[a-f0-9]{40}::std_collection::StdMeta>/,
+};
+
+export const MintAuthorityParser: SuiObjectParser<MintAuthorityRPCResponse, MintAuthority> = {
+  parser: (data, suiData, _) => ({
+    id: suiData.reference.objectId,
+    collectionId: data.collection_id,
+    isBlind: data.supply_policy.fields.is_blind,
+    currentSupply: data.supply_policy.fields.supply.fields.current,
+    maxSupply: data.supply_policy.fields.supply.fields.max,
+    frozen: data.supply_policy.fields.supply.fields.frozen,
+    rawResponse: _,
+  }),
+  // eslint-disable-next-line max-len
+  regex: /0x[a-f0-9]{40}::collection::MintAuthority<0x[a-f0-9]{40}::[a-zA-Z]{1,}::[a-zA-Z]{1,}>/,
 };

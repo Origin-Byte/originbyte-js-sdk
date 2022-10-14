@@ -21,7 +21,7 @@ npm add  @originbyte/js-sdk
 
 ## Usage
 
-The main point of the SDK is `NftClient` class. It provides all necessary methods to fetch the data from the blockchain and build transactions to interact with the contract.
+The main point of the SDK is `NftClient` class. It provides all necessary methods to fetch the data from the blockchain and build transactions to interact with the contract. 
 However, under the hood the `NftClient` data fetcher use idea of parsers approach: you can create your own parser and fetch any data from the blockchain - by user wallet address or directly by Object ID.
 
 The parser, by itself, is an object which implements interface: 
@@ -60,13 +60,19 @@ Example of the parser:
 
 ```
 
+Beside of that, the SDK provide predefined parsers and methods to interact with Origin Byte's NFT protocol. Next methods are available:
 
-Beside of that, the SDK provide predefined parsers and methods to interact with Origin Byte's NFT protocol (take a look at [Examples](#examples) section).
+- getCollectionsById
+- getCollectionsForAddress
+- getNftsById
+- getNftsForAddress
+
+Take a look at [Examples](#examples) for more details.
 
 
 ### Examples
 
-#### Fetch Onchain Data
+#### Fetch Onchain Data: Collection and NFTs
 
 ```typescript
 import { NftClient } from '@originbyte/js-sdk';
@@ -79,6 +85,12 @@ const getNfts = async () => {
 };
 
 getNfts();
+```
+
+#### Mint new NFT
+
+```typescript
+  // TBD
 ```
 
 More examples could be found [there](https://github.com/Origin-Byte/originbyte-js-sdk/tree/main/examples).

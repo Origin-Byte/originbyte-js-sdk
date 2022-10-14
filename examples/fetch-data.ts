@@ -1,8 +1,8 @@
-import { client } from './common';
+import { client, COLLECTION_ID } from './common';
 
 const getNfts = async () => {
-  const nfts = await client.getNftsForAddress('0xd2302a4840cf44bef12392e5225848511190c018');
-  console.log('nfts', nfts);
+  const colection = await client.getCollectionsForAddress('0x2d2e3b39db8678a20b9458804eefd8b2db7fb03f');
+  console.log('colection', colection);
 };
 
 getNfts();
