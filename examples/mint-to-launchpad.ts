@@ -5,6 +5,7 @@ import {
 const mintToLaunchpad = async () => {
   const mintNftTransaction = client.buildMintNftTx({
     mintAuthority: AUTHORITY_ID,
+    moduleName: 'suimarines',
     name: 'My First NFT',
     description: 'My First NFT',
     packageObjectId: PACKAGE_OBJECT_ID,
@@ -13,7 +14,7 @@ const mintToLaunchpad = async () => {
       Rarity: 'Ultra-rare',
       Author: 'OriginByte',
     },
-    launchpadId: LAUNCHPAD_ID,
+    marketId: LAUNCHPAD_ID,
   });
   console.log('signer', keypair.getPublicKey().toSuiAddress());
   const mintResult = await signer.executeMoveCall(mintNftTransaction);

@@ -18,7 +18,7 @@ export const buildMintNftTx = (params: BuildMintNftParams): MoveCallTransaction 
 
   return {
     packageObjectId: params.packageObjectId,
-    module: 'suimarines',
+    module: params.moduleName,
     function: 'mint_nft',
     typeArguments: [],
     arguments: [
@@ -29,7 +29,7 @@ export const buildMintNftTx = (params: BuildMintNftParams): MoveCallTransaction 
       values.map((_) => strToByteArray(_)),
       params.mintAuthority,
       params.tierIndex ?? 0,
-      params.launchpadId,
+      params.marketId,
     ],
     gasBudget: 5000,
   };
@@ -44,7 +44,7 @@ export const buildBuyNftCertificate = (params: BuildBuyNftCertificateParams): Mo
   ],
   arguments: [
     params.wallet,
-    params.launchpadId,
+    params.marketId,
     params.tierIndex ?? 0,
   ],
   gasBudget: 5000,
@@ -58,21 +58,22 @@ export const buildEnableSales = (params: BuildEnableSalesParams): MoveCallTransa
     params.collectionType,
   ],
   arguments: [
-    params.launchpadId,
+    params.marketId,
   ],
   gasBudget: 5000,
 });
 
 export const buildClaimNftCertificate = (params: BuildClaimNftCertificateParams): MoveCallTransaction => ({
   packageObjectId: params.packageObjectId,
-  module: 'fixed_price',
+  module: 'slingshot',
   function: 'claim_nft_embedded',
   typeArguments: [
     params.collectionType,
     `${params.packageObjectId}::${params.nftType}`,
+    `${params.packageObjectId}::fixed_price::FixedPriceMarket`,
   ],
   arguments: [
-    params.launchpadId,
+    params.marketId,
     params.nftId,
     params.certificateId,
     params.recepient,

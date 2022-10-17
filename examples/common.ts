@@ -7,10 +7,10 @@ import { NftClient } from '../src';
 
 export const mnemonic = 'muffin tuition fit fish average true slender tower salmon artist song biology';
 
-export const PACKAGE_OBJECT_ID = '0x6b293ee296cbbfa75248fdfa883150141048817d'; // Change to your deployed contract
-export const COLLECTION_ID = '0x46eeb7b0f62a6b293385f0179672804e13d4b1fc'; // Change to your deployed contract
-export const LAUNCHPAD_ID = '0x79abefc953a9b045471f7b609ab3b8cb36f375ca'; // Change to your deployed contract
-export const AUTHORITY_ID = '0xd7f0327432ecc75a37b684acd1a0bc3cd99e2c83'; // Change to your deployed contract
+export const PACKAGE_OBJECT_ID = '0xfb83dcc0f1ee1e5fd120afafbcb299fa970b6f65'; // Change to your deployed contract
+export const COLLECTION_ID = '0x6970f0cbafc83ea475853855e85ff4d58f7b4f0c'; // Change to your deployed contract
+export const LAUNCHPAD_ID = '0xc3ffd86a66fc945df9be6c48ba13b7f0cb278e45'; // Change to your deployed contract
+export const AUTHORITY_ID = '0xccf31da9c80d1d441f8836205185d330ac444e4b'; // Change to your deployed contract
 
 export function normalizeMnemonics(mnemonics: string): string {
   return mnemonics

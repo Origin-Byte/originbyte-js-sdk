@@ -3,6 +3,16 @@ import {
   GetObjectDataResponse, ObjectOwner, SuiObject,
 } from '@mysten/sui.js';
 
+export enum NftType {
+  UNIQUE = 'unique_nft::Unique'
+}
+
+export interface ProtocolData {
+  packageObjectId: string
+  packageModule: string
+  packageModuleClassName: string
+}
+
 export interface NftCollectionRpcResponse {
   name: string
   description: string
@@ -62,6 +72,7 @@ export interface FixedPriceMarketRpcResponse {
   receiver: string
   is_embedded: boolean
   live: boolean
+  collection_id: string
   sales: {
     type: string
     fields: {
@@ -85,10 +96,11 @@ export interface FixedPriceMarketRpcResponse {
   }[]
 }
 
-export interface FixedPriceMarket {
+export interface FixedPriceMarket extends ProtocolData {
   admin: string
   receiver: string
   isEmbedded: boolean
+  collectionId: string
   live: boolean
   id: string
   rawResponse: GetObjectDataResponse
@@ -103,12 +115,15 @@ export interface FixedPriceMarket {
 
 export interface NftCertificateRpcResponse {
   nft_id: string
+  launchpad_id: string
 }
 
 export interface NftCertificate {
   nftId: string
   owner: string
   id: string
+  packageObjectId: string
+  marketId: string
   rawResponse: GetObjectDataResponse
 }
 
@@ -148,7 +163,7 @@ export interface ArtNftRpcResponse {
   }
 }
 
-export interface NftCollection {
+export interface NftCollection extends ProtocolData {
   name: string
   description: string
   creators: string
@@ -163,7 +178,7 @@ export interface NftCollection {
   rawResponse: GetObjectDataResponse
 }
 
-export interface ArtNft {
+export interface ArtNft extends ProtocolData {
   name: string;
   attributes: { [c: string]: string };
   collectionId: string;
@@ -173,6 +188,8 @@ export interface ArtNft {
   type: string
   id: string
   rawResponse: GetObjectDataResponse
+
+  nftType: NftType,
 }
 
 export interface ArtNftWithCollection {
@@ -211,7 +228,7 @@ export interface BuildFixedPriceSlingshotParams {
 
 export interface BuildClaimNftParams {
   nft: string
-  launchpadId: string
+  marketId: string
   certificate: string
   recepient: string
   packageObjectId: string
@@ -220,17 +237,18 @@ export interface BuildClaimNftParams {
 export interface BuildMintNftParams {
   name: string
   description: string
+  moduleName: string
   url: string
   attributes: { [c: string]: string };
   mintAuthority: string
   packageObjectId: string
-  launchpadId: string
+  marketId: string
   tierIndex?: number
 }
 
 export interface BuildBuyNftCertificateParams {
   wallet: string // Coin to pay
-  launchpadId: string
+  marketId: string
   tierIndex?: number
   packageObjectId: string
   collectionType: string
@@ -238,15 +256,12 @@ export interface BuildBuyNftCertificateParams {
 
 export interface BuildEnableSalesParams {
   packageObjectId: string
-  launchpadId: string
+  marketId: string
   collectionType: string
-}
-export enum NftType {
-  UNIQUE = 'unique_nft::Unique'
 }
 
 export interface BuildClaimNftCertificateParams {
-  launchpadId: string,
+  marketId: string,
   nftId: string,
   certificateId: string,
   recepient: string,

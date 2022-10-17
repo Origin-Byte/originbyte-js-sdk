@@ -6,20 +6,27 @@ import {
 const claimCertificate = async () => {
   const address = await signer.getAddress();
 
-  const certificate = await client.getNftCertificatesForAddress(`0x${address}`);
-  if (certificate.length) {
-    const claimCertificateTx = client.buildClaimNftCertificate({
-      collectionType: `${PACKAGE_OBJECT_ID}::suimarines::SUIMARINES`,
-      packageObjectId: PACKAGE_OBJECT_ID,
-      launchpadId: LAUNCHPAD_ID,
-      nftId: certificate[0].nftId,
-      recepient: `0x${address}`,
-      nftType: NftType.UNIQUE,
-      certificateId: certificate[0].id,
-    });
-    console.log('certificate', certificate, claimCertificateTx);
-    const claimCertificateResult = await signer.executeMoveCall(claimCertificateTx);
-    console.log('claimCertificateResult', claimCertificateResult);
+  const certificates = (await client.getNftCertificatesForAddress(`0x${address}`)).filter((_) => _.packageObjectId === PACKAGE_OBJECT_ID);
+  console.log('certificate', certificates);
+  if (certificates.length) {
+    const nftForCert = certificates[0].nftId;
+    const nfts = await client.getNftsById({ objectIds: [nftForCert] });
+    if (nfts.length) {
+      const nft = nfts[0];
+      console.log('nft', nft);
+      const claimCertificateTx = client.buildClaimNftCertificate({
+        collectionType: `${nft.data.packageObjectId}::${nft.data.packageModule}::${nft.data.packageModuleClassName}`,
+        packageObjectId: nft.data.packageObjectId,
+        marketId: certificates[0].marketId,
+        nftId: nft.data.id,
+        recepient: `0x${address}`,
+        nftType: nft.data.nftType,
+        certificateId: certificates[0].id,
+      });
+      console.log('certificate', certificates, claimCertificateTx);
+      const claimCertificateResult = await signer.executeMoveCall(claimCertificateTx);
+      console.log('claimCertificateResult', claimCertificateResult);
+    }
   }
 };
 
