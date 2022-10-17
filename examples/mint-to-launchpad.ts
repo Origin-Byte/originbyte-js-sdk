@@ -14,7 +14,6 @@ const mintToLaunchpad = async () => {
       Author: 'OriginByte',
     },
     launchpadId: LAUNCHPAD_ID,
-    index: 1,
   });
   console.log('signer', keypair.getPublicKey().toSuiAddress());
   const mintResult = await signer.executeMoveCall(mintNftTransaction);

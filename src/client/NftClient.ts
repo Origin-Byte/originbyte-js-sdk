@@ -1,10 +1,18 @@
 import { JsonRpcProvider } from '@mysten/sui.js';
-import { buildMintNftTx } from './txBuilders';
+import {
+  buildBuyNftCertificate,
+  buildMintNftTx,
+  buildEnableSales,
+  buildClaimNftCertificate,
+} from './txBuilders';
 import { toMap } from '../utils';
 import {
   ArtNftParser,
   CollectionParser,
+  FixedPriceMarketParser,
   MintAuthorityParser,
+  NftCertificateParser,
+
 } from './parsers';
 import {
   GetAuthoritiesParams,
@@ -14,6 +22,8 @@ import {
   SuiObjectParser,
   MintAuthority,
   NftCollection,
+  GetNftCertificateParams,
+  GetMarketsParams,
 } from './types';
 import { isObjectExists } from './utils';
 
@@ -69,6 +79,10 @@ export class NftClient {
     }));
   }
 
+  getMarketsByParams = async (params: GetMarketsParams) => {
+    return this.fetchAndParseObjectsById(params.objectIds, FixedPriceMarketParser);
+  }
+
   getCollectionsById = async (params: GetCollectionsParams) => {
     const collections = await this.fetchAndParseObjectsById(params.objectIds, CollectionParser);
     if (!params.resolveAuthorities) {
@@ -112,5 +126,20 @@ export class NftClient {
     return this.getNftsById({ objectIds });
   }
 
+  getNftCertificatesById = async (params: GetNftCertificateParams) => {
+    return this.fetchAndParseObjectsById(params.objectIds, NftCertificateParser);
+  }
+
+  getNftCertificatesForAddress = async (address: string) => {
+    const objectIds = await this.fetchObjectIdsForAddress(address, NftCertificateParser);
+    return this.getNftCertificatesById({ objectIds });
+  }
+
   buildMintNftTx = buildMintNftTx
+
+  buildBuyNftCertificate = buildBuyNftCertificate
+
+  buildEnableSales = buildEnableSales
+
+  buildClaimNftCertificate = buildClaimNftCertificate
 }

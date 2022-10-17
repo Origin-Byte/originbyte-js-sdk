@@ -11,19 +11,6 @@ export interface NftCollectionRpcResponse {
   royalty_fee_bps: number
   mint_authority: string
   creators: string
-  // cap: {
-  //   type: string
-  //   fields: {
-  //     supply: {
-  //       type: string
-  //       fields: {
-  //         cap: number
-  //         current: number
-  //         frozen: boolean
-  //       }
-  //     }
-  //   }
-  // }
   tags: {
     type: string
     fields: {
@@ -70,6 +57,61 @@ export interface MintAuthorityRPCResponse {
   }
 }
 
+export interface FixedPriceMarketRpcResponse {
+  admin: string
+  receiver: string
+  is_embedded: boolean
+  live: boolean
+  sales: {
+    type: string
+    fields: {
+      id: {
+        id: string
+      },
+      market: {
+        type: string
+        fields: {
+          id: {
+            id: string
+          },
+          price: number
+        }
+      },
+      nfts: string[]
+      queue: string
+      tier_index: number
+      whitelisted: boolean
+    }
+  }[]
+}
+
+export interface FixedPriceMarket {
+  admin: string
+  receiver: string
+  isEmbedded: boolean
+  live: boolean
+  id: string
+  rawResponse: GetObjectDataResponse
+  sales: {
+    marketPrice: number
+    nfts: string[]
+    queue: string
+    tierIndex: number
+    whitelisted: boolean
+  }[]
+}
+
+export interface NftCertificateRpcResponse {
+  nft_id: string
+}
+
+export interface NftCertificate {
+  nftId: string
+  owner: string
+  id: string
+  rawResponse: GetObjectDataResponse
+}
+
 export interface MintAuthority {
   id: string
   collectionId: string
@@ -82,21 +124,26 @@ export interface MintAuthority {
 
 export interface ArtNftRpcResponse {
   type: string
+  data_id: string
   // eslint-disable-next-line camelcase
-  collection_id: string
-  id: {
-    id: string
-  }
-  metadata: {
+  data: {
+    type: string
     fields: {
-      name: string
-      url: string
       attributes: {
+        type: string
         fields: {
           keys: string[]
           values: string[]
+
         }
-      }
+      },
+      collection_id: string,
+      description: string,
+      id: {
+        id: string
+      },
+      name: string
+      url: string
     }
   }
 }
@@ -147,18 +194,19 @@ export interface GetCollectionsParams extends WithIds {
 export interface GetAuthoritiesParams extends WithIds {
 }
 
+export interface GetMarketsParams extends WithIds {
+
+}
+export interface GetNftCertificateParams extends WithIds {
+
+}
+
 export interface BuildFixedPriceSlingshotParams {
   collectionId: string
   packageObjectId: string
   admin: string,
   receiver: string,
   price: number,
-}
-
-export interface BuildBuyNftCertificateParams {
-  coin: string
-  launchpadId: string
-  packageObjectId: string
 }
 
 export interface BuildClaimNftParams {
@@ -177,8 +225,34 @@ export interface BuildMintNftParams {
   mintAuthority: string
   packageObjectId: string
   launchpadId: string
-  index: number
-  saleIndex?: number
+  tierIndex?: number
+}
+
+export interface BuildBuyNftCertificateParams {
+  wallet: string // Coin to pay
+  launchpadId: string
+  tierIndex?: number
+  packageObjectId: string
+  collectionType: string
+}
+
+export interface BuildEnableSalesParams {
+  packageObjectId: string
+  launchpadId: string
+  collectionType: string
+}
+export enum NftType {
+  UNIQUE = 'unique_nft::Unique'
+}
+
+export interface BuildClaimNftCertificateParams {
+  launchpadId: string,
+  nftId: string,
+  certificateId: string,
+  recepient: string,
+  packageObjectId: string
+  collectionType: string
+  nftType: NftType
 }
 
 export type FetchFnParser<RpcResponse, DataModel> = (

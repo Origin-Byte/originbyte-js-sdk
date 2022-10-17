@@ -1,6 +1,9 @@
 import { MoveCallTransaction } from '@mysten/sui.js';
 import {
   BuildMintNftParams,
+  BuildBuyNftCertificateParams,
+  BuildEnableSalesParams,
+  BuildClaimNftCertificateParams,
 } from './types';
 import { strToByteArray } from '../utils';
 
@@ -19,16 +22,60 @@ export const buildMintNftTx = (params: BuildMintNftParams): MoveCallTransaction 
     function: 'mint_nft',
     typeArguments: [],
     arguments: [
-      params.index,
       params.name,
       params.description,
       params.url,
       keys.map((_) => strToByteArray(_)),
       values.map((_) => strToByteArray(_)),
       params.mintAuthority,
-      params.saleIndex ?? 0,
+      params.tierIndex ?? 0,
       params.launchpadId,
     ],
     gasBudget: 5000,
   };
 };
+
+export const buildBuyNftCertificate = (params: BuildBuyNftCertificateParams): MoveCallTransaction => ({
+  packageObjectId: params.packageObjectId,
+  module: 'fixed_price',
+  function: 'buy_nft_certificate',
+  typeArguments: [
+    params.collectionType,
+  ],
+  arguments: [
+    params.wallet,
+    params.launchpadId,
+    params.tierIndex ?? 0,
+  ],
+  gasBudget: 5000,
+});
+
+export const buildEnableSales = (params: BuildEnableSalesParams): MoveCallTransaction => ({
+  packageObjectId: params.packageObjectId,
+  module: 'fixed_price',
+  function: 'sale_on',
+  typeArguments: [
+    params.collectionType,
+  ],
+  arguments: [
+    params.launchpadId,
+  ],
+  gasBudget: 5000,
+});
+
+export const buildClaimNftCertificate = (params: BuildClaimNftCertificateParams): MoveCallTransaction => ({
+  packageObjectId: params.packageObjectId,
+  module: 'fixed_price',
+  function: 'claim_nft_embedded',
+  typeArguments: [
+    params.collectionType,
+    `${params.packageObjectId}::${params.nftType}`,
+  ],
+  arguments: [
+    params.launchpadId,
+    params.nftId,
+    params.certificateId,
+    params.recepient,
+  ],
+  gasBudget: 5000,
+});
