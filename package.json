@@ -1,6 +1,6 @@
 {
   "name": "@originbyte/js-sdk",
-  "version": "0.3.2",
+  "version": "0.3.3",
   "keywords": [
     "originbyte",
     "sdk",
@@ -15,6 +15,7 @@
     "format": "prettier --write 'src/**/*.{ts, tsx}'",
     "build": "./scripts/build.sh"
   },
+  "homepage": "https://originbyte.io/",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
   "license": "Apache",
