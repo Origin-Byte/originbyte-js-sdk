@@ -123,7 +123,7 @@ export interface NftCertificate {
   owner: string
   id: string
   packageObjectId: string
-  marketId: string
+  launchpadId: string
   rawResponse: GetObjectDataResponse
 }
 
@@ -228,7 +228,7 @@ export interface BuildFixedPriceSlingshotParams {
 
 export interface BuildClaimNftParams {
   nft: string
-  marketId: string
+  launchpadId: string
   certificate: string
   recepient: string
   packageObjectId: string
@@ -242,13 +242,13 @@ export interface BuildMintNftParams {
   attributes: { [c: string]: string };
   mintAuthority: string
   packageObjectId: string
-  marketId: string
+  launchpadId: string
   tierIndex?: number
 }
 
 export interface BuildBuyNftCertificateParams {
   wallet: string // Coin to pay
-  marketId: string
+  launchpadId: string
   tierIndex?: number
   packageObjectId: string
   collectionType: string
@@ -256,12 +256,12 @@ export interface BuildBuyNftCertificateParams {
 
 export interface BuildEnableSalesParams {
   packageObjectId: string
-  marketId: string
+  launchpadId: string
   collectionType: string
 }
 
 export interface BuildClaimNftCertificateParams {
-  marketId: string,
+  launchpadId: string,
   nftId: string,
   certificateId: string,
   recepient: string,

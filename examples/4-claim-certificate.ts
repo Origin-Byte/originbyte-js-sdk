@@ -1,3 +1,4 @@
+import { NftClient } from '../src';
 import {
   client, PACKAGE_OBJECT_ID, signer,
 } from './common';
@@ -14,10 +15,10 @@ const claimCertificate = async () => {
     if (nfts.length) {
       const nft = nfts[0];
       console.log('nft', nft);
-      const claimCertificateTx = client.buildClaimNftCertificate({
+      const claimCertificateTx = NftClient.buildClaimNftCertificate({
         collectionType: `${nft.data.packageObjectId}::${nft.data.packageModule}::${nft.data.packageModuleClassName}`,
         packageObjectId: nft.data.packageObjectId,
-        marketId: certificates[0].data.marketId,
+        launchpadId: certificates[0].data.launchpadId,
         nftId: nft.data.id,
         recepient: `0x${address}`,
         nftType: nft.data.nftType,

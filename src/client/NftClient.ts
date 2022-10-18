@@ -71,14 +71,6 @@ export class NftClient {
     return this.fetchAndParseObjectsById(params.objectIds, MintAuthorityParser);
   }
 
-  private mergeAuthoritiesWithCollections = (collections: NftCollection[], authorities: MintAuthority[]) => {
-    const collectionsMap = toMap(collections, (_) => _.id);
-    return authorities.map((mintAuthority) => ({
-      ...collectionsMap.get(mintAuthority.collectionId),
-      mintAuthority,
-    }));
-  }
-
   getMarketsByParams = async (params: GetMarketsParams) => {
     const markets = await this.fetchAndParseObjectsById(params.objectIds, FixedPriceMarketParser);
     const collectionIds = uniq(markets.map((_) => _.collectionId));
@@ -149,11 +141,19 @@ export class NftClient {
     return this.getNftCertificatesById({ objectIds });
   }
 
-  buildMintNftTx = buildMintNftTx
+  static buildMintNftTx = buildMintNftTx
 
-  buildBuyNftCertificate = buildBuyNftCertificate
+  static buildBuyNftCertificate = buildBuyNftCertificate
 
-  buildEnableSales = buildEnableSales
+  static buildEnableSales = buildEnableSales
 
-  buildClaimNftCertificate = buildClaimNftCertificate
+  static buildClaimNftCertificate = buildClaimNftCertificate
+
+  private mergeAuthoritiesWithCollections = (collections: NftCollection[], authorities: MintAuthority[]) => {
+    const collectionsMap = toMap(collections, (_) => _.id);
+    return authorities.map((mintAuthority) => ({
+      ...collectionsMap.get(mintAuthority.collectionId),
+      mintAuthority,
+    }));
+  }
 }

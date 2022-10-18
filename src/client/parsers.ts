@@ -154,7 +154,7 @@ export const NftCertificateParser: SuiObjectParser<NftCertificateRpcResponse, Nf
       id: suiData.reference.objectId,
       nftId: data.nft_id,
       packageObjectId,
-      marketId: data.launchpad_id,
+      launchpadId: data.launchpad_id,
       rawResponse: _,
       owner: parseObjectOwner(suiData.owner),
     };

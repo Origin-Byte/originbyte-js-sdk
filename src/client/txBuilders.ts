@@ -29,7 +29,7 @@ export const buildMintNftTx = (params: BuildMintNftParams): MoveCallTransaction 
       values.map((_) => strToByteArray(_)),
       params.mintAuthority,
       params.tierIndex ?? 0,
-      params.marketId,
+      params.launchpadId,
     ],
     gasBudget: 5000,
   };
@@ -44,7 +44,7 @@ export const buildBuyNftCertificate = (params: BuildBuyNftCertificateParams): Mo
   ],
   arguments: [
     params.wallet,
-    params.marketId,
+    params.launchpadId,
     params.tierIndex ?? 0,
   ],
   gasBudget: 5000,
@@ -58,7 +58,7 @@ export const buildEnableSales = (params: BuildEnableSalesParams): MoveCallTransa
     params.collectionType,
   ],
   arguments: [
-    params.marketId,
+    params.launchpadId,
   ],
   gasBudget: 5000,
 });
@@ -73,7 +73,7 @@ export const buildClaimNftCertificate = (params: BuildClaimNftCertificateParams)
     `${params.packageObjectId}::${params.nftType}`,
   ],
   arguments: [
-    params.marketId,
+    params.launchpadId,
     params.nftId,
     params.certificateId,
     params.recepient,

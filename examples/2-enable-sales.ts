@@ -1,3 +1,4 @@
+import { NftClient } from '../src';
 import {
   client, LAUNCHPAD_ID, signer,
 } from './common';
@@ -10,9 +11,9 @@ const enableSales = async () => {
       throw new Error('Market is already live');
     }
     console.log('Market:', market);
-    const mintNftTransaction = client.buildEnableSales({
+    const mintNftTransaction = NftClient.buildEnableSales({
       packageObjectId: market.data.packageObjectId,
-      marketId: market.data.id,
+      launchpadId: market.data.id,
       collectionType: `${market.data.packageObjectId}::${market.data.packageModule}::${market.data.packageModuleClassName}`,
     });
     const enableSalesResult = await signer.executeMoveCall(mintNftTransaction);
