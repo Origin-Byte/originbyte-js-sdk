@@ -1,6 +1,6 @@
 {
   "name": "@originbyte/js-sdk",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "keywords": [
     "originbyte",
     "sdk",
@@ -21,6 +21,10 @@
   "files": [
     "dist/"
   ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Origin-Byte/originbyte-js-sdk"
+},
   "devDependencies": {
     "@types/bn.js": "^5.1.1",
     "@types/jest": "^27.0.2",
