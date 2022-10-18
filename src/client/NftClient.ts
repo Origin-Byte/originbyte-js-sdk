@@ -5,7 +5,7 @@ import {
   buildEnableSales,
   buildClaimNftCertificate,
 } from './txBuilders';
-import { toMap } from '../utils';
+import { toMap, uniq } from '../utils';
 import {
   ArtNftParser,
   CollectionParser,
@@ -80,7 +80,14 @@ export class NftClient {
   }
 
   getMarketsByParams = async (params: GetMarketsParams) => {
-    return this.fetchAndParseObjectsById(params.objectIds, FixedPriceMarketParser);
+    const markets = await this.fetchAndParseObjectsById(params.objectIds, FixedPriceMarketParser);
+    const collectionIds = uniq(markets.map((_) => _.collectionId));
+    const collections = await this.getCollectionsById({ objectIds: collectionIds });
+    const collectionsMap = toMap(collections, (_) => _.id);
+    return markets.map((market) => ({
+      data: market,
+      collection: collectionsMap.get(market.collectionId),
+    }));
   }
 
   getCollectionsById = async (params: GetCollectionsParams) => {
@@ -127,7 +134,14 @@ export class NftClient {
   }
 
   getNftCertificatesById = async (params: GetNftCertificateParams) => {
-    return this.fetchAndParseObjectsById(params.objectIds, NftCertificateParser);
+    const certificates = await this.fetchAndParseObjectsById(params.objectIds, NftCertificateParser);
+    const nftIds = uniq(certificates.map((_) => _.nftId));
+    const nfts = await this.getNftsById({ objectIds: nftIds });
+    const nftsMap = toMap(nfts, (_) => _.data.id);
+    return certificates.map((certificate) => ({
+      data: certificate,
+      nft: nftsMap.get(certificate.nftId),
+    }));
   }
 
   getNftCertificatesForAddress = async (address: string) => {

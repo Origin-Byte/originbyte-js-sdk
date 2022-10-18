@@ -69,8 +69,8 @@ export const buildClaimNftCertificate = (params: BuildClaimNftCertificateParams)
   function: 'claim_nft_embedded',
   typeArguments: [
     params.collectionType,
-    `${params.packageObjectId}::${params.nftType}`,
     `${params.packageObjectId}::fixed_price::FixedPriceMarket`,
+    `${params.packageObjectId}::${params.nftType}`,
   ],
   arguments: [
     params.marketId,
