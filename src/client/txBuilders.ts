@@ -1,83 +1,82 @@
 import { MoveCallTransaction } from '@mysten/sui.js';
-import { strToByteArray } from '../utils';
 import {
-  BuildBurnCollectionParams, BuildNftCollectionParams, BuildNftParams, BuildPrivateNftCollectionParams,
+  BuildMintNftParams,
+  BuildBuyNftCertificateParams,
+  BuildEnableSalesParams,
+  BuildClaimNftCertificateParams,
 } from './types';
+import { strToByteArray } from '../utils';
 
-export const buildCreateSharedCollectionTransaction = (params: BuildNftCollectionParams): MoveCallTransaction => ({
-  packageObjectId: params.packageObjectId,
-  module: 'std_collection',
-  function: 'mint_and_share',
-  typeArguments: [],
-  arguments: [
-    strToByteArray(params.name),
-    strToByteArray(params.symbol),
-    params.maxSupply,
-    params.initialPrice,
-    params.receiver,
-    (params.tags || []).map(strToByteArray),
-    params.royalty || 0,
-    true,
-    [],
-  ],
-  gasBudget: 5000,
-});
-
-export const buildPrivatedCreateCollectionTransaction = (params: BuildPrivateNftCollectionParams): MoveCallTransaction => ({
-  packageObjectId: params.packageObjectId,
-  module: 'std_collection',
-  function: 'mint_and_transfer',
-  typeArguments: [],
-  arguments: [
-    strToByteArray(params.name),
-    strToByteArray(params.symbol),
-    params.maxSupply,
-    params.initialPrice,
-    params.receiver,
-    (params.tags || []).map(strToByteArray),
-    params.royalty || 0,
-    true,
-    [],
-    params.recepient,
-  ],
-  gasBudget: 5000,
-});
-
-export const buildMintNftTransaction = (params: BuildNftParams): MoveCallTransaction => {
-  const attributeKeys: number[][] = [];
-  const attributeValues: number[][] = [];
-
-  Object.keys(params.attributes).forEach((key) => {
-    attributeKeys.push(strToByteArray(key));
-    attributeValues.push(strToByteArray(params.attributes[key]));
+export const buildMintNftTx = (params: BuildMintNftParams): MoveCallTransaction => {
+  const keys: string[] = [];
+  const values: string[] = [];
+  const { attributes } = params;
+  Object.keys(attributes).forEach((key) => {
+    keys.push(key);
+    values.push(attributes[key]);
   });
 
   return {
     packageObjectId: params.packageObjectId,
-    module: 'std_nft',
-    function: 'mint_and_transfer',
+    module: params.moduleName,
+    function: 'mint_nft',
     typeArguments: [],
     arguments: [
-      strToByteArray(params.name),
-      strToByteArray(params.uri),
-      false,
-      attributeKeys,
-      attributeValues,
-      params.collectionId,
-      params.coin,
-      params.recepient,
+      params.name,
+      params.description,
+      params.url,
+      keys.map((_) => strToByteArray(_)),
+      values.map((_) => strToByteArray(_)),
+      params.mintAuthority,
+      params.tierIndex ?? 0,
+      params.launchpadId,
     ],
-    gasBudget: 2000,
+    gasBudget: 5000,
   };
 };
 
-export const buildBurnCollectionTransaction = (params: BuildBurnCollectionParams): MoveCallTransaction => ({
+export const buildBuyNftCertificate = (params: BuildBuyNftCertificateParams): MoveCallTransaction => ({
   packageObjectId: params.packageObjectId,
-  module: 'std_nft',
-  function: 'mint_and_transfer',
-  typeArguments: [],
-  arguments: [
-    params.collectionId,
+  module: 'fixed_price',
+  function: 'buy_nft_certificate',
+  typeArguments: [
+    params.collectionType,
   ],
-  gasBudget: 2000,
+  arguments: [
+    params.wallet,
+    params.launchpadId,
+    params.tierIndex ?? 0,
+  ],
+  gasBudget: 5000,
+});
+
+export const buildEnableSales = (params: BuildEnableSalesParams): MoveCallTransaction => ({
+  packageObjectId: params.packageObjectId,
+  module: 'fixed_price',
+  function: 'sale_on',
+  typeArguments: [
+    params.collectionType,
+  ],
+  arguments: [
+    params.launchpadId,
+  ],
+  gasBudget: 5000,
+});
+
+export const buildClaimNftCertificate = (params: BuildClaimNftCertificateParams): MoveCallTransaction => ({
+  packageObjectId: params.packageObjectId,
+  module: 'slingshot',
+  function: 'claim_nft_embedded',
+  typeArguments: [
+    params.collectionType,
+    `${params.packageObjectId}::fixed_price::FixedPriceMarket`,
+    `${params.packageObjectId}::${params.nftType}`,
+  ],
+  arguments: [
+    params.launchpadId,
+    params.nftId,
+    params.certificateId,
+    params.recepient,
+  ],
+  gasBudget: 5000,
 });

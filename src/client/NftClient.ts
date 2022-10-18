@@ -1,15 +1,29 @@
 import { JsonRpcProvider } from '@mysten/sui.js';
-import { toMap } from '../utils';
-import { ArtNftParser, CollectionParser } from './parsers';
 import {
-  buildBurnCollectionTransaction, buildCreateSharedCollectionTransaction,
-  buildMintNftTransaction,
-  buildPrivatedCreateCollectionTransaction,
+  buildBuyNftCertificate,
+  buildMintNftTx,
+  buildEnableSales,
+  buildClaimNftCertificate,
 } from './txBuilders';
+import { toMap, uniq } from '../utils';
 import {
+  ArtNftParser,
+  CollectionParser,
+  FixedPriceMarketParser,
+  MintAuthorityParser,
+  NftCertificateParser,
+
+} from './parsers';
+import {
+  GetAuthoritiesParams,
   ArtNftWithCollection,
   GetCollectionsParams,
-  GetNftsParams, SuiObjectParser,
+  GetNftsParams,
+  SuiObjectParser,
+  MintAuthority,
+  NftCollection,
+  GetNftCertificateParams,
+  GetMarketsParams,
 } from './types';
 import { isObjectExists } from './utils';
 
@@ -30,7 +44,7 @@ export class NftClient {
         .map((_) => _.objectId);
     }
 
-  private fetchAndParseObjectsById = async <RpcResponse, DataModel>(
+  fetchAndParseObjectsById = async <RpcResponse, DataModel>(
     ids: string[], parser: SuiObjectParser<RpcResponse, DataModel>): Promise<DataModel[]> => {
     const objects = await this.provider.getObjectBatch(ids);
 
@@ -47,24 +61,54 @@ export class NftClient {
     return parsedObjects;
   }
 
-  private fetchAndParseObjectsForAddress =
+  fetchAndParseObjectsForAddress =
     async <RpcResponse, DataModel>(address: string, parser: SuiObjectParser<RpcResponse, DataModel>) => {
       const objectIds = await this.fetchObjectIdsForAddress(address, parser);
       return this.fetchAndParseObjectsById(objectIds, parser);
     }
 
+  getMintAuthoritiesById = async (params: GetAuthoritiesParams) => {
+    return this.fetchAndParseObjectsById(params.objectIds, MintAuthorityParser);
+  }
+
+  getMarketsByParams = async (params: GetMarketsParams) => {
+    const markets = await this.fetchAndParseObjectsById(params.objectIds, FixedPriceMarketParser);
+    const collectionIds = uniq(markets.map((_) => _.collectionId));
+    const collections = await this.getCollectionsById({ objectIds: collectionIds });
+    const collectionsMap = toMap(collections, (_) => _.id);
+    return markets.map((market) => ({
+      data: market,
+      collection: collectionsMap.get(market.collectionId),
+    }));
+  }
+
   getCollectionsById = async (params: GetCollectionsParams) => {
-    return this.fetchAndParseObjectsById(params.objectIds, CollectionParser);
+    const collections = await this.fetchAndParseObjectsById(params.objectIds, CollectionParser);
+    if (!params.resolveAuthorities) {
+      return collections;
+    }
+    const authoritiesId = collections.map((_) => _.mintAuthorityId);
+    const authorities = await this.getMintAuthoritiesById({ objectIds: authoritiesId });
+    return this.mergeAuthoritiesWithCollections(collections, authorities);
   }
 
   getCollectionsForAddress = async (address: string) => {
-    return this.fetchAndParseObjectsForAddress(address, CollectionParser);
+    // Since collectiona are shared object, we have to fetch MintAuthorities first
+    const authoritiesIds = await this.fetchObjectIdsForAddress(address, MintAuthorityParser);
+    if (!authoritiesIds.length) {
+      return [];
+    }
+    const authorities = await this.getMintAuthoritiesById({ objectIds: authoritiesIds });
+    const collectionIds = authorities.map((_) => _.collectionId);
+    const collections = await this.getCollectionsById({ objectIds: collectionIds, resolveAuthorities: false });
+
+    return this.mergeAuthoritiesWithCollections(collections, authorities);
   }
 
   getNftsById = async (params: GetNftsParams): Promise<ArtNftWithCollection[]> => {
     const nfts = await this.fetchAndParseObjectsById(params.objectIds, ArtNftParser);
     const collectionIds = nfts.map((_) => _.collectionId);
-    const collections = await this.getCollectionsById({ objectIds: collectionIds });
+    const collections = await this.getCollectionsById({ objectIds: collectionIds, resolveAuthorities: true });
     const collectionById = toMap(collections, (_) => _.id);
 
     return nfts.map((nft) => {
@@ -81,11 +125,35 @@ export class NftClient {
     return this.getNftsById({ objectIds });
   }
 
-  buildCreateSharedCollectionTransaction = buildCreateSharedCollectionTransaction
+  getNftCertificatesById = async (params: GetNftCertificateParams) => {
+    const certificates = await this.fetchAndParseObjectsById(params.objectIds, NftCertificateParser);
+    const nftIds = uniq(certificates.map((_) => _.nftId));
+    const nfts = await this.getNftsById({ objectIds: nftIds });
+    const nftsMap = toMap(nfts, (_) => _.data.id);
+    return certificates.map((certificate) => ({
+      data: certificate,
+      nft: nftsMap.get(certificate.nftId),
+    }));
+  }
 
-  buildPrivatedCreateCollectionTransaction = buildPrivatedCreateCollectionTransaction
+  getNftCertificatesForAddress = async (address: string) => {
+    const objectIds = await this.fetchObjectIdsForAddress(address, NftCertificateParser);
+    return this.getNftCertificatesById({ objectIds });
+  }
 
-  buildMintNftTransaction = buildMintNftTransaction
+  static buildMintNftTx = buildMintNftTx
 
-  buildBurnCollectionTransaction = buildBurnCollectionTransaction
+  static buildBuyNftCertificate = buildBuyNftCertificate
+
+  static buildEnableSales = buildEnableSales
+
+  static buildClaimNftCertificate = buildClaimNftCertificate
+
+  private mergeAuthoritiesWithCollections = (collections: NftCollection[], authorities: MintAuthority[]) => {
+    const collectionsMap = toMap(collections, (_) => _.id);
+    return authorities.map((mintAuthority) => ({
+      ...collectionsMap.get(mintAuthority.collectionId),
+      mintAuthority,
+    }));
+  }
 }

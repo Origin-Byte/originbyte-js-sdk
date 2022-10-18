@@ -23,6 +23,8 @@ module.exports = {
     'no-unused-vars': 'warn',
     'arrow-body-style': 'off',
     'max-len': ['error', { code: 140 }],
+    'no-shadow': 'off',
+    '@typescript-eslint/no-shadow': ['error'],
   },
   settings: {
     'import/parsers': {
