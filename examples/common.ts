@@ -18,8 +18,6 @@ export function normalizeMnemonics(mnemonics: string): string {
     .join(' ');
 }
 
-}
-
 export const keypair = Ed25519Keypair.deriveKeypair(mnemonic);
 
 export const provider = new JsonRpcProvider('https://gateway.devnet.sui.io');
