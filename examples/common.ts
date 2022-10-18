@@ -1,8 +1,6 @@
 import {
-  Ed25519Keypair, Ed25519KeypairData, JsonRpcProvider, RawSigner,
+  Ed25519Keypair, JsonRpcProvider, RawSigner,
 } from '@mysten/sui.js';
-import * as bip39 from '@scure/bip39';
-import nacl = require('tweetnacl');
 import { NftClient } from '../src';
 
 export const mnemonic = 'muffin tuition fit fish average true slender tower salmon artist song biology';
@@ -20,12 +18,6 @@ export function normalizeMnemonics(mnemonics: string): string {
     .join(' ');
 }
 
-export function getKeypairFromMnemonics(mnemonics: string): Ed25519KeypairData {
-  const seed = bip39.mnemonicToSeedSync(normalizeMnemonics(mnemonics));
-  return nacl.sign.keyPair.fromSeed(
-    // keyPair.fromSeed only takes a 32-byte array where `seed` is a 64-byte array
-    new Uint8Array(seed.slice(0, 32)),
-  );
 }
 
 export const keypair = Ed25519Keypair.deriveKeypair(mnemonic);
