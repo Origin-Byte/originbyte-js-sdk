@@ -20,6 +20,6 @@ export function normalizeMnemonics(mnemonics: string): string {
 
 export const keypair = Ed25519Keypair.deriveKeypair(mnemonic);
 
-export const provider = new JsonRpcProvider('https://gateway.devnet.sui.io');
+export const provider = new JsonRpcProvider('https://fullnode.devnet.sui.io');
 export const signer = new RawSigner(keypair, provider);
 export const client = new NftClient(provider);

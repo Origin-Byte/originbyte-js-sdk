@@ -27,7 +27,7 @@ import {
 } from './types';
 import { isObjectExists } from './utils';
 
-const TESTNET_URL = 'https://gateway.devnet.sui.io';
+const TESTNET_URL = 'https://fullnode.devnet.sui.io';
 
 export class NftClient {
   private provider: JsonRpcProvider;
