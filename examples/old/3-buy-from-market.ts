@@ -1,6 +1,6 @@
 import { NftClient } from '../src';
 import {
-  client, LAUNCHPAD_ID, signer,
+  client, FEES_OBJECT_ID, LAUNCHPAD_ID, signer,
 } from './common';
 
 const buyFromLaunchpad = async () => {
@@ -18,10 +18,10 @@ const buyFromLaunchpad = async () => {
       collectionType: `${market.data.packageObjectId}::${market.data.packageModule}::${market.data.packageModuleClassName}`,
       packageObjectId: market.data.packageObjectId,
       launchpadId: market.data.id,
-      wallet: '0x352ca4f1b92d544df8d0598a9d58fc76eec10b4b', // Coin address to pay for NFT
+      wallet: FEES_OBJECT_ID, // Coin address to pay for NFT
     });
     const buyResult = await signer.executeMoveCall(buyCertificateTransaction);
-    console.log('buyResult', buyResult);
+    console.log('buyResult', JSON.stringify(buyResult));
   }
 };
 

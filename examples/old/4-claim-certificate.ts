@@ -26,7 +26,7 @@ const claimCertificate = async () => {
       });
       console.log('certificate', certificates, claimCertificateTx);
       const claimCertificateResult = await signer.executeMoveCall(claimCertificateTx);
-      console.log('claimCertificateResult', claimCertificateResult);
+      console.log('claimCertificateResult', JSON.stringify(claimCertificateResult));
     }
   }
 };

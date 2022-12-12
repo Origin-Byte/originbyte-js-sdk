@@ -1,9 +1,13 @@
 import { JsonRpcProvider } from '@mysten/sui.js';
 import {
   buildBuyNftCertificate,
-  buildMintNftTx,
+  biuldMintNft,
   buildEnableSales,
   buildClaimNftCertificate,
+  buildCreateFlatFee,
+  buildCreateFixedPriceMarket,
+  buildInitLaunchpad,
+  buildInitSlot,
 } from './txBuilders';
 import { toMap, uniq } from '../utils';
 import {
@@ -12,7 +16,6 @@ import {
   FixedPriceMarketParser,
   MintAuthorityParser,
   NftCertificateParser,
-
 } from './parsers';
 import {
   GetAuthoritiesParams,
@@ -141,13 +144,21 @@ export class NftClient {
     return this.getNftCertificatesById({ objectIds });
   }
 
-  static buildMintNftTx = buildMintNftTx
+  static biuldMintNft = biuldMintNft
 
   static buildBuyNftCertificate = buildBuyNftCertificate
 
   static buildEnableSales = buildEnableSales
 
   static buildClaimNftCertificate = buildClaimNftCertificate
+
+  static buildCreateFlatFee = buildCreateFlatFee
+
+  static buildCreateFixedPriceMarket = buildCreateFixedPriceMarket
+
+  static buildInitLaunchpad = buildInitLaunchpad
+
+  static buildInitSlot = buildInitSlot
 
   private mergeAuthoritiesWithCollections = (collections: NftCollection[], authorities: MintAuthority[]) => {
     const collectionsMap = toMap(collections, (_) => _.id);

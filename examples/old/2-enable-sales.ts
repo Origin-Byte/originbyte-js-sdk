@@ -17,7 +17,7 @@ const enableSales = async () => {
       collectionType: `${market.data.packageObjectId}::${market.data.packageModule}::${market.data.packageModuleClassName}`,
     });
     const enableSalesResult = await signer.executeMoveCall(mintNftTransaction);
-    console.log('enableSalesResult', enableSalesResult);
+    console.log('enableSalesResult', JSON.stringify(enableSalesResult));
   }
 };
 

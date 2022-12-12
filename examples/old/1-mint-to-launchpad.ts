@@ -1,15 +1,15 @@
-import { NftClient } from '../src';
+import { NftClient } from '../../src';
 import {
-  client, keypair, LAUNCHPAD_ID, PACKAGE_OBJECT_ID, signer,
-} from './common';
+  client, COLLECTION_ID, LAUNCHPAD_ID, PACKAGE_OBJECT_ID, signer,
+} from '../common';
 
 const mintToLaunchpad = async () => {
-  const collections = await client.getCollectionsForAddress(`0x${keypair.getPublicKey().toSuiAddress()}`);
+  const collections = await client.getCollectionsById({ objectIds: [COLLECTION_ID] });
 
   const collectionsForWallet = (collections)
     .filter((_) => _.packageObjectId === PACKAGE_OBJECT_ID);
 
-  console.log('collectionForWallet', collectionsForWallet);
+  console.log('collectionForWallet', collections, collectionsForWallet);
   if (collectionsForWallet.length) {
     const collection = collectionsForWallet[0];
     const mintNftTransaction = NftClient.buildMintNftTx({
@@ -27,7 +27,7 @@ const mintToLaunchpad = async () => {
     });
     // console.log('signer', keypair.getPublicKey().toSuiAddress());
     const mintResult = await signer.executeMoveCall(mintNftTransaction);
-    console.log('mintResult', mintResult);
+    console.log('mintResult', JSON.stringify(mintResult));
   }
 };
 

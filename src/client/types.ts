@@ -14,13 +14,7 @@ export interface ProtocolData {
 }
 
 export interface NftCollectionRpcResponse {
-  name: string
-  description: string
-  symbol: string
-  receiver: string
-  royalty_fee_bps: number
   mint_authority: string
-  creators: string
   tags: {
     type: string
     fields: {
@@ -38,15 +32,6 @@ export interface NftCollectionRpcResponse {
       }
     }
   }
-  metadata: {
-    type: string
-    fields: {
-      id: {
-        id: string
-      }
-      json: string
-    }
-  }
 }
 
 export interface MintAuthorityRPCResponse {
@@ -54,7 +39,7 @@ export interface MintAuthorityRPCResponse {
   supply_policy: {
     type: string
     fields: {
-      is_blind: boolean,
+      regulated: boolean,
       supply: {
         type: string
         fields: {
@@ -130,7 +115,7 @@ export interface NftCertificate {
 export interface MintAuthority {
   id: string
   collectionId: string
-  isBlind: boolean
+  regulated: boolean
   currentSupply: number
   maxSupply: number
   frozen: boolean
@@ -164,18 +149,11 @@ export interface ArtNftRpcResponse {
 }
 
 export interface NftCollection extends ProtocolData {
-  name: string
-  description: string
-  creators: string
-  symbol: string
-  // currentSupply: number
-  // totalSupply: number
-  receiver: string
-  mintAuthorityId: string
   type: string
   id: string
   tags: string[]
   rawResponse: GetObjectDataResponse
+  mintAuthorityId: string
 }
 
 export interface ArtNft extends ProtocolData {
@@ -218,39 +196,42 @@ export interface GetNftCertificateParams extends WithIds {
 
 }
 
-export interface BuildFixedPriceSlingshotParams {
-  collectionId: string
+export type WithPackageObjectId = {
   packageObjectId: string
+}
+
+export type BuildFixedPriceSlingshotParams = WithPackageObjectId & {
+  collectionId: string
   admin: string,
   receiver: string,
   price: number,
 }
 
-export interface BuildClaimNftParams {
+export type BuildClaimNftParams = WithPackageObjectId & {
   nft: string
   launchpadId: string
   certificate: string
   recepient: string
-  packageObjectId: string
 }
 
-export interface BuildMintNftParams {
+export type BuildMintNftParams = WithPackageObjectId & {
   name: string
   description: string
   moduleName: string
-  url: string
-  attributes: { [c: string]: string };
-  mintAuthority: string
-  packageObjectId: string
-  launchpadId: string
-  tierIndex?: number
+  mintCap: string
+  slot: string
+  marketId: string
+  // url: string
+  // attributes: { [c: string]: string };
+  // mintAuthority: string
+  // launchpadId: string
+  // tierIndex?: number
 }
 
-export interface BuildBuyNftCertificateParams {
+export type BuildBuyNftCertificateParams = WithPackageObjectId & {
   wallet: string // Coin to pay
   launchpadId: string
   tierIndex?: number
-  packageObjectId: string
   collectionType: string
 }
 
@@ -260,12 +241,11 @@ export interface BuildEnableSalesParams {
   collectionType: string
 }
 
-export interface BuildClaimNftCertificateParams {
+export type BuildClaimNftCertificateParams = WithPackageObjectId & {
   launchpadId: string,
   nftId: string,
   certificateId: string,
   recepient: string,
-  packageObjectId: string
   collectionType: string
   nftType: NftType
 }
@@ -279,4 +259,27 @@ export type FetchFnParser<RpcResponse, DataModel> = (
 export interface SuiObjectParser<RpcResponse, DataModel> {
   parser: FetchFnParser<RpcResponse, DataModel>
   regex: RegExp
+}
+
+export type BuildCreateFlatFeeParams = WithPackageObjectId & {
+  rate: number
+}
+
+export type BuildInitLaunchpadParams = WithPackageObjectId & {
+  admin: string
+  receiver: string
+  autoApprove: boolean
+  defaultFee: string // Flat fee address
+}
+export type BuildInitSlotParams = WithPackageObjectId & {
+  launchpad: string
+  slotAdmin: string
+  receiver: string
+}
+
+export type BuildCreateFixedPriceMarket = WithPackageObjectId & {
+  launchpad: string
+  slot: string
+  isWhitelisted: boolean
+  price: number
 }

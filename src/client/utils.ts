@@ -12,9 +12,6 @@ export const parseObjectOwner = (owner: ObjectOwner) => {
     if ('ObjectOwner' in owner) {
       ownerAddress = owner.ObjectOwner;
     }
-    if ('SingleOwner' in owner) {
-      ownerAddress = owner.SingleOwner;
-    }
   }
   return ownerAddress;
 };
