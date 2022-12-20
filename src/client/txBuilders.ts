@@ -35,7 +35,7 @@ export const biuldMintNft = (params: BuildMintNftParams): MoveCallTransaction =>
       // params.tierIndex ?? 0,
       // params.launchpadId,
     ],
-    gasBudget: 5000,
+    gasBudget: 10000,
   };
 };
 
@@ -44,12 +44,13 @@ export const buildBuyNftCertificate = (params: BuildBuyNftCertificateParams): Mo
   module: 'fixed_price',
   function: 'buy_nft_certificate',
   typeArguments: [
-    params.collectionType,
+    '0x2::sui::SUI',
   ],
   arguments: [
-    params.wallet,
     params.launchpadId,
-    params.tierIndex ?? 0,
+    params.slotId,
+    params.marketId,
+    params.coin,
   ],
   gasBudget: 5000,
 });
@@ -57,10 +58,11 @@ export const buildBuyNftCertificate = (params: BuildBuyNftCertificateParams): Mo
 export const buildCreateFixedPriceMarket = (params: BuildCreateFixedPriceMarket): MoveCallTransaction => ({
   packageObjectId: params.packageObjectId,
   module: 'fixed_price',
-  function: 'create_market',
-  typeArguments: [],
+  function: 'init_market',
+  typeArguments: [
+    params.collectionType,
+  ],
   arguments: [
-    params.launchpad,
     params.slot,
     params.isWhitelisted,
     params.price,
@@ -70,30 +72,25 @@ export const buildCreateFixedPriceMarket = (params: BuildCreateFixedPriceMarket)
 
 export const buildEnableSales = (params: BuildEnableSalesParams): MoveCallTransaction => ({
   packageObjectId: params.packageObjectId,
-  module: 'fixed_price',
+  module: 'slot',
   function: 'sale_on',
-  typeArguments: [
-    params.collectionType,
-  ],
+  typeArguments: [],
   arguments: [
-    params.launchpadId,
+    params.slotId,
   ],
   gasBudget: 5000,
 });
 
 export const buildClaimNftCertificate = (params: BuildClaimNftCertificateParams): MoveCallTransaction => ({
   packageObjectId: params.packageObjectId,
-  module: 'slingshot',
-  function: 'claim_nft_embedded',
+  module: 'launchpad',
+  function: 'redeem_nft',
   typeArguments: [
-    params.collectionType,
-    `${params.packageObjectId}::fixed_price::FixedPriceMarket`,
-    `${params.packageObjectId}::${params.nftType}`,
+    params.nftType,
   ],
   arguments: [
-    params.launchpadId,
-    params.nftId,
     params.certificateId,
+    params.slotId,
     params.recepient,
   ],
   gasBudget: 5000,
@@ -102,7 +99,7 @@ export const buildClaimNftCertificate = (params: BuildClaimNftCertificateParams)
 export const buildCreateFlatFee = (params: BuildCreateFlatFeeParams): MoveCallTransaction => ({
   packageObjectId: params.packageObjectId,
   module: 'flat_fee',
-  function: 'create',
+  function: 'init_fee',
   typeArguments: [],
   arguments: [
     params.rate,
@@ -114,7 +111,9 @@ export const buildInitLaunchpad = (params: BuildInitLaunchpadParams): MoveCallTr
   packageObjectId: params.packageObjectId,
   module: 'launchpad',
   function: 'init_launchpad',
-  typeArguments: [],
+  typeArguments: [
+    `${params.packageObjectId}::flat_fee::FlatFee`,
+  ],
   arguments: [
     params.admin,
     params.receiver,
@@ -126,7 +125,7 @@ export const buildInitLaunchpad = (params: BuildInitLaunchpadParams): MoveCallTr
 
 export const buildInitSlot = (params: BuildInitSlotParams): MoveCallTransaction => ({
   packageObjectId: params.packageObjectId,
-  module: 'launchpad',
+  module: 'slot',
   function: 'init_slot',
   typeArguments: [],
   arguments: [

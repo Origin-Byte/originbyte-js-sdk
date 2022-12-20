@@ -3,38 +3,38 @@ import {
   GetObjectDataResponse, ObjectOwner, SuiObject,
 } from '@mysten/sui.js';
 
-export enum NftType {
-  UNIQUE = 'unique_nft::Unique'
+export interface WithPackageObjectId {
+  packageObjectId: string
+}
+export interface WithId {
+  id: string
 }
 
-export interface ProtocolData {
-  packageObjectId: string
+export interface WithOwner {
+  owner: string
+}
+
+export interface ProtocolData extends WithPackageObjectId {
   packageModule: string
   packageModuleClassName: string
 }
 
-export interface NftCollectionRpcResponse {
-  mint_authority: string
-  tags: {
-    type: string
-    fields: {
-      enumerations: {
-        type: string
-        fields: {
-          contents: {
-            type: string
-            fields: {
-              key: 0
-              value: string
-            }
-          }[]
-        }
-      }
-    }
-  }
+type ID = {
+  id: string
 }
 
-export interface MintAuthorityRPCResponse {
+export interface NftCollectionRpcResponse {
+  domains: {
+    type: string
+    fields: {
+      id: ID,
+      size: number
+    }
+  },
+  id: ID,
+}
+
+export interface MintCapRPCResponse {
   collection_id: string
   supply_policy: {
     type: string
@@ -53,49 +53,141 @@ export interface MintAuthorityRPCResponse {
 }
 
 export interface FixedPriceMarketRpcResponse {
-  admin: string
-  receiver: string
-  is_embedded: boolean
-  live: boolean
-  collection_id: string
-  sales: {
-    type: string
-    fields: {
-      id: {
-        id: string
-      },
-      market: {
-        type: string
-        fields: {
-          id: {
-            id: string
-          },
-          price: number
-        }
-      },
-      nfts: string[]
-      queue: string
-      tier_index: number
-      whitelisted: boolean
-    }
-  }[]
+  price: number
 }
 
-export interface FixedPriceMarket extends ProtocolData {
+export interface DomainRpcBase<T> {
+  id: ID
+  name: {
+    type: string
+    fields: {
+      dummy_field: boolean
+    }
+  },
+  value: {
+    type: string
+    fields: T
+  }
+}
+
+export type ObjectBox = {
+  type: string,
+  fields: {
+    id: ID
+    len: number
+  }
+}
+
+export type Bag = {
+  type: string
+  fields: {
+    id: ID
+    size: number
+  }
+}
+
+export type RoyaltyDomainRpcResponse = DomainRpcBase<{
+  aggregations: Bag,
+  strategies: Bag
+}>
+
+export type SymbolDomainRpcResponse = DomainRpcBase<{
+  symbol: string
+}>
+
+export type UrlDomainRpcResponse = DomainRpcBase<{
+  url: string
+}>
+
+export type DisplayDomainRpcResponse = DomainRpcBase<{
+  description: string
+  name: string
+}>
+
+export type TagsDomainRpcResponse = DomainRpcBase<{
+  bag: Bag
+}>
+
+export type TagRpcResponse = DomainRpcBase<{}>
+
+export type AttributionDomainRpcResponse = DomainRpcBase<{
+  creators: {
+    type: string,
+    fields: {
+      contents: {
+        type: string,
+        fields: {
+          key: string,
+          value: {
+            type: string,
+            fields: {
+              share_of_royalty_bps: number,
+              who: string
+            }
+          }
+        }
+      }[]
+    }
+  }
+}>
+
+export interface DefaultFeeBoxRpcResponse {
+  id: ID
+  name: {
+    type: string
+    fields: {
+      name: {
+        type: string,
+        fields: {
+          name: string
+        }
+      }
+    }
+  },
+  value: string
+}
+
+export interface LaunchpadSlotRpcResponse {
   admin: string
+  launchpad: string
   receiver: string
-  isEmbedded: boolean
-  collectionId: string
-  live: boolean
+  custom_fee: ObjectBox
+  inventories: Bag
+  markets: Bag
+}
+
+export interface LaunchpadSlot extends WithPackageObjectId, WithId {
+  admin: string
+  launchpad: string
+  receiver: string
+  customFeeBagId: string
+  inventoriesBagId: string
+  marketsBagId: string
+}
+
+export interface FlatFeeRfcRpcResponse {
+  id: ID
+  rate_bps: number
+}
+
+export interface FlatFee {
   id: string
+  rateBps: number
+}
+
+export interface WithRawResponse {
   rawResponse: GetObjectDataResponse
-  sales: {
-    marketPrice: number
-    nfts: string[]
-    queue: string
-    tierIndex: number
-    whitelisted: boolean
-  }[]
+}
+
+export interface InventoryRpcResponse {
+  queue: string
+  nfts: string[]
+}
+
+export interface Inventory extends InventoryRpcResponse, WithId { }
+
+export interface FixedPriceMarket extends WithRawResponse, WithId {
+  price: number
 }
 
 export interface NftCertificateRpcResponse {
@@ -103,23 +195,41 @@ export interface NftCertificateRpcResponse {
   launchpad_id: string
 }
 
-export interface NftCertificate {
+export interface NftCertificate extends WithRawResponse, WithId {
   nftId: string
   owner: string
-  id: string
   packageObjectId: string
   launchpadId: string
-  rawResponse: GetObjectDataResponse
 }
 
-export interface MintAuthority {
-  id: string
+export interface LaunchpadRpcResponse {
+  admin: string
+  default_fee: {
+    type: string,
+    fields: {
+      id: ID
+      len: number
+    }
+  },
+  id: ID
+  permissioned: boolean
+  receiver: string
+}
+
+export interface Launchpad extends WithId, WithPackageObjectId, WithRawResponse {
+  owner: string
+  admin: string
+  receiver: string
+  permissioned: boolean
+  defaultFeeBoxId: string
+}
+
+export interface MintCap extends WithRawResponse, WithId {
   collectionId: string
   regulated: boolean
   currentSupply: number
   maxSupply: number
   frozen: boolean
-  rawResponse: GetObjectDataResponse
 }
 
 export interface ArtNftRpcResponse {
@@ -139,24 +249,19 @@ export interface ArtNftRpcResponse {
       },
       collection_id: string,
       description: string,
-      id: {
-        id: string
-      },
+      id: ID
       name: string
       url: string
     }
   }
 }
 
-export interface NftCollection extends ProtocolData {
-  type: string
-  id: string
-  tags: string[]
+export interface NftCollection extends ProtocolData, WithId {
+  domainsBagId: string
   rawResponse: GetObjectDataResponse
-  mintAuthorityId: string
 }
 
-export interface ArtNft extends ProtocolData {
+export interface ArtNft extends ProtocolData, WithRawResponse, WithId {
   name: string;
   attributes: { [c: string]: string };
   collectionId: string;
@@ -164,10 +269,6 @@ export interface ArtNft extends ProtocolData {
   ownerAddress: string
   owner: ObjectOwner
   type: string
-  id: string
-  rawResponse: GetObjectDataResponse
-
-  nftType: NftType,
 }
 
 export interface ArtNftWithCollection {
@@ -175,15 +276,49 @@ export interface ArtNftWithCollection {
   collection: NftCollection
 }
 
+export interface CollectionDomains {
+  royaltyAggregationBagId: string
+  royaltyStrategiesBagId: string
+  tagsBagId: string
+  symbol: string
+  url: string
+  name: string
+  description: string
+  tags: string[]
+
+  royalties: {
+    who: string
+    bps: number
+  }[]
+}
+
+// Requests
+
 export interface WithIds {
   objectIds: string[]
+}
+
+export interface GetLaunchpadSlotParams {
+  slotId: string
+  resolveBags?: boolean
+}
+
+export interface GetInventoryParams {
+  inventoryId: string
+}
+
+export interface GetLaunchpadParams {
+  launchpadId: string
 }
 
 export interface GetNftsParams extends WithIds {
 }
 
 export interface GetCollectionsParams extends WithIds {
-  resolveAuthorities?: boolean
+}
+
+export interface GetCollectionDomainsParams {
+  domainsBagId: string
 }
 
 export interface GetAuthoritiesParams extends WithIds {
@@ -196,8 +331,58 @@ export interface GetNftCertificateParams extends WithIds {
 
 }
 
-export type WithPackageObjectId = {
-  packageObjectId: string
+/**
+      return undefined;
+       [
+  {
+    "status": "Exists",
+    "details": {
+      "data": {
+        "dataType": "moveObject",
+        "type": "0x2::dynamic_field::Field<0x2::dynamic_object_field::Wrapper<0x2::object::ID>, 0x2::object::ID>",
+        "has_public_transfer": false,
+        "fields": {
+          "id": {
+            "id": "0x18b181dacccb42d7169592a1155092ba95647b9a"
+          },
+          "name": {
+            "type": "0x2::dynamic_object_field::Wrapper<0x2::object::ID>",
+            "fields": {
+              "name": "0x5bd796106a04cd7f9b938a0de088ecdf0b3f8040"
+            }
+          },
+          "value": "0xbe5cb139ed4985d08a86c22302046434ab930ee9"
+        }
+      },
+      "owner": {
+        "ObjectOwner": "0xc0017c6694ec0b60ac4d29b4a9ddbcbe71b47b1d"
+      },
+      "previousTransaction": "75nSEAd6PmBcnBBzmYk5eyPGiFMR6fLkdV1djaTQuAnw",
+      "storageRebate": 29,
+      "reference": {
+        "objectId": "0x18b181dacccb42d7169592a1155092ba95647b9a",
+        "version": 377,
+        "digest": "xhEASNLC4xWcvaMeBdv3JcE+DxhaKTWtlkFwJH90O4I="
+      }
+    }
+  }
+]
+ *
+ */
+
+export type DynamicFieldRpcResponse = {
+  id: ID
+  name: {
+    type: string
+    fields: {
+      name: string
+    }
+  },
+  value: string
+}
+
+export type DynamicField = {
+  value: string
 }
 
 export type BuildFixedPriceSlingshotParams = WithPackageObjectId & {
@@ -229,25 +414,21 @@ export type BuildMintNftParams = WithPackageObjectId & {
 }
 
 export type BuildBuyNftCertificateParams = WithPackageObjectId & {
-  wallet: string // Coin to pay
   launchpadId: string
-  tierIndex?: number
-  collectionType: string
+  slotId: string
+  coin: string
+  marketId: string
 }
 
-export interface BuildEnableSalesParams {
-  packageObjectId: string
-  launchpadId: string
-  collectionType: string
+export interface BuildEnableSalesParams extends WithPackageObjectId {
+  slotId: string
 }
 
 export type BuildClaimNftCertificateParams = WithPackageObjectId & {
-  launchpadId: string,
-  nftId: string,
-  certificateId: string,
-  recepient: string,
-  collectionType: string
-  nftType: NftType
+  nftType: string
+  certificateId: string
+  slotId: string
+  recepient: string
 }
 
 export type FetchFnParser<RpcResponse, DataModel> = (
@@ -278,8 +459,8 @@ export type BuildInitSlotParams = WithPackageObjectId & {
 }
 
 export type BuildCreateFixedPriceMarket = WithPackageObjectId & {
-  launchpad: string
   slot: string
-  isWhitelisted: boolean
+  isWhitelisted: boolean // Define if the buyers need to be whitelisted
   price: number
+  collectionType: string
 }

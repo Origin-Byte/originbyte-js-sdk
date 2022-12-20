@@ -762,10 +762,10 @@
   resolved "https://registry.yarnpkg.com/@mysten/bcs/-/bcs-0.5.0.tgz#d2570971e3d9121b83091ced38db13e907ab4198"
   integrity sha512-FjGnXZfR4dY01Q1l3xjgaU+ruIlVomXZk8vzgsQXPFOv7O4pNiOOpJyMEMUnWcyUiktk4R9MxoJJrygOtdxaUw==
 
-"@mysten/sui.js@^0.18.0":
-  version "0.18.0"
-  resolved "https://registry.yarnpkg.com/@mysten/sui.js/-/sui.js-0.18.0.tgz#af97e429bd1f8d1d9a132a1d63d457359160f936"
-  integrity sha512-tD6mQI+ZrinVaniyz8Rk4D20w6mGm5ok+6XOtL+eNS1qNnhZBRLCRjJ90dswMOv2bKQ6bG4VueNBwUJluESZrw==
+"@mysten/sui.js@^0.20.0":
+  version "0.20.0"
+  resolved "https://registry.yarnpkg.com/@mysten/sui.js/-/sui.js-0.20.0.tgz#f92b53352eb0673710442c8e5f864dd31b250752"
+  integrity sha512-U25eSGKT08XPCRKHbrvDYlylOSAIQASMKKwnreC8vT3ukvQg1NwTX+SFZPvX+xsLZGS2b3yOQ2Uzhzho5/OIWA==
   dependencies:
     "@mysten/bcs" "0.5.0"
     "@noble/hashes" "^1.1.2"

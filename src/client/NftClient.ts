@@ -1,4 +1,7 @@
-import { JsonRpcProvider } from '@mysten/sui.js';
+import {
+  GetObjectDataResponse,
+  isSuiMoveObject, isSuiObject, JsonRpcProvider,
+} from '@mysten/sui.js';
 import {
   buildBuyNftCertificate,
   biuldMintNft,
@@ -11,11 +14,18 @@ import {
 } from './txBuilders';
 import { toMap, uniq } from '../utils';
 import {
+  LaunchpadParser,
   ArtNftParser,
   CollectionParser,
   FixedPriceMarketParser,
-  MintAuthorityParser,
+  MintCapParser,
   NftCertificateParser,
+  parseCollectionsDomains,
+  parseTags,
+  FlatFeeParser,
+  LaunchpadSlotParser,
+  DynamicFieldParser,
+  InventoryParser,
 } from './parsers';
 import {
   GetAuthoritiesParams,
@@ -23,10 +33,15 @@ import {
   GetCollectionsParams,
   GetNftsParams,
   SuiObjectParser,
-  MintAuthority,
+  MintCap,
   NftCollection,
   GetNftCertificateParams,
   GetMarketsParams,
+  GetLaunchpadParams,
+  GetCollectionDomainsParams,
+  DefaultFeeBoxRpcResponse,
+  GetInventoryParams,
+  GetLaunchpadSlotParams,
 } from './types';
 import { isObjectExists } from './utils';
 
@@ -47,14 +62,12 @@ export class NftClient {
         .map((_) => _.objectId);
     }
 
-  fetchAndParseObjectsById = async <RpcResponse, DataModel>(
-    ids: string[], parser: SuiObjectParser<RpcResponse, DataModel>): Promise<DataModel[]> => {
-    const objects = await this.provider.getObjectBatch(ids);
-
+  parseObjects = async <RpcResponse, DataModel>(
+    objects: GetObjectDataResponse[], parser: SuiObjectParser<RpcResponse, DataModel>): Promise<DataModel[]> => {
     const parsedObjects = objects
       .filter(isObjectExists)
       .map((_) => {
-        if (typeof _.details === 'object' && 'data' in _.details && 'fields' in _.details.data && _.details.data.type.match(parser.regex)) {
+        if (isSuiObject(_.details) && isSuiMoveObject(_.details.data) && _.details.data.type.match(parser.regex)) {
           return parser.parser(_.details.data.fields as RpcResponse, _.details, _);
         }
         return undefined;
@@ -64,54 +77,128 @@ export class NftClient {
     return parsedObjects;
   }
 
+  fetchAndParseObjectsById = async <RpcResponse, DataModel>(
+    ids: string[], parser: SuiObjectParser<RpcResponse, DataModel>): Promise<DataModel[]> => {
+    if (ids.length === 0) {
+      return [];
+    }
+    const objects = await this.provider.getObjectBatch(ids);
+    return this.parseObjects(objects, parser);
+  }
+
   fetchAndParseObjectsForAddress =
     async <RpcResponse, DataModel>(address: string, parser: SuiObjectParser<RpcResponse, DataModel>) => {
       const objectIds = await this.fetchObjectIdsForAddress(address, parser);
       return this.fetchAndParseObjectsById(objectIds, parser);
     }
 
-  getMintAuthoritiesById = async (params: GetAuthoritiesParams) => {
-    return this.fetchAndParseObjectsById(params.objectIds, MintAuthorityParser);
+  getMintCapsById = async (params: GetAuthoritiesParams) => {
+    return this.fetchAndParseObjectsById(params.objectIds, MintCapParser);
   }
 
   getMarketsByParams = async (params: GetMarketsParams) => {
-    const markets = await this.fetchAndParseObjectsById(params.objectIds, FixedPriceMarketParser);
-    const collectionIds = uniq(markets.map((_) => _.collectionId));
-    const collections = await this.getCollectionsById({ objectIds: collectionIds });
-    const collectionsMap = toMap(collections, (_) => _.id);
-    return markets.map((market) => ({
-      data: market,
-      collection: collectionsMap.get(market.collectionId),
-    }));
+    return this.fetchAndParseObjectsById(params.objectIds, FixedPriceMarketParser);
   }
 
   getCollectionsById = async (params: GetCollectionsParams) => {
-    const collections = await this.fetchAndParseObjectsById(params.objectIds, CollectionParser);
-    if (!params.resolveAuthorities) {
-      return collections;
+    return this.fetchAndParseObjectsById(params.objectIds, CollectionParser);
+  }
+
+  getBagContent = async (bagId: string) => {
+    const bagObjects = await this.provider.getObjectsOwnedByObject(bagId);
+    const objectIds = bagObjects.map((_) => _.objectId);
+    return this.provider.getObjectBatch(objectIds);
+  }
+
+  getAndParseBagContent = async <RpcResponse, DataModel>(
+    bagId: string, parser: SuiObjectParser<RpcResponse, DataModel>,
+  ) => {
+    const bagObjects = await this.getBagContent(bagId);
+    return this.parseObjects(bagObjects, parser);
+  }
+
+  getCollectionDomains = async (params: GetCollectionDomainsParams) => {
+    const domains = await this.getBagContent(params.domainsBagId);
+    const parsedDomains = parseCollectionsDomains(domains);
+
+    if (parsedDomains.tagsBagId) {
+      const t = await this.getBagContent(parsedDomains.tagsBagId);
+      parsedDomains.tags = parseTags(t);
     }
-    const authoritiesId = collections.map((_) => _.mintAuthorityId);
-    const authorities = await this.getMintAuthoritiesById({ objectIds: authoritiesId });
-    return this.mergeAuthoritiesWithCollections(collections, authorities);
+    // if (parsedDomains.royaltyAggregationBagId) {
+    //   const t = await this.getBagContent(parsedDomains.royaltyAggregationBagId);
+    // }
+    // if (parsedDomains.royaltyStrategiesBagId) {
+    //   const t = await this.getBagContent(parsedDomains.royaltyStrategiesBagId);
+    //   console.log('t', JSON.stringify(t), parsedDomains.royaltyStrategiesBagId);
+    // }
+
+    return parsedDomains;
   }
 
   getCollectionsForAddress = async (address: string) => {
-    // Since collectiona are shared object, we have to fetch MintAuthorities first
-    const authoritiesIds = await this.fetchObjectIdsForAddress(address, MintAuthorityParser);
+    // Since collectiona are shared object, we have to fetch MintCaps first
+    const authoritiesIds = await this.fetchObjectIdsForAddress(address, MintCapParser);
     if (!authoritiesIds.length) {
       return [];
     }
-    const authorities = await this.getMintAuthoritiesById({ objectIds: authoritiesIds });
+    const authorities = await this.getMintCapsById({ objectIds: authoritiesIds });
     const collectionIds = authorities.map((_) => _.collectionId);
-    const collections = await this.getCollectionsById({ objectIds: collectionIds, resolveAuthorities: false });
+    const collections = await this.getCollectionsById({ objectIds: collectionIds });
 
     return this.mergeAuthoritiesWithCollections(collections, authorities);
+  }
+
+  getLaunchpadsById = async (params: GetLaunchpadParams) => {
+    const launchpads = await this.fetchAndParseObjectsById([params.launchpadId], LaunchpadParser);
+
+    if (!launchpads.length) {
+      return undefined;
+    }
+    const launchpad = launchpads[0];
+    const fees = await this.getBagContent(launchpad.defaultFeeBoxId);
+
+    if (!fees.length) {
+      return launchpad;
+    }
+    const fee = fees[0];
+    if (isSuiObject(fee.details) && isSuiMoveObject(fee.details.data)) {
+      const feeBox = fee.details.data.fields as DefaultFeeBoxRpcResponse;
+      const feeData = await this.fetchAndParseObjectsById([feeBox.value], FlatFeeParser);
+
+      if (feeData.length) {
+        return { ...launchpad, defaultFee: feeData[0] };
+      }
+    }
+    return launchpad;
+  }
+
+  getLaunchpadSlotById = async (params: GetLaunchpadSlotParams) => {
+    const slots = await this.fetchAndParseObjectsById([params.slotId], LaunchpadSlotParser);
+    if (!slots.length) {
+      return undefined;
+    }
+
+    const slot = slots[0];
+
+    if (!params.resolveBags) {
+      return slot;
+    }
+    const [[inventories], [market]] = await Promise.all([
+      this.getAndParseBagContent(slot.inventoriesBagId, DynamicFieldParser),
+      this.getAndParseBagContent(slot.marketsBagId, DynamicFieldParser),
+    ]);
+    return { ...slot, inventoriesId: inventories?.value, marketId: market?.value };
+  }
+
+  getInventoryById = async (params: GetInventoryParams) => {
+    return this.fetchAndParseObjectsById([params.inventoryId], InventoryParser);
   }
 
   getNftsById = async (params: GetNftsParams): Promise<ArtNftWithCollection[]> => {
     const nfts = await this.fetchAndParseObjectsById(params.objectIds, ArtNftParser);
     const collectionIds = nfts.map((_) => _.collectionId);
-    const collections = await this.getCollectionsById({ objectIds: collectionIds, resolveAuthorities: true });
+    const collections = await this.getCollectionsById({ objectIds: collectionIds });
     const collectionById = toMap(collections, (_) => _.id);
 
     return nfts.map((nft) => {
@@ -160,11 +247,11 @@ export class NftClient {
 
   static buildInitSlot = buildInitSlot
 
-  private mergeAuthoritiesWithCollections = (collections: NftCollection[], authorities: MintAuthority[]) => {
+  private mergeAuthoritiesWithCollections = (collections: NftCollection[], caps: MintCap[]) => {
     const collectionsMap = toMap(collections, (_) => _.id);
-    return authorities.map((mintAuthority) => ({
-      ...collectionsMap.get(mintAuthority.collectionId),
-      mintAuthority,
+    return caps.map((mintCap) => ({
+      ...collectionsMap.get(mintCap.collectionId),
+      mintCap,
     }));
   }
 }

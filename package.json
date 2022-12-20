@@ -1,6 +1,6 @@
 {
   "name": "@originbyte/js-sdk",
-  "version": "0.3.14",
+  "version": "0.9.6-experimental",
   "keywords": [
     "originbyte",
     "sdk",
@@ -26,7 +26,7 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/Origin-Byte/originbyte-js-sdk"
-},
+  },
   "devDependencies": {
     "@types/bn.js": "^5.1.1",
     "@types/jest": "^27.0.2",
@@ -52,6 +52,6 @@
     "typescript-eslint-parser": "^22.0.0"
   },
   "dependencies": {
-    "@mysten/sui.js": "^0.18.0"
+    "@mysten/sui.js": "^0.20.0"
   }
 }
