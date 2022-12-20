@@ -4,40 +4,36 @@ module.exports = {
     es2021: true,
     node: true,
   },
-  extends: [
-    'airbnb-base',
-  ],
-  parser: '@typescript-eslint/parser',
+  extends: ["airbnb-base", "prettier"],
+  parser: "@typescript-eslint/parser",
   parserOptions: {
     ecmaVersion: 13,
-    sourceType: 'module',
+    sourceType: "module",
   },
-  plugins: [
-    'import',
-    '@typescript-eslint',
-  ],
+  plugins: ["import", "@typescript-eslint"],
   rules: {
-    'import/prefer-default-export': 'off',
-    'import/no-default-export': 'error',
-    'import/extensions': 'off',
-    'no-unused-vars': 'warn',
-    'arrow-body-style': 'off',
-    'max-len': ['error', { code: 140 }],
-    'no-shadow': 'off',
-    '@typescript-eslint/no-shadow': ['error'],
+    quotes: ["error", "double"],
+    "import/prefer-default-export": "off",
+    "import/no-default-export": "error",
+    "import/extensions": "off",
+    "no-unused-vars": "warn",
+    "arrow-body-style": "off",
+    "max-len": ["error", { code: 140 }],
+    "no-shadow": "off",
+    "@typescript-eslint/no-shadow": ["error"],
   },
   settings: {
-    'import/parsers': {
-      '@typescript-eslint/parser': ['.ts'],
+    "import/parsers": {
+      "@typescript-eslint/parser": [".ts"],
     },
-    'import/resolver': {
+    "import/resolver": {
       typescript: {
         // always try to resolve types under `<root>@types`
         // directory even it doesn't contain any source code, like `@types/unist`
 
         alwaysTryTypes: true,
 
-        project: 'path/to/folder',
+        project: "path/to/folder",
       },
     },
   },
