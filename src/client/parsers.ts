@@ -2,7 +2,7 @@ import {
   GetObjectDataResponse, isSuiMoveObject, isSuiObject, SuiMoveObject,
 } from '@mysten/sui.js';
 import {
-  ArtNft,
+  ArtNftRaw,
   ArtNftRpcResponse,
   AttributionDomainRpcResponse,
   CollectionDomains,
@@ -35,9 +35,9 @@ import {
 import { parseObjectOwner } from './utils';
 
 // eslint-disable-next-line max-len
-const ArtNftRegex = /(0x[a-f0-9]{40})::nft::Nft<0x[a-f0-9]{40}::([a-zA-Z]{1,})::([a-zA-Z]{1,}), 0x[a-f0-9]{40}::([a-zA-Z_]{1,}::[a-zA-Z_]{1,})>/;
+const ArtNftRegex = /(0x[a-f0-9]{39,40})::nft::Nft<0x[a-f0-9]{39,40}::([a-zA-Z]{1,})::([a-zA-Z]{1,})>/;
 
-export const ArtNftParser: SuiObjectParser<ArtNftRpcResponse, ArtNft> = {
+export const ArtNftParser: SuiObjectParser<ArtNftRpcResponse, ArtNftRaw> = {
   parser: (data, suiData, _) => {
     if (typeof _.details === 'object' && 'data' in _.details) {
       const { owner } = _.details;
@@ -51,13 +51,6 @@ export const ArtNftParser: SuiObjectParser<ArtNftRpcResponse, ArtNft> = {
       const packageModuleClassName = matches[3];
 
       return {
-        name: data.data.fields.name,
-        collectionId: data.data.fields.collection_id,
-        attributes: data.data.fields.attributes.fields.keys.reduce((acc, key, index) => {
-          acc[key] = data.data.fields.attributes.fields.values[index];
-          return acc;
-        }, {} as { [c: string]: string }),
-        url: data.data.fields.url,
         owner,
         ownerAddress: parseObjectOwner(owner),
         type: suiData.data.dataType,
@@ -66,6 +59,8 @@ export const ArtNftParser: SuiObjectParser<ArtNftRpcResponse, ArtNft> = {
         packageModule,
         packageModuleClassName,
         rawResponse: _,
+        logicalOwner: data.logical_owner,
+        bagId: data.bag.fields.id.id,
       };
     }
     return undefined;
@@ -130,7 +125,7 @@ export const FixedPriceMarketParser: SuiObjectParser<FixedPriceMarketRpcResponse
   regex: FixedPriceMarketRegex,
 };
 
-const NftCertificateRegex = /(0x[a-f0-9]{40})::sale::NftCertificate/;
+const NftCertificateRegex = /(0x[a-f0-9]{40})::slot::NftCertificate/;
 export const NftCertificateParser: SuiObjectParser<NftCertificateRpcResponse, NftCertificate> = {
   parser: (data, suiData, _) => {
     const matches = (suiData.data as SuiMoveObject).type.match(NftCertificateRegex);
@@ -146,6 +141,7 @@ export const NftCertificateParser: SuiObjectParser<NftCertificateRpcResponse, Nf
       packageObjectId,
       launchpadId: data.launchpad_id,
       rawResponse: _,
+      slotId: data.slot_id,
       owner: parseObjectOwner(suiData.owner),
     };
   },
@@ -258,7 +254,7 @@ const isTypeMatchRegex = (d: GetObjectDataResponse, regex: RegExp) => {
   return false;
 };
 
-export const parseCollectionsDomains = (domains: GetObjectDataResponse[]) => {
+export const parseDomains = (domains: GetObjectDataResponse[]) => {
   const response: Partial<CollectionDomains> = {};
   const royaltyDomain = domains.find((d) => isTypeMatchRegex(d, ROYALTY_DOMAIN_REGEX));
   const symbolDomain = domains.find((d) => isTypeMatchRegex(d, SYMBOL_DOMAIN_REGEX));

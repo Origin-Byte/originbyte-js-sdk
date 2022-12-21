@@ -20,7 +20,7 @@ import {
   FixedPriceMarketParser,
   MintCapParser,
   NftCertificateParser,
-  parseCollectionsDomains,
+  parseDomains,
   parseTags,
   FlatFeeParser,
   LaunchpadSlotParser,
@@ -29,7 +29,6 @@ import {
 } from './parsers';
 import {
   GetAuthoritiesParams,
-  ArtNftWithCollection,
   GetCollectionsParams,
   GetNftsParams,
   SuiObjectParser,
@@ -42,6 +41,7 @@ import {
   DefaultFeeBoxRpcResponse,
   GetInventoryParams,
   GetLaunchpadSlotParams,
+  ArtNft,
 } from './types';
 import { isObjectExists } from './utils';
 
@@ -119,20 +119,12 @@ export class NftClient {
 
   getCollectionDomains = async (params: GetCollectionDomainsParams) => {
     const domains = await this.getBagContent(params.domainsBagId);
-    const parsedDomains = parseCollectionsDomains(domains);
+    const parsedDomains = parseDomains(domains);
 
     if (parsedDomains.tagsBagId) {
       const t = await this.getBagContent(parsedDomains.tagsBagId);
       parsedDomains.tags = parseTags(t);
     }
-    // if (parsedDomains.royaltyAggregationBagId) {
-    //   const t = await this.getBagContent(parsedDomains.royaltyAggregationBagId);
-    // }
-    // if (parsedDomains.royaltyStrategiesBagId) {
-    //   const t = await this.getBagContent(parsedDomains.royaltyStrategiesBagId);
-    //   console.log('t', JSON.stringify(t), parsedDomains.royaltyStrategiesBagId);
-    // }
-
     return parsedDomains;
   }
 
@@ -195,17 +187,29 @@ export class NftClient {
     return this.fetchAndParseObjectsById([params.inventoryId], InventoryParser);
   }
 
-  getNftsById = async (params: GetNftsParams): Promise<ArtNftWithCollection[]> => {
+  getNftsById = async (params: GetNftsParams): Promise<ArtNft[]> => {
     const nfts = await this.fetchAndParseObjectsById(params.objectIds, ArtNftParser);
-    const collectionIds = nfts.map((_) => _.collectionId);
-    const collections = await this.getCollectionsById({ objectIds: collectionIds });
-    const collectionById = toMap(collections, (_) => _.id);
+    const bags = await Promise.all(nfts.map(async (_) => {
+      const content = await this.getBagContent(_.bagId);
+      return {
+        nftId: _.id,
+        content: parseDomains(content),
+      };
+    }));
+    const bagsByNftId = toMap(bags, (_) => _.nftId);
 
     return nfts.map((nft) => {
-      const collection = collectionById.get(nft.collectionId);
+      const fields = bagsByNftId.get(nft.id);
       return {
-        data: nft,
-        collection,
+        logicalOwner: nft.logicalOwner,
+        name: fields?.content.name,
+        description: fields?.content.description,
+        url: fields?.content.url,
+        packageModule: nft.packageModule,
+        packageObjectId: nft.packageObjectId,
+        packageModuleClassName: nft.packageModuleClassName,
+        id: nft.id,
+        rawResponse: nft.rawResponse,
       };
     });
   }
@@ -219,7 +223,7 @@ export class NftClient {
     const certificates = await this.fetchAndParseObjectsById(params.objectIds, NftCertificateParser);
     const nftIds = uniq(certificates.map((_) => _.nftId));
     const nfts = await this.getNftsById({ objectIds: nftIds });
-    const nftsMap = toMap(nfts, (_) => _.data.id);
+    const nftsMap = toMap(nfts, (_) => _.id);
     return certificates.map((certificate) => ({
       data: certificate,
       nft: nftsMap.get(certificate.nftId),

@@ -7,7 +7,6 @@ export const createMarket = async () => {
     slot: LAUNCHPAD_SLOT_ID,
     isWhitelisted: false,
     price: 100,
-    collectionType: `${PACKAGE_OBJECT_ID}::suimarines::SUIMARINES`,
   });
   const createMarketResult = await signer.executeMoveCall(transaction);
   console.log('createMarketResult', JSON.stringify(createMarketResult));

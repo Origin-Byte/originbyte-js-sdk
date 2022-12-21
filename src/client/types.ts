@@ -1,6 +1,6 @@
 /* eslint-disable camelcase */
 import {
-  GetObjectDataResponse, ObjectOwner, SuiObject,
+  GetObjectDataResponse, SuiObject,
 } from '@mysten/sui.js';
 
 export interface WithPackageObjectId {
@@ -193,6 +193,7 @@ export interface FixedPriceMarket extends WithRawResponse, WithId {
 export interface NftCertificateRpcResponse {
   nft_id: string
   launchpad_id: string
+  slot_id: string
 }
 
 export interface NftCertificate extends WithRawResponse, WithId {
@@ -200,6 +201,7 @@ export interface NftCertificate extends WithRawResponse, WithId {
   owner: string
   packageObjectId: string
   launchpadId: string
+  slotId: string
 }
 
 export interface LaunchpadRpcResponse {
@@ -233,27 +235,8 @@ export interface MintCap extends WithRawResponse, WithId {
 }
 
 export interface ArtNftRpcResponse {
-  type: string
-  data_id: string
-  // eslint-disable-next-line camelcase
-  data: {
-    type: string
-    fields: {
-      attributes: {
-        type: string
-        fields: {
-          keys: string[]
-          values: string[]
-
-        }
-      },
-      collection_id: string,
-      description: string,
-      id: ID
-      name: string
-      url: string
-    }
-  }
+  logical_owner: string
+  bag: Bag
 }
 
 export interface NftCollection extends ProtocolData, WithId {
@@ -261,19 +244,16 @@ export interface NftCollection extends ProtocolData, WithId {
   rawResponse: GetObjectDataResponse
 }
 
-export interface ArtNft extends ProtocolData, WithRawResponse, WithId {
-  name: string;
-  attributes: { [c: string]: string };
-  collectionId: string;
-  url: string;
-  ownerAddress: string
-  owner: ObjectOwner
-  type: string
+export interface ArtNftRaw extends ProtocolData, WithRawResponse, WithId {
+  logicalOwner: string
+  bagId: string
 }
 
-export interface ArtNftWithCollection {
-  data: ArtNft
-  collection: NftCollection
+export interface ArtNft extends ProtocolData, WithRawResponse, WithId {
+  logicalOwner: string
+  name?: string
+  description?: string
+  url?: string
 }
 
 export interface CollectionDomains {
@@ -331,45 +311,6 @@ export interface GetNftCertificateParams extends WithIds {
 
 }
 
-/**
-      return undefined;
-       [
-  {
-    "status": "Exists",
-    "details": {
-      "data": {
-        "dataType": "moveObject",
-        "type": "0x2::dynamic_field::Field<0x2::dynamic_object_field::Wrapper<0x2::object::ID>, 0x2::object::ID>",
-        "has_public_transfer": false,
-        "fields": {
-          "id": {
-            "id": "0x18b181dacccb42d7169592a1155092ba95647b9a"
-          },
-          "name": {
-            "type": "0x2::dynamic_object_field::Wrapper<0x2::object::ID>",
-            "fields": {
-              "name": "0x5bd796106a04cd7f9b938a0de088ecdf0b3f8040"
-            }
-          },
-          "value": "0xbe5cb139ed4985d08a86c22302046434ab930ee9"
-        }
-      },
-      "owner": {
-        "ObjectOwner": "0xc0017c6694ec0b60ac4d29b4a9ddbcbe71b47b1d"
-      },
-      "previousTransaction": "75nSEAd6PmBcnBBzmYk5eyPGiFMR6fLkdV1djaTQuAnw",
-      "storageRebate": 29,
-      "reference": {
-        "objectId": "0x18b181dacccb42d7169592a1155092ba95647b9a",
-        "version": 377,
-        "digest": "xhEASNLC4xWcvaMeBdv3JcE+DxhaKTWtlkFwJH90O4I="
-      }
-    }
-  }
-]
- *
- */
-
 export type DynamicFieldRpcResponse = {
   id: ID
   name: {
@@ -406,8 +347,8 @@ export type BuildMintNftParams = WithPackageObjectId & {
   mintCap: string
   slot: string
   marketId: string
-  // url: string
-  // attributes: { [c: string]: string };
+  url: string
+  attributes: { [c: string]: string };
   // mintAuthority: string
   // launchpadId: string
   // tierIndex?: number
@@ -462,5 +403,4 @@ export type BuildCreateFixedPriceMarket = WithPackageObjectId & {
   slot: string
   isWhitelisted: boolean // Define if the buyers need to be whitelisted
   price: number
-  collectionType: string
 }

@@ -41,6 +41,11 @@ export const mintNFt = async () => {
       marketId: MARKET_ID,
       packageObjectId: PACKAGE_OBJECT_ID,
       moduleName: 'suimarines',
+      url: 'https://images.ctfassets.net/6kz06gcm2189/27OknKy2oUNvX8rGm1fHXH/1c5dd162685656aae5cbd3a54c27102c/how-to-mint-an-nft.png',
+      attributes: {
+        rarity: 'Common',
+        type: 'NFT',
+      },
     }));
   }
   const chunks = splitBy(txs, 10000);

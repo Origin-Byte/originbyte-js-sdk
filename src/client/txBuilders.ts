@@ -10,13 +10,13 @@ import {
 } from './types';
 
 export const biuldMintNft = (params: BuildMintNftParams): MoveCallTransaction => {
-  // const keys: string[] = [];
-  // const values: string[] = [];
-  // const { attributes } = params;
-  // Object.keys(attributes).forEach((key) => {
-  //   keys.push(key);
-  //   values.push(attributes[key]);
-  // });
+  const keys: string[] = [];
+  const values: string[] = [];
+  const { attributes } = params;
+  Object.keys(attributes).forEach((key) => {
+    keys.push(key);
+    values.push(attributes[key]);
+  });
 
   return {
     packageObjectId: params.packageObjectId,
@@ -26,9 +26,9 @@ export const biuldMintNft = (params: BuildMintNftParams): MoveCallTransaction =>
     arguments: [
       params.name,
       params.description,
-      // params.url,
-      // keys.map((_) => strToByteArray(_)),
-      // values.map((_) => strToByteArray(_)),
+      params.url,
+      keys,
+      values,
       params.mintCap,
       params.slot,
       params.marketId,
@@ -60,7 +60,7 @@ export const buildCreateFixedPriceMarket = (params: BuildCreateFixedPriceMarket)
   module: 'fixed_price',
   function: 'init_market',
   typeArguments: [
-    params.collectionType,
+    '0x2::sui::SUI',
   ],
   arguments: [
     params.slot,
@@ -83,8 +83,8 @@ export const buildEnableSales = (params: BuildEnableSalesParams): MoveCallTransa
 
 export const buildClaimNftCertificate = (params: BuildClaimNftCertificateParams): MoveCallTransaction => ({
   packageObjectId: params.packageObjectId,
-  module: 'launchpad',
-  function: 'redeem_nft',
+  module: 'slot',
+  function: 'transfer_nft',
   typeArguments: [
     params.nftType,
   ],
