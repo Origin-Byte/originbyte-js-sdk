@@ -1,0 +1,87 @@
+import { MoveCallTransaction } from "@mysten/sui.js";
+import {
+  CreateSafeForSenderParams,
+  AuthorizationParams,
+  DepositsOfCollectionParams,
+  DepositNftParams,
+  DepositNftPrivilegedParams,
+} from "./types";
+
+const DEFAULT_SAFE_MODULE = "safe";
+const DEFAULT_GAS_BUDGET = 5000;
+
+export const createSafeForSenderTx = (
+  params: CreateSafeForSenderParams
+): MoveCallTransaction => {
+  return {
+    packageObjectId: params.packageObjectId,
+    module: params.moduleName ?? DEFAULT_SAFE_MODULE,
+    function: "create_for_sender",
+    typeArguments: [],
+    arguments: [],
+    gasBudget: params.gasBudget ?? DEFAULT_GAS_BUDGET,
+  };
+};
+
+export const restrictDepositsTx = (
+  params: AuthorizationParams
+): MoveCallTransaction => {
+  return {
+    packageObjectId: params.packageObjectId,
+    module: params.moduleName ?? DEFAULT_SAFE_MODULE,
+    function: "restrict_deposits",
+    typeArguments: [],
+    arguments: [params.ownerCap, params.safe],
+    gasBudget: params.gasBudget ?? DEFAULT_GAS_BUDGET,
+  };
+};
+
+export const enableAnyDepositTx = (
+  params: AuthorizationParams
+): MoveCallTransaction => {
+  return {
+    packageObjectId: params.packageObjectId,
+    module: params.moduleName ?? DEFAULT_SAFE_MODULE,
+    function: "enable_any_deposit",
+    typeArguments: [],
+    arguments: [params.ownerCap, params.safe],
+    gasBudget: params.gasBudget ?? DEFAULT_GAS_BUDGET,
+  };
+};
+
+export const setDepositsOfCollectionTx = (
+  params: DepositsOfCollectionParams
+) => {
+  return {
+    packageObjectId: params.packageObjectId,
+    module: params.moduleName ?? DEFAULT_SAFE_MODULE,
+    function: `${params.setPermission}_deposits_of_collection`,
+    typeArguments: [params.collection],
+    arguments: [params.ownerCap, params.safe],
+    gasBudget: params.gasBudget ?? DEFAULT_GAS_BUDGET,
+  };
+};
+
+export const depositNftTx = (params: DepositNftParams): MoveCallTransaction => {
+  return {
+    packageObjectId: params.packageObjectId,
+    module: params.moduleName ?? DEFAULT_SAFE_MODULE,
+    function: "deposit_nft",
+    typeArguments: [],
+    arguments: [params.nft, params.safe],
+    gasBudget: params.gasBudget ?? DEFAULT_GAS_BUDGET,
+  };
+};
+
+export const depositNftPrivilegedTx = (
+  params: DepositNftPrivilegedParams
+): MoveCallTransaction => {
+  return {
+    packageObjectId: params.packageObjectId,
+    module: params.moduleName ?? DEFAULT_SAFE_MODULE,
+    function: "deposit_nft_privileged",
+    typeArguments: [],
+    arguments: [params.nft, params.safe],
+    gasBudget: params.gasBudget ?? DEFAULT_GAS_BUDGET,
+  };
+};
