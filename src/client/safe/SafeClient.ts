@@ -1,11 +1,35 @@
+import {
+  createSafeForSenderTx,
+  restrictDepositsTx,
+  enableAnyDepositTx,
+  setDepositsOfCollectionTx,
+  depositNftTx,
+  depositNftPrivilegedTx,
+  depositGenericNftTx,
+  depositGenericNftPrivilegedTx,
+  createTransferCapForSenderTx,
+  createExclusiveTransferCapForSenderTx,
+} from "./txBuilder";
+
 export class SafeClient {
-  // create_for_sender
-  // restrict_deposits
-  // enable_any_deposit
-  // disable_deposits_of_collection
-  // enable_deposits_of_collection
-  // deposit_nft
-  // deposit_nft_privileged
-  // burn_transfer_cap
-  // delist_nft
+  static createSafeForSenderTx = createSafeForSenderTx;
+
+  static restrictDepositsTx = restrictDepositsTx;
+
+  static enableAnyDepositTx = enableAnyDepositTx;
+
+  static setDepositsOfCollectionTx = setDepositsOfCollectionTx;
+
+  static depositNftTx = depositNftTx;
+
+  static depositNftPrivilegedTx = depositNftPrivilegedTx;
+
+  static depositGenericNftTx = depositGenericNftTx;
+
+  static depositGenericNftPrivilegedTx = depositGenericNftPrivilegedTx;
+
+  static createTransferCapForSenderTx = createTransferCapForSenderTx;
+
+  static createExclusiveTransferCapForSenderTx =
+    createExclusiveTransferCapForSenderTx;
 }

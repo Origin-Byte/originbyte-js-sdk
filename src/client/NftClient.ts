@@ -119,7 +119,7 @@ export class NftClient {
   };
 
   getCollectionsForAddress = async (address: string) => {
-    // Since collectiona are shared object, we have to fetch MintAuthorities first
+    // Since collections are shared object, we have to fetch MintAuthorities first
     const authoritiesIds = await this.fetchObjectIdsForAddress(
       address,
       MintAuthorityParser
