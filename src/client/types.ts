@@ -149,11 +149,23 @@ export interface DefaultFeeBoxRpcResponse {
 
 export interface LaunchpadSlotRpcResponse {
   admin: string
-  launchpad: string
-  receiver: string
   custom_fee: ObjectBox
   inventories: Bag
+  launchpad_id: string
+  live: boolean
   markets: Bag
+  proceeds: {
+    fields: {
+      id: ID
+      qt_sold: {
+        fields: {
+          collected: string
+          total: string
+        }
+      }
+    }
+  }
+  receiver: string
 }
 
 export interface LaunchpadSlot extends WithPackageObjectId, WithId {
@@ -163,6 +175,8 @@ export interface LaunchpadSlot extends WithPackageObjectId, WithId {
   customFeeBagId: string
   inventoriesBagId: string
   marketsBagId: string
+  live: boolean
+  qtSold: number
 }
 
 export interface FlatFeeRfcRpcResponse {

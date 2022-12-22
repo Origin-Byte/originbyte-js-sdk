@@ -1,5 +1,17 @@
 {
   "compilerOptions": {
-    "typeRoots" : ["./node_modules/@types", "./typings"]
-  }
+    "sourceMap": true,
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "noEmitOnError": true,
+    "esModuleInterop": true,
+    "target": "es5",
+    "declaration": true,
+    "removeComments": false,
+    "noImplicitAny": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule":true,
+    "typeRoots" : ["./node_modules/@types", "./typings"],
+  },
+  "include": ["src"]
 }
