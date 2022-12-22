@@ -1,4 +1,4 @@
-import { MoveCallTransaction } from '@mysten/sui.js';
+import { MoveCallTransaction } from "@mysten/sui.js";
 import {
   BuildBuyNftCertificateParams,
   BuildClaimNftCertificateParams,
@@ -10,9 +10,11 @@ import {
   BuildInitSlotParams,
   BuildMintNftParams,
   BuildCreateFixedPriceMarketParams,
-} from './types';
+} from "./types";
 
-export const biuldMintNft = (params: BuildMintNftParams): MoveCallTransaction => {
+export const biuldMintNft = (
+  params: BuildMintNftParams
+): MoveCallTransaction => {
   const keys: string[] = [];
   const values: string[] = [];
   const { attributes } = params;
@@ -24,7 +26,7 @@ export const biuldMintNft = (params: BuildMintNftParams): MoveCallTransaction =>
   return {
     packageObjectId: params.packageObjectId,
     module: params.moduleName,
-    function: 'mint_nft',
+    function: "mint_nft",
     typeArguments: [],
     arguments: [
       params.name,
@@ -39,96 +41,79 @@ export const biuldMintNft = (params: BuildMintNftParams): MoveCallTransaction =>
   };
 };
 
-export const buildBuyNftCertificate = (params: BuildBuyNftCertificateParams): MoveCallTransaction => ({
+export const buildBuyNftCertificate = (
+  params: BuildBuyNftCertificateParams
+): MoveCallTransaction => ({
   packageObjectId: params.packageObjectId,
-  module: 'fixed_price',
-  function: 'buy_nft_certificate',
-  typeArguments: [
-    '0x2::sui::SUI',
-  ],
-  arguments: [
-    params.launchpadId,
-    params.slotId,
-    params.marketId,
-    params.coin,
-  ],
+  module: "fixed_price",
+  function: "buy_nft_certificate",
+  typeArguments: ["0x2::sui::SUI"],
+  arguments: [params.launchpadId, params.slotId, params.marketId, params.coin],
   gasBudget: 5000,
 });
 
-export const buildCreateFixedPriceMarketWithInventory = (params: BuildCreateFixedPriceMarketWithInventoryParams): MoveCallTransaction => ({
+export const buildCreateFixedPriceMarketWithInventory = (
+  params: BuildCreateFixedPriceMarketWithInventoryParams
+): MoveCallTransaction => ({
   packageObjectId: params.packageObjectId,
-  module: 'fixed_price',
-  function: 'init_market_with_inventory',
-  typeArguments: [
-    '0x2::sui::SUI',
-  ],
-  arguments: [
-    params.slot,
-    params.inventoryId,
-    params.price,
-  ],
+  module: "fixed_price",
+  function: "init_market_with_inventory",
+  typeArguments: ["0x2::sui::SUI"],
+  arguments: [params.slot, params.inventoryId, params.price],
   gasBudget: 5000,
 });
 
-export const buildCreateFixedPriceMarket = (params: BuildCreateFixedPriceMarketParams): MoveCallTransaction => ({
+export const buildCreateFixedPriceMarket = (
+  params: BuildCreateFixedPriceMarketParams
+): MoveCallTransaction => ({
   packageObjectId: params.packageObjectId,
-  module: 'fixed_price',
-  function: 'init_market',
-  typeArguments: [
-    '0x2::sui::SUI',
-  ],
-  arguments: [
-    params.slot,
-    params.isWhitelisted,
-    params.price,
-  ],
+  module: "fixed_price",
+  function: "init_market",
+  typeArguments: ["0x2::sui::SUI"],
+  arguments: [params.slot, params.isWhitelisted, params.price],
   gasBudget: 5000,
 });
 
-export const buildEnableSales = (params: BuildEnableSalesParams): MoveCallTransaction => ({
+export const buildEnableSales = (
+  params: BuildEnableSalesParams
+): MoveCallTransaction => ({
   packageObjectId: params.packageObjectId,
-  module: 'slot',
-  function: 'sale_on',
+  module: "slot",
+  function: "sale_on",
   typeArguments: [],
-  arguments: [
-    params.slotId,
-  ],
+  arguments: [params.slotId],
   gasBudget: 5000,
 });
 
-export const buildClaimNftCertificate = (params: BuildClaimNftCertificateParams): MoveCallTransaction => ({
+export const buildClaimNftCertificate = (
+  params: BuildClaimNftCertificateParams
+): MoveCallTransaction => ({
   packageObjectId: params.packageObjectId,
-  module: 'slot',
-  function: 'transfer_nft',
-  typeArguments: [
-    params.nftType,
-  ],
-  arguments: [
-    params.certificateId,
-    params.slotId,
-    params.recepient,
-  ],
+  module: "slot",
+  function: "transfer_nft",
+  typeArguments: [params.nftType],
+  arguments: [params.certificateId, params.slotId, params.recepient],
   gasBudget: 5000,
 });
 
-export const buildCreateFlatFee = (params: BuildCreateFlatFeeParams): MoveCallTransaction => ({
+export const buildCreateFlatFee = (
+  params: BuildCreateFlatFeeParams
+): MoveCallTransaction => ({
   packageObjectId: params.packageObjectId,
-  module: 'flat_fee',
-  function: 'init_fee',
+  module: "flat_fee",
+  function: "init_fee",
   typeArguments: [],
-  arguments: [
-    params.rate,
-  ],
+  arguments: [params.rate],
   gasBudget: 5000,
 });
 
-export const buildInitLaunchpad = (params: BuildInitLaunchpadParams): MoveCallTransaction => ({
+export const buildInitLaunchpad = (
+  params: BuildInitLaunchpadParams
+): MoveCallTransaction => ({
   packageObjectId: params.packageObjectId,
-  module: 'launchpad',
-  function: 'init_launchpad',
-  typeArguments: [
-    `${params.packageObjectId}::flat_fee::FlatFee`,
-  ],
+  module: "launchpad",
+  function: "init_launchpad",
+  typeArguments: [`${params.packageObjectId}::flat_fee::FlatFee`],
   arguments: [
     params.admin,
     params.receiver,
@@ -138,26 +123,24 @@ export const buildInitLaunchpad = (params: BuildInitLaunchpadParams): MoveCallTr
   gasBudget: 5000,
 });
 
-export const buildInitSlot = (params: BuildInitSlotParams): MoveCallTransaction => ({
+export const buildInitSlot = (
+  params: BuildInitSlotParams
+): MoveCallTransaction => ({
   packageObjectId: params.packageObjectId,
-  module: 'slot',
-  function: 'init_slot',
+  module: "slot",
+  function: "init_slot",
   typeArguments: [],
-  arguments: [
-    params.launchpad,
-    params.slotAdmin,
-    params.receiver,
-  ],
+  arguments: [params.launchpad, params.slotAdmin, params.receiver],
   gasBudget: 5000,
 });
 
-export const buildCreateInventoryTx = (params: BuildCreateInventoryParams): MoveCallTransaction => ({
+export const buildCreateInventoryTx = (
+  params: BuildCreateInventoryParams
+): MoveCallTransaction => ({
   packageObjectId: params.packageObjectId,
-  module: 'inventory',
-  function: 'create_and_transfer',
+  module: "inventory",
+  function: "create_for_sender",
   typeArguments: [],
-  arguments: [
-    params.isWhitelisted,
-  ],
+  arguments: [params.isWhitelisted],
   gasBudget: 5000,
 });
