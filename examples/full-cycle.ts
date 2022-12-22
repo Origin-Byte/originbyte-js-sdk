@@ -5,7 +5,7 @@ import {
   RawSigner,
   SuiTransactionResponse,
   TransactionQuery,
-} from "@mysten/sui.js";
+} from '@mysten/sui.js';
 import {
   CollectionParser,
   FixedPriceMarketParser,
@@ -15,48 +15,49 @@ import {
   LaunchpadSlotParser,
   MintCapParser,
   NftClient,
-} from "../src";
+} from '../src';
 
-const mnemonic =
-  "case collect embrace glance review mechanic rent wine upgrade stay pulp thought";
+const mnemonic = 'case collect embrace glance review mechanic rent wine upgrade stay pulp thought';
 export const keypair = Ed25519Keypair.deriveKeypair(mnemonic);
 
-export const provider = new JsonRpcProvider("https://fullnode.devnet.sui.io");
+export const provider = new JsonRpcProvider('https://fullnode.devnet.sui.io');
 export const signer = new RawSigner(keypair, provider);
 export const client = new NftClient(provider);
 
 // NFT-PROTOCOL: 0xf7c24c7e1722f4d9acc596d65feb13f61b2cd7ae
 // SUIGODS: 0x956ed4d211f1aba2fd5db0286c267dd9a1c9d633
 
-const GLOBAL_RECEIVER = "0x84f97e3505a010148b2d6292d370ddcfbe5d7a7e"; // pubkey
+const GLOBAL_RECEIVER = '0x84f97e3505a010148b2d6292d370ddcfbe5d7a7e'; // pubkey
 const CONFIG = {
-  contractId: "0x956ed4d211f1aba2fd5db0286c267dd9a1c9d633", // SUIGODS
+  nftProtocolContractId: '0xf7c24c7e1722f4d9acc596d65feb13f61b2cd7ae', // NFT-PROTOCOL
+  nftContractId: '0x956ed4d211f1aba2fd5db0286c267dd9a1c9d633', // SUIGODS
   launchpadAdmin: GLOBAL_RECEIVER,
   launchpadReceiver: GLOBAL_RECEIVER,
   lpSlotAdmin: GLOBAL_RECEIVER,
   lpSlotReceiver: GLOBAL_RECEIVER,
   feesRate: 1000, // bps
   mintTestNFTs: true,
+  moduleName: 'suigods', // TODO: parse on the fly
 };
 
 const loadAllTxs = async (query: TransactionQuery) => {
   let result: SuiTransactionResponse[] = [];
   let cursor: string | null = null;
   while (true) {
-    console.log("Start search by contract...");
+    console.log('Start search by contract...');
     // eslint-disable-next-line no-await-in-loop
     const txIds = await provider.getTransactions(
       query,
       cursor,
       null,
-      "descending"
+      'descending',
     );
     // eslint-disable-next-line no-await-in-loop
     const txs = await provider.getTransactionWithEffectsBatch(txIds.data);
     result = [...result, ...txs];
     if (!txIds.nextCursor) {
       return result.sort(
-        (a, b) => (b.timestamp_ms ?? 0) - (a.timestamp_ms ?? 0)
+        (a, b) => (b.timestamp_ms ?? 0) - (a.timestamp_ms ?? 0),
       );
     }
     cursor = txIds.nextCursor;
@@ -83,7 +84,7 @@ const resolveFields = async (allObjects: GetObjectDataResponse[]) => {
   ]);
 
   return {
-    contractId: CONFIG.contractId,
+    contractId: CONFIG.nftProtocolContractId,
     collectionId: collection?.id,
     mintCapId: mintCap?.id,
     feesIds: fees.length ? fees.map((_) => _.id) : undefined,
@@ -98,7 +99,7 @@ const resolveFields = async (allObjects: GetObjectDataResponse[]) => {
 
 const loadProgram = async () => {
   const start = Date.now();
-  const publishTx = await loadAllTxs({ MutatedObject: CONFIG.contractId });
+  const publishTx = await loadAllTxs({ MutatedObject: CONFIG.nftProtocolContractId });
   const publishObjectIds = publishTx
     .map((_) => _.effects.created || [])
     .flat()
@@ -109,10 +110,10 @@ const loadProgram = async () => {
   while (true) {
     // eslint-disable-next-line no-await-in-loop
     const txIds = await provider.getTransactions(
-      { InputObject: CONFIG.contractId },
+      { InputObject: CONFIG.nftProtocolContractId },
       cursor,
       100,
-      "ascending"
+      'ascending',
     );
     // eslint-disable-next-line no-await-in-loop
     const txObjects = await provider.getTransactionWithEffectsBatch(txIds.data);
@@ -120,44 +121,43 @@ const loadProgram = async () => {
     const objectsForTx = await provider.getObjectBatch(
       txObjects
         .flatMap((_) => _.effects.created || [])
-        .map((_) => _.reference.objectId)
+        .map((_) => _.reference.objectId),
     );
     objectsCache.push(...objectsForTx);
     // eslint-disable-next-line no-await-in-loop
     const result = await resolveFields(objectsCache);
 
     const hasMultipleAddresses = Object.values(result).some(
-      (_) => Array.isArray(_) && _.length > 1
+      (_) => Array.isArray(_) && _.length > 1,
     );
 
     if (hasMultipleAddresses) {
       throw new Error(`Multiple addresses found: ${JSON.stringify(result)}`);
     }
     const resultHasUndefined = Object.values(result).some(
-      (_) => _ === undefined
+      (_) => _ === undefined,
     );
     if (!resultHasUndefined || txIds.nextCursor === null) {
       return result;
     }
-    console.log("NExt", txIds.nextCursor);
+    console.log('NExt', txIds.nextCursor);
     cursor = txIds.nextCursor;
   }
 };
 
 const createFees = async (): Promise<string | undefined> => {
   const transaction = NftClient.buildCreateFlatFee({
-    packageObjectId: CONFIG.contractId,
+    packageObjectId: CONFIG.nftProtocolContractId,
     rate: CONFIG.feesRate,
   });
   const createFeeResult = await signer.executeMoveCall(transaction);
-  if ("EffectsCert" in createFeeResult && createFeeResult.EffectsCert) {
-    const createdObjects =
-      createFeeResult.EffectsCert.effects.effects.created?.map(
-        (_) => _.reference.objectId
-      );
+  if ('EffectsCert' in createFeeResult && createFeeResult.EffectsCert) {
+    const createdObjects = createFeeResult.EffectsCert.effects.effects.created?.map(
+      (_) => _.reference.objectId,
+    );
     const feeId = await client.fetchAndParseObjectsById(
       createdObjects || [],
-      FlatFeeParser
+      FlatFeeParser,
     );
     return feeId[0].id;
   }
@@ -166,21 +166,20 @@ const createFees = async (): Promise<string | undefined> => {
 
 const initLaunchpad = async (defaultFeeId: string) => {
   const transaction = NftClient.buildInitLaunchpad({
-    packageObjectId: CONFIG.contractId,
+    packageObjectId: CONFIG.nftProtocolContractId,
     admin: CONFIG.launchpadAdmin, // launchpad admin,
     receiver: CONFIG.launchpadReceiver, // launchpad receiver
     defaultFee: defaultFeeId,
     autoApprove: true,
   });
   const initLaunchpadResult = await signer.executeMoveCall(transaction);
-  if ("EffectsCert" in initLaunchpadResult && initLaunchpadResult.EffectsCert) {
-    const createdObjects =
-      initLaunchpadResult.EffectsCert.effects.effects.created?.map(
-        (_) => _.reference.objectId
-      );
+  if ('EffectsCert' in initLaunchpadResult && initLaunchpadResult.EffectsCert) {
+    const createdObjects = initLaunchpadResult.EffectsCert.effects.effects.created?.map(
+      (_) => _.reference.objectId,
+    );
     const launchpads = await client.fetchAndParseObjectsById(
       createdObjects || [],
-      LaunchpadParser
+      LaunchpadParser,
     );
     return launchpads[0].id;
   }
@@ -189,20 +188,19 @@ const initLaunchpad = async (defaultFeeId: string) => {
 
 const initLaunchpadSlot = async (launchpadId: string) => {
   const transaction = NftClient.buildInitSlot({
-    packageObjectId: CONFIG.contractId,
+    packageObjectId: CONFIG.nftProtocolContractId,
     slotAdmin: CONFIG.lpSlotAdmin, // Slot admin,
     receiver: CONFIG.lpSlotReceiver, // Slot receiver
     launchpad: launchpadId,
   });
   const initSlotResult = await signer.executeMoveCall(transaction);
-  if ("EffectsCert" in initSlotResult && initSlotResult.EffectsCert) {
-    const createdObjects =
-      initSlotResult.EffectsCert.effects.effects.created?.map(
-        (_) => _.reference.objectId
-      );
+  if ('EffectsCert' in initSlotResult && initSlotResult.EffectsCert) {
+    const createdObjects = initSlotResult.EffectsCert.effects.effects.created?.map(
+      (_) => _.reference.objectId,
+    );
     const slots = await client.fetchAndParseObjectsById(
       createdObjects || [],
-      LaunchpadSlotParser
+      LaunchpadSlotParser,
     );
     return slots[0].id;
   }
@@ -211,21 +209,20 @@ const initLaunchpadSlot = async (launchpadId: string) => {
 
 export const createInventory = async () => {
   const transaction = NftClient.buildCreateInventoryTx({
-    packageObjectId: CONFIG.contractId,
+    packageObjectId: CONFIG.nftProtocolContractId,
     isWhitelisted: false,
   });
   const createInventoryResult = await signer.executeMoveCall(transaction);
   if (
-    "EffectsCert" in createInventoryResult &&
-    createInventoryResult.EffectsCert
+    'EffectsCert' in createInventoryResult
+    && createInventoryResult.EffectsCert
   ) {
-    const createdObjects =
-      createInventoryResult.EffectsCert.effects.effects.created?.map(
-        (_) => _.reference.objectId
-      );
+    const createdObjects = createInventoryResult.EffectsCert.effects.effects.created?.map(
+      (_) => _.reference.objectId,
+    );
     const slots = await client.fetchAndParseObjectsById(
       createdObjects || [],
-      LaunchpadSlotParser
+      LaunchpadSlotParser,
     );
     return slots[0].id;
   }
@@ -234,20 +231,19 @@ export const createInventory = async () => {
 
 const createMarket = async (slotId: string, inventoryId: string) => {
   const transaction = NftClient.buildCreateFixedPriceMarketWithInventory({
-    packageObjectId: CONFIG.contractId,
+    packageObjectId: CONFIG.nftProtocolContractId,
     slot: slotId,
     inventoryId,
     price: 100,
   });
   const createMarketResult = await signer.executeMoveCall(transaction);
-  if ("EffectsCert" in createMarketResult && createMarketResult.EffectsCert) {
-    const createdObjects =
-      createMarketResult.EffectsCert.effects.effects.created?.map(
-        (_) => _.reference.objectId
-      );
+  if ('EffectsCert' in createMarketResult && createMarketResult.EffectsCert) {
+    const createdObjects = createMarketResult.EffectsCert.effects.effects.created?.map(
+      (_) => _.reference.objectId,
+    );
     const markets = await client.fetchAndParseObjectsById(
       createdObjects || [],
-      FixedPriceMarketParser
+      FixedPriceMarketParser,
     );
     return markets[0].id;
   }
@@ -257,11 +253,11 @@ const createMarket = async (slotId: string, inventoryId: string) => {
 const doFullCycle = async () => {
   const loadedContract = await loadProgram();
 
-  console.log("loadedContract", loadedContract);
+  console.log('loadedContract', loadedContract);
   if (!loadedContract.feesIds || !loadedContract.feesIds.length) {
     const feeId = await createFees();
     if (!feeId) {
-      throw new Error("Fee not created");
+      throw new Error('Fee not created');
     }
     loadedContract.feesIds = [feeId];
   }
@@ -269,18 +265,18 @@ const doFullCycle = async () => {
   if (!loadedContract.launchpadIds || !loadedContract.launchpadIds.length) {
     const launchpadId = await initLaunchpad(loadedContract.feesIds[0]);
     if (!launchpadId) {
-      throw new Error("Launchpad not created");
+      throw new Error('Launchpad not created');
     }
     loadedContract.launchpadIds = [launchpadId];
   }
 
   if (
-    !loadedContract.launchpadSlotIds ||
-    !loadedContract.launchpadSlotIds.length
+    !loadedContract.launchpadSlotIds
+    || !loadedContract.launchpadSlotIds.length
   ) {
     const slotId = await initLaunchpadSlot(loadedContract.launchpadIds[0]);
     if (!slotId) {
-      throw new Error("Slot not created");
+      throw new Error('Slot not created');
     }
     loadedContract.launchpadSlotIds = [slotId];
   }
@@ -288,7 +284,7 @@ const doFullCycle = async () => {
   if (!loadedContract.inventories || !loadedContract.inventories.length) {
     const inventoryId = await createInventory();
     if (!inventoryId) {
-      throw new Error("Inventory not created");
+      throw new Error('Inventory not created');
     }
     loadedContract.inventories = [inventoryId];
   }
@@ -299,24 +295,24 @@ const doFullCycle = async () => {
         name: `Test NFT ${i}`,
         description: `Test NFT ${i} Description `,
         mintCap: loadedContract.mintCapId,
-        packageObjectId: CONFIG.contractId,
+        packageObjectId: CONFIG.nftContractId,
         inventoryId: loadedContract.inventories[0],
-        moduleName: "suitraders",
-        url: "https://images.ctfassets.net/6kz06gcm2189/27OknKy2oUNvX8rGm1fHXH/1c5dd162685656aae5cbd3a54c27102c/how-to-mint-an-nft.png",
+        moduleName: CONFIG.moduleName,
+        url: 'https://images.ctfassets.net/6kz06gcm2189/27OknKy2oUNvX8rGm1fHXH/1c5dd162685656aae5cbd3a54c27102c/how-to-mint-an-nft.png',
         attributes: {
-          rarity: "Common",
-          type: "NFT",
+          rarity: 'Common',
+          type: 'NFT',
         },
       });
       // eslint-disable-next-line no-await-in-loop
       const mintResult = await signer.executeMoveCall(tx);
       if (
-        "EffectsCert" in mintResult &&
-        mintResult.EffectsCert.effects.effects.created
+        'EffectsCert' in mintResult
+        && mintResult.EffectsCert.effects.effects.created
       ) {
         console.log(
-          "Minted NFT:",
-          mintResult.EffectsCert.effects.effects.created[0].reference.objectId
+          'Minted NFT:',
+          mintResult.EffectsCert.effects.effects.created[0].reference.objectId,
         );
       }
     }
@@ -325,10 +321,10 @@ const doFullCycle = async () => {
   if (!loadedContract.marketIds || !loadedContract.marketIds.length) {
     const marketId = await createMarket(
       loadedContract.launchpadSlotIds[0],
-      loadedContract.inventories[0]
+      loadedContract.inventories[0],
     );
     if (!marketId) {
-      throw new Error("Market not created");
+      throw new Error('Market not created');
     }
     loadedContract.marketIds = [marketId];
   }
@@ -336,4 +332,4 @@ const doFullCycle = async () => {
   return loadedContract;
 };
 
-doFullCycle().then((result) => console.log("Done", JSON.stringify(result)));
+doFullCycle().then((result) => console.log('Done', JSON.stringify(result)));
