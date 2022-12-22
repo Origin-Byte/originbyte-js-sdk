@@ -2,6 +2,7 @@
 
 // eslint-disable-next-line
 import * as pressAnyKey from "press-any-key";
+import { green, bgWhite, bold } from "console-log-colors";
 import {
   MoveCallTransaction,
   ObjectId,
@@ -20,7 +21,7 @@ const COLLECTION_PACKAGE_ID = "0x735d8035efe816f14d5ba5a52d9ccafd3ae7e815";
 const COLLECTION_TYPE = `${COLLECTION_PACKAGE_ID}::suimarines::SUIMARINES`;
 const COLLECTION_ID = "0xbbcc368589dc8d5dd0e0bc23110f09af041df561";
 const WHITELIST_ID = "0x9e9836ce2f5f01e51f0bb14028dd2773394bf431";
-const NFT_ID = "0x0f2a2fa797a22c1fb886fb24057c9c9442f48e09";
+const NFT_ID = "0x0fca2bea5a9ee4073ed211f2015ddfcb46ca399a";
 
 async function sendTx(tx: MoveCallTransaction): Promise<TransactionEffects> {
   const res = await signer.executeMoveCall(tx);
@@ -70,15 +71,19 @@ async function createSafe(): Promise<[ObjectId, ObjectId]> {
 
 async function pressToContinue(msg: string) {
   console.log();
-  console.log(msg);
+  console.log(bold(msg));
   await pressAnyKey("Press any key to continue ...");
 }
 
 const main = async () => {
   await pressToContinue("Creating Safe object for seller ...");
+  // BV5Gv1qLVoMc2bUNAyS3MchJzer5Swy7W5QFVT2cfwnz
   const [sellerSafeId, sellerOwnerCapId] = await createSafe();
 
-  await pressToContinue(`Depositing NFT ${NFT_ID} to Safe ${sellerSafeId} ...`);
+  await pressToContinue(
+    `Depositing NFT ${bgWhite(NFT_ID)} to Safe ${bgWhite(sellerSafeId)} ...`
+  );
+  // 3aVAo9oeGgmgfYW4rXfPK8PMduFJbF3UupzxuUvnnh1J
   await sendTx(
     SafeClient.depositNftTx({
       packageObjectId: PACKAGE_OBJECT_ID,
@@ -89,8 +94,9 @@ const main = async () => {
   );
 
   await pressToContinue(
-    `Creating transfer cap with owner cap ${sellerOwnerCapId} ...`
+    `Creating transfer cap with owner cap ${bgWhite(sellerOwnerCapId)} ...`
   );
+  // 51SirugikQPVUGb82xCtWR4ViPeL4Xh4vduyLabHmCVc
   const createTransferCapRes = await sendTx(
     SafeClient.createExclusiveTransferCapForSenderTx({
       packageObjectId: PACKAGE_OBJECT_ID,
@@ -100,9 +106,10 @@ const main = async () => {
     })
   );
   const transferCapId = createTransferCapRes.created[0].reference.objectId;
-  console.log(`Transfer cap created: ${transferCapId}`);
+  console.log(`Transfer cap created: ${bgWhite(transferCapId)}`);
 
   await pressToContinue("Creating orderbook ...");
+  // 261VPVy9GDz96gKicaare7QdsueH64bGxDqPHv4TQG84
   const createOrderbookRes = await sendTx(
     OrderbookClient.createOrderbookTx({
       packageObjectId: PACKAGE_OBJECT_ID,
@@ -113,8 +120,11 @@ const main = async () => {
 
   const orderbookId = createOrderbookRes.created[0].reference.objectId;
 
-  await pressToContinue(`Creating ask order in orderbook ${orderbookId} ...`);
-  const ASK_AMOUNT = 21;
+  await pressToContinue(
+    `Creating ask order in orderbook ${bgWhite(orderbookId)} ...`
+  );
+  // A7Cpg1LrY46n4tsRxQNSqwx8NHdcRfMY3tp24EbE246d
+  const ASK_AMOUNT = 21; // SUI
   await sendTx(
     OrderbookClient.createAskTx({
       packageObjectId: PACKAGE_OBJECT_ID,
@@ -128,11 +138,13 @@ const main = async () => {
   );
 
   await pressToContinue("Creating second safe into which we deposit NFT ...");
+  // CKjmqTjvemeqeqEQaPCunNKbaMHyxczmFzjaHzmS8wfx
   const [buyerSafeId, _buyerOwnerCapId] = await createSafe();
 
   await pressToContinue(
-    `Buying NFT and depositing to second safe ${buyerSafeId} ...`
+    `Buying NFT and depositing to second safe ${bgWhite(buyerSafeId)} ...`
   );
+  // 4M4Nsj2xVaarNjuoccBaHPzMjsr7B9pCQskSWVDb2Hj9
   const coinId = await coinWithBalanceGreaterThanOrEqual(ASK_AMOUNT);
   const buyNftRes = await sendTx(
     OrderbookClient.buyNftTx({
@@ -157,8 +169,9 @@ const main = async () => {
       : object2.reference.objectId;
 
   await pressToContinue(
-    `Redeem royalty of trade payment ${tradePaymentId} ...`
+    `Redeem royalty of trade payment ${bgWhite(tradePaymentId)} ...`
   );
+  // aCZBSWwDMQBKeCM8GGuizG5hFuPswr5BEYhoNkzYG15
   await sendTx({
     packageObjectId: COLLECTION_PACKAGE_ID,
     module: "suimarines",
@@ -169,7 +182,7 @@ const main = async () => {
   });
 
   console.log();
-  console.log("Trade successful!");
+  console.log(green.bold("Trade successful!"));
 };
 
 main();
