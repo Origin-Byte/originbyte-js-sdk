@@ -17,20 +17,17 @@ import {
   NftClient,
 } from '../src';
 
-const mnemonic = 'case collect embrace glance review mechanic rent wine upgrade stay pulp thought';
+const mnemonic = 'jazz cinnamon outside deputy original doll stereo virtual dawn crater fat size';
 export const keypair = Ed25519Keypair.deriveKeypair(mnemonic);
 
 export const provider = new JsonRpcProvider('https://fullnode.devnet.sui.io');
 export const signer = new RawSigner(keypair, provider);
 export const client = new NftClient(provider);
 
-// NFT-PROTOCOL: 0xf7c24c7e1722f4d9acc596d65feb13f61b2cd7ae
-// SUIGODS: 0x956ed4d211f1aba2fd5db0286c267dd9a1c9d633
-
-const GLOBAL_RECEIVER = '0x84f97e3505a010148b2d6292d370ddcfbe5d7a7e'; // pubkey
+const GLOBAL_RECEIVER = '0x9036f2196a443937c467d247bf2ce797ce41eeef'; // pubkey
 const CONFIG = {
-  nftProtocolContractId: '0xf7c24c7e1722f4d9acc596d65feb13f61b2cd7ae', // NFT-PROTOCOL
-  nftContractId: '0x956ed4d211f1aba2fd5db0286c267dd9a1c9d633', // SUIGODS
+  nftProtocolContractId: '0xc26b281fe871a05a82f63f4254b29fadbd2e7704', // NFT-PROTOCOL
+  nftContractId: '0x4b0c7244990d170ddf599054799c7954f2cadc2d', // SUIGODS
   launchpadAdmin: GLOBAL_RECEIVER,
   launchpadReceiver: GLOBAL_RECEIVER,
   lpSlotAdmin: GLOBAL_RECEIVER,
@@ -220,11 +217,11 @@ export const createInventory = async () => {
     const createdObjects = createInventoryResult.EffectsCert.effects.effects.created?.map(
       (_) => _.reference.objectId,
     );
-    const slots = await client.fetchAndParseObjectsById(
+    const inventories = await client.fetchAndParseObjectsById(
       createdObjects || [],
-      LaunchpadSlotParser,
+      InventoryParser,
     );
-    return slots[0].id;
+    return inventories[0].id;
   }
   return undefined;
 };
