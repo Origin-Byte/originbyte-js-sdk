@@ -43,6 +43,7 @@ const resolveFields = async (allObjects: GetObjectDataResponse[]) => {
   ]);
 
   return {
+    contractId: PACKAGE_OBJECT_ID,
     collectionId: collection?.id,
     mintCapId: mintCap?.id,
     feesIds: fees.length ? fees.map((_) => _.id) : undefined,
