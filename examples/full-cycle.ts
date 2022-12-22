@@ -2,18 +2,19 @@ import { GetObjectDataResponse, SuiTransactionResponse, TransactionQuery } from 
 import {
   CollectionParser,
   FixedPriceMarketParser,
-  FlatFeeParser, LaunchpadParser, LaunchpadSlotParser, MintCapParser, NftClient,
+  FlatFeeParser, InventoryParser, LaunchpadParser, LaunchpadSlotParser, MintCapParser, NftClient,
 } from '../src';
 import { client, provider, signer } from './common';
 
 const GLOBAL_RECEIVER = '0x5a29437152b87aa625c8dd770e28752657fe7903';
 const CONFIG = {
-  contractId: '0xc266b54faae99537bd9a80ec7ec5b0eddbc091bc',
+  contractId: '0x9e9038b8b9ffdd2b492a02de9a2654b4013da68a',
   launchpadAdmin: GLOBAL_RECEIVER,
   launchpadReceiver: GLOBAL_RECEIVER,
   lpSlotAdmin: GLOBAL_RECEIVER,
   lpSlotReceiver: GLOBAL_RECEIVER,
   feesRate: 1000, // bps
+  mintTestNFTs: true,
 };
 
 const loadAllTxs = async (query: TransactionQuery) => {
@@ -27,7 +28,7 @@ const loadAllTxs = async (query: TransactionQuery) => {
     const txs = await provider.getTransactionWithEffectsBatch(txIds.data);
     result = [...result, ...txs];
     if (!txIds.nextCursor) {
-      return result.sort((a, b) => b.timestamp_ms - a.timestamp_ms);
+      return result.sort((a, b) => (b.timestamp_ms ?? 0) - (a.timestamp_ms ?? 0));
     }
     cursor = txIds.nextCursor;
   }
@@ -41,6 +42,7 @@ const resolveFields = async (allObjects: GetObjectDataResponse[]) => {
     fees,
     [mintCap],
     markets,
+    inventories,
   ] = await Promise.all([
     client.parseObjects(allObjects, CollectionParser),
     client.parseObjects(allObjects, LaunchpadParser),
@@ -48,6 +50,7 @@ const resolveFields = async (allObjects: GetObjectDataResponse[]) => {
     client.parseObjects(allObjects, FlatFeeParser),
     client.parseObjects(allObjects, MintCapParser),
     client.parseObjects(allObjects, FixedPriceMarketParser),
+    client.parseObjects(allObjects, InventoryParser),
   ]);
 
   return {
@@ -57,6 +60,7 @@ const resolveFields = async (allObjects: GetObjectDataResponse[]) => {
     launchpadIds: launchpads.length ? launchpads.map((_) => _.id) : undefined,
     launchpadSlotIds: launchpadSlots.length ? launchpadSlots.map((_) => _.id) : undefined,
     marketIds: markets.length ? markets.map((_) => _.id) : undefined,
+    inventories: inventories.length ? inventories.map((_) => _.id) : undefined,
   };
 };
 
@@ -87,6 +91,7 @@ const loadProgram = async () => {
     if (!resultHasUndefined || txIds.nextCursor === null) {
       return result;
     }
+    console.log('NExt', txIds.nextCursor);
     cursor = txIds.nextCursor;
   }
 };
@@ -98,8 +103,8 @@ const createFees = async (): Promise<string | undefined> => {
   });
   const createFeeResult = await signer.executeMoveCall(transaction);
   if ('EffectsCert' in createFeeResult && createFeeResult.EffectsCert) {
-    const createdObjects = createFeeResult.EffectsCert.effects.effects.created.map((_) => _.reference.objectId);
-    const feeId = await client.fetchAndParseObjectsById(createdObjects, FlatFeeParser);
+    const createdObjects = createFeeResult.EffectsCert.effects.effects.created?.map((_) => _.reference.objectId);
+    const feeId = await client.fetchAndParseObjectsById(createdObjects || [], FlatFeeParser);
     return feeId[0].id;
   }
   return undefined;
@@ -115,8 +120,8 @@ const initLaunchpad = async (defaultFeeId: string) => {
   });
   const initLaunchpadResult = await signer.executeMoveCall(transaction);
   if ('EffectsCert' in initLaunchpadResult && initLaunchpadResult.EffectsCert) {
-    const createdObjects = initLaunchpadResult.EffectsCert.effects.effects.created.map((_) => _.reference.objectId);
-    const launchpads = await client.fetchAndParseObjectsById(createdObjects, LaunchpadParser);
+    const createdObjects = initLaunchpadResult.EffectsCert.effects.effects.created?.map((_) => _.reference.objectId);
+    const launchpads = await client.fetchAndParseObjectsById(createdObjects || [], LaunchpadParser);
     return launchpads[0].id;
   }
   return undefined;
@@ -131,24 +136,38 @@ const initLaunchpadSlot = async (launchpadId: string) => {
   });
   const initSlotResult = await signer.executeMoveCall(transaction);
   if ('EffectsCert' in initSlotResult && initSlotResult.EffectsCert) {
-    const createdObjects = initSlotResult.EffectsCert.effects.effects.created.map((_) => _.reference.objectId);
-    const slots = await client.fetchAndParseObjectsById(createdObjects, LaunchpadSlotParser);
+    const createdObjects = initSlotResult.EffectsCert.effects.effects.created?.map((_) => _.reference.objectId);
+    const slots = await client.fetchAndParseObjectsById(createdObjects || [], LaunchpadSlotParser);
     return slots[0].id;
   }
   return undefined;
 };
 
-const createMarket = async (lpSlotId: string) => {
+export const createInventory = async () => {
+  const transaction = NftClient.buildCreateInventoryTx({
+    packageObjectId: CONFIG.contractId,
+    isWhitelisted: false,
+  });
+  const createInventoryResult = await signer.executeMoveCall(transaction);
+  if ('EffectsCert' in createInventoryResult && createInventoryResult.EffectsCert) {
+    const createdObjects = createInventoryResult.EffectsCert.effects.effects.created?.map((_) => _.reference.objectId);
+    const slots = await client.fetchAndParseObjectsById(createdObjects || [], LaunchpadSlotParser);
+    return slots[0].id;
+  }
+  return undefined;
+};
+
+const createMarket = async (slotId: string, inventoryId: string) => {
   const transaction = NftClient.buildCreateFixedPriceMarketWithInventory({
     packageObjectId: CONFIG.contractId,
-    slot: lpSlotId,
-    isWhitelisted: false,
+    slot: slotId,
+    inventoryId,
     price: 100,
   });
   const createMarketResult = await signer.executeMoveCall(transaction);
   if ('EffectsCert' in createMarketResult && createMarketResult.EffectsCert) {
-    const createdObjects = createMarketResult.EffectsCert.effects.effects.created.map((_) => _.reference.objectId);
-    const markets = await client.fetchAndParseObjectsById(createdObjects, FixedPriceMarketParser);
+    const createdObjects = createMarketResult.EffectsCert.effects.effects.created?.map((_) => _.reference.objectId);
+    const markets = await client.fetchAndParseObjectsById(createdObjects || [], FixedPriceMarketParser);
     return markets[0].id;
   }
   return undefined;
@@ -182,8 +201,39 @@ const doFullCycle = async () => {
     loadedContract.launchpadSlotIds = [slotId];
   }
 
+  if (!loadedContract.inventories || !loadedContract.inventories.length) {
+    const inventoryId = await createInventory();
+    if (!inventoryId) {
+      throw new Error('Inventory not created');
+    }
+    loadedContract.inventories = [inventoryId];
+  }
+
+  if (CONFIG.mintTestNFTs) {
+    for (let i = 0; i < 10; i += 1) {
+      const tx = NftClient.biuldMintNft({
+        name: `Test NFT ${i}`,
+        description: `Test NFT ${i} Description `,
+        mintCap: loadedContract.mintCapId,
+        packageObjectId: CONFIG.contractId,
+        inventoryId: loadedContract.inventories[0],
+        moduleName: 'suitraders',
+        url: 'https://images.ctfassets.net/6kz06gcm2189/27OknKy2oUNvX8rGm1fHXH/1c5dd162685656aae5cbd3a54c27102c/how-to-mint-an-nft.png',
+        attributes: {
+          rarity: 'Common',
+          type: 'NFT',
+        },
+      });
+      // eslint-disable-next-line no-await-in-loop
+      const mintResult = await signer.executeMoveCall(tx);
+      if ('EffectsCert' in mintResult && mintResult.EffectsCert.effects.effects.created) {
+        console.log('Minted NFT:', mintResult.EffectsCert.effects.effects.created[0].reference.objectId);
+      }
+    }
+  }
+
   if (!loadedContract.marketIds || !loadedContract.marketIds.length) {
-    const marketId = await createMarket(loadedContract.launchpadSlotIds[0]);
+    const marketId = await createMarket(loadedContract.launchpadSlotIds[0], loadedContract.inventories[0]);
     if (!marketId) {
       throw new Error('Market not created');
     }
