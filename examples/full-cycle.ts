@@ -1,10 +1,18 @@
-import { GetObjectDataResponse, SuiTransactionResponse, TransactionQuery } from '@mysten/sui.js';
+import {
+  Ed25519Keypair, GetObjectDataResponse, JsonRpcProvider, RawSigner, SuiTransactionResponse, TransactionQuery,
+} from '@mysten/sui.js';
 import {
   CollectionParser,
   FixedPriceMarketParser,
   FlatFeeParser, InventoryParser, LaunchpadParser, LaunchpadSlotParser, MintCapParser, NftClient,
 } from '../src';
-import { client, provider, signer } from './common';
+
+const mnemonic = 'celery access afford success prize fish huge vacuum shiver orient wine knock';
+export const keypair = Ed25519Keypair.deriveKeypair(mnemonic);
+
+export const provider = new JsonRpcProvider('https://fullnode.devnet.sui.io');
+export const signer = new RawSigner(keypair, provider);
+export const client = new NftClient(provider);
 
 const GLOBAL_RECEIVER = '0x5a29437152b87aa625c8dd770e28752657fe7903';
 const CONFIG = {
