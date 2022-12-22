@@ -93,7 +93,7 @@ export const depositGenericNftTx = (
   return {
     packageObjectId: params.packageObjectId,
     module: params.moduleName ?? DEFAULT_SAFE_MODULE,
-    function: "deposit_nft",
+    function: "deposit_generic_nft",
     typeArguments: [params.collection],
     arguments: [params.nft, params.safe],
     gasBudget: params.gasBudget ?? DEFAULT_GAS_BUDGET,
@@ -106,7 +106,7 @@ export const depositGenericNftPrivilegedTx = (
   return {
     packageObjectId: params.packageObjectId,
     module: params.moduleName ?? DEFAULT_SAFE_MODULE,
-    function: "deposit_nft_privileged",
+    function: "deposit_generic_nft_privileged",
     typeArguments: [params.collection],
     arguments: [params.nft, params.ownerCap, params.safe],
     gasBudget: params.gasBudget ?? DEFAULT_GAS_BUDGET,
