@@ -154,7 +154,7 @@ export const buildInitSlot = (params: BuildInitSlotParams): MoveCallTransaction 
 export const buildCreateInventoryTx = (params: BuildCreateInventoryParams): MoveCallTransaction => ({
   packageObjectId: params.packageObjectId,
   module: 'inventory',
-  function: 'create_and_transfer',
+  function: 'create_for_sender',
   typeArguments: [],
   arguments: [
     params.isWhitelisted,
