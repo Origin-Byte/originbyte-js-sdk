@@ -8,7 +8,7 @@ import {
   CreateTransferCapForSenderParams,
 } from "./types";
 
-const DEFAULT_SAFE_MODULE = "safe";
+const DEFAULT_MODULE = "safe";
 const DEFAULT_GAS_BUDGET = 5000;
 
 export const createSafeForSenderTx = (
@@ -16,7 +16,7 @@ export const createSafeForSenderTx = (
 ): MoveCallTransaction => {
   return {
     packageObjectId: params.packageObjectId,
-    module: params.moduleName ?? DEFAULT_SAFE_MODULE,
+    module: params.moduleName ?? DEFAULT_MODULE,
     function: "create_for_sender",
     typeArguments: [],
     arguments: [],
@@ -29,7 +29,7 @@ export const restrictDepositsTx = (
 ): MoveCallTransaction => {
   return {
     packageObjectId: params.packageObjectId,
-    module: params.moduleName ?? DEFAULT_SAFE_MODULE,
+    module: params.moduleName ?? DEFAULT_MODULE,
     function: "restrict_deposits",
     typeArguments: [],
     arguments: [params.ownerCap, params.safe],
@@ -42,7 +42,7 @@ export const enableAnyDepositTx = (
 ): MoveCallTransaction => {
   return {
     packageObjectId: params.packageObjectId,
-    module: params.moduleName ?? DEFAULT_SAFE_MODULE,
+    module: params.moduleName ?? DEFAULT_MODULE,
     function: "enable_any_deposit",
     typeArguments: [],
     arguments: [params.ownerCap, params.safe],
@@ -55,7 +55,7 @@ export const setDepositsOfCollectionTx = (
 ) => {
   return {
     packageObjectId: params.packageObjectId,
-    module: params.moduleName ?? DEFAULT_SAFE_MODULE,
+    module: params.moduleName ?? DEFAULT_MODULE,
     function: `${params.setPermission}_deposits_of_collection`,
     typeArguments: [params.collection],
     arguments: [params.ownerCap, params.safe],
@@ -66,7 +66,7 @@ export const setDepositsOfCollectionTx = (
 export const depositNftTx = (params: DepositNftParams): MoveCallTransaction => {
   return {
     packageObjectId: params.packageObjectId,
-    module: params.moduleName ?? DEFAULT_SAFE_MODULE,
+    module: params.moduleName ?? DEFAULT_MODULE,
     function: "deposit_nft",
     typeArguments: [params.collection],
     arguments: [params.nft, params.safe],
@@ -79,7 +79,7 @@ export const depositNftPrivilegedTx = (
 ): MoveCallTransaction => {
   return {
     packageObjectId: params.packageObjectId,
-    module: params.moduleName ?? DEFAULT_SAFE_MODULE,
+    module: params.moduleName ?? DEFAULT_MODULE,
     function: "deposit_nft_privileged",
     typeArguments: [params.collection],
     arguments: [params.nft, params.ownerCap, params.safe],
@@ -92,7 +92,7 @@ export const depositGenericNftTx = (
 ): MoveCallTransaction => {
   return {
     packageObjectId: params.packageObjectId,
-    module: params.moduleName ?? DEFAULT_SAFE_MODULE,
+    module: params.moduleName ?? DEFAULT_MODULE,
     function: "deposit_generic_nft",
     typeArguments: [params.collection],
     arguments: [params.nft, params.safe],
@@ -105,7 +105,7 @@ export const depositGenericNftPrivilegedTx = (
 ): MoveCallTransaction => {
   return {
     packageObjectId: params.packageObjectId,
-    module: params.moduleName ?? DEFAULT_SAFE_MODULE,
+    module: params.moduleName ?? DEFAULT_MODULE,
     function: "deposit_generic_nft_privileged",
     typeArguments: [params.collection],
     arguments: [params.nft, params.ownerCap, params.safe],
@@ -118,7 +118,7 @@ export const createTransferCapForSenderTx = (
 ): MoveCallTransaction => {
   return {
     packageObjectId: params.packageObjectId,
-    module: params.moduleName ?? DEFAULT_SAFE_MODULE,
+    module: params.moduleName ?? DEFAULT_MODULE,
     function: "create_transfer_cap_for_sender",
     typeArguments: [],
     arguments: [params.nft, params.ownerCap, params.safe],
@@ -131,7 +131,7 @@ export const createExclusiveTransferCapForSenderTx = (
 ): MoveCallTransaction => {
   return {
     packageObjectId: params.packageObjectId,
-    module: params.moduleName ?? DEFAULT_SAFE_MODULE,
+    module: params.moduleName ?? DEFAULT_MODULE,
     function: "create_exclusive_transfer_cap_for_sender",
     typeArguments: [],
     arguments: [params.nft, params.ownerCap, params.safe],

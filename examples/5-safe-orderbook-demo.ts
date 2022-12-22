@@ -1,10 +1,10 @@
 import { ObjectId } from "@mysten/sui.js";
-import { SafeClient } from "../src";
+import { OrderbookClient, SafeClient } from "../src";
 import { parseObjectOwner } from "../src/client/utils";
 import { PACKAGE_OBJECT_ID, signer, provider } from "./common";
 
-const SUI_COIN_TYPE =
-  "0x0000000000000000000000000000000000000002::coin::Coin<0x0000000000000000000000000000000000000002::sui::SUI>";
+const SUI_TYPE = "0x2::sui::SUI";
+const SUI_COIN_TYPE = `0x2::coin::Coin<${SUI_TYPE}>`;
 
 async function coinBalance(coinId: ObjectId): Promise<number> {
   const coin = await provider.getObject(coinId);
@@ -93,6 +93,26 @@ const main = async () => {
     createTransferCapRes.EffectsCert.effects.effects.created[0].reference
       .objectId;
   console.log(`Transfer cap created: ${transferCapId}`);
+
+  console.log("Creating orderbook ...");
+  const createOrderbookRes = await signer.executeMoveCall(
+    OrderbookClient.createOrderbookTx({
+      packageObjectId: PACKAGE_OBJECT_ID,
+      collection: SUI_COIN_TYPE,
+      ft: SUI_TYPE,
+    })
+  );
+  if (
+    typeof createOrderbookRes !== "object" ||
+    !("EffectsCert" in createOrderbookRes)
+  ) {
+    throw new Error("Response does not contain EffectsCert");
+  }
+
+  const orderbookId =
+    createTransferCapRes.EffectsCert.effects.effects.created[0].reference
+      .objectId;
+  console.log(`Orderbook created: ${orderbookId}`);
 };
 
 main();

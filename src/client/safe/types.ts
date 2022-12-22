@@ -1,10 +1,5 @@
-export type ObjectId = string;
-
-export interface GlobalParams {
-  gasBudget?: number;
-  moduleName?: string;
-  packageObjectId: ObjectId;
-}
+import { ObjectId } from "@mysten/sui.js";
+import { GlobalParams } from "../types";
 
 export interface CreateSafeForSenderParams extends GlobalParams {}
 

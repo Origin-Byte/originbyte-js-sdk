@@ -1,5 +1,16 @@
 /* eslint-disable camelcase */
-import { GetObjectDataResponse, ObjectOwner, SuiObject } from "@mysten/sui.js";
+import {
+  GetObjectDataResponse,
+  ObjectId,
+  ObjectOwner,
+  SuiObject,
+} from "@mysten/sui.js";
+
+export interface GlobalParams {
+  gasBudget?: number;
+  moduleName?: string;
+  packageObjectId: ObjectId;
+}
 
 export enum NftType {
   UNIQUE = "unique_nft::Unique",
