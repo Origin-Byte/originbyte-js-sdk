@@ -9,9 +9,10 @@ import { OrderbookClient, SafeClient } from "../src";
 import { parseObjectOwner } from "../src/client/utils";
 import { PACKAGE_OBJECT_ID, signer, provider } from "./common";
 
-const SUI_TYPE = "0x2::sui::SUI";
-const SUI_COIN_TYPE = `0x2::coin::Coin<${SUI_TYPE}>`;
-const WHITELIST_ID = "";
+const SUI_CURRENCY_TYPE = "0x2::sui::SUI";
+const COLLECTION_PACKAGE_ID = "0xbe9a9258e0a84f8b319d4f15d85da7086d0f6106";
+const COLLECTION_TYPE = `${COLLECTION_PACKAGE_ID}::suimarines::SUIMARINES`;
+const WHITELIST_ID = "0x7a1f1693af3c830a4f8f2b55d6df5625ad3ac83e";
 
 async function sendTx(tx: MoveCallTransaction): Promise<TransactionEffects> {
   const res = await signer.executeMoveCall(tx);
@@ -40,31 +41,6 @@ async function coinWithBalanceGreaterThanOrEqual(
   return (coins[0].details as any).reference.objectId;
 }
 
-/**
- * Temporarily we work with `Coin<SUI>` of balance = 1 as NFT.
- */
-async function generateCoinNft(): Promise<ObjectId> {
-  const coinId = await coinWithBalanceGreaterThanOrEqual(2);
-
-  const res = await signer.splitCoin({
-    coinObjectId: coinId,
-    splitAmounts: [(await coinBalance(coinId)) - 1, 1],
-    gasBudget: 30000,
-  });
-  if (typeof res !== "object" || !("EffectsCert" in res)) {
-    throw new Error(
-      `Response does not contain EffectsCert: ${JSON.stringify(res)}`
-    );
-  }
-
-  const coinsAfter = res.EffectsCert.effects.effects.created;
-  if ((await coinBalance(coinsAfter[0].reference.objectId)) === 1) {
-    return coinsAfter[0].reference.objectId;
-  }
-
-  return coinsAfter[1].reference.objectId;
-}
-
 async function createSafe(): Promise<[ObjectId, ObjectId]> {
   const createSafeRes = await sendTx(
     SafeClient.createSafeForSenderTx({
@@ -91,17 +67,17 @@ async function createSafe(): Promise<[ObjectId, ObjectId]> {
 const main = async () => {
   console.log("Creating Safe object for sender ...");
 
-  const nftId = await generateCoinNft();
+  const nftId = "0x064521f4b243b7a7b06bc2b227e05da83cfb0715";
 
   const [sellerSafeId, sellerOwnerCapId] = await createSafe();
 
   console.log(`Depositing NFT ${nftId} to Safe ${sellerSafeId} ...`);
   await sendTx(
-    SafeClient.depositGenericNftTx({
+    SafeClient.depositNftTx({
       packageObjectId: PACKAGE_OBJECT_ID,
       safe: sellerSafeId,
       nft: nftId,
-      collection: SUI_COIN_TYPE,
+      collection: COLLECTION_TYPE,
     })
   );
 
@@ -122,8 +98,8 @@ const main = async () => {
   const createOrderbookRes = await sendTx(
     OrderbookClient.createOrderbookTx({
       packageObjectId: PACKAGE_OBJECT_ID,
-      collection: SUI_COIN_TYPE,
-      ft: SUI_TYPE,
+      collection: COLLECTION_TYPE,
+      ft: SUI_CURRENCY_TYPE,
     })
   );
 
@@ -134,8 +110,8 @@ const main = async () => {
   await sendTx(
     OrderbookClient.createAskTx({
       packageObjectId: PACKAGE_OBJECT_ID,
-      collection: SUI_COIN_TYPE,
-      ft: SUI_TYPE,
+      collection: COLLECTION_TYPE,
+      ft: SUI_CURRENCY_TYPE,
       book: orderbookId,
       transferCap: transferCapId,
       sellerSafe: sellerSafeId,
@@ -146,13 +122,13 @@ const main = async () => {
   console.log("Creating second safe into which we deposit NFT...");
   const [buyerSafeId, _buyerOwnerCapId] = await createSafe();
 
+  console.log(`Buying NFT into second safe ${buyerSafeId} ...`);
   const coinId = await coinWithBalanceGreaterThanOrEqual(ASK_AMOUNT);
-
   const buyNftRes = await sendTx(
     OrderbookClient.buyNftTx({
       packageObjectId: PACKAGE_OBJECT_ID,
-      collection: SUI_COIN_TYPE,
-      ft: SUI_TYPE,
+      collection: COLLECTION_TYPE,
+      ft: SUI_CURRENCY_TYPE,
       book: orderbookId,
       nft: nftId,
       sellerSafe: sellerSafeId,
@@ -165,7 +141,23 @@ const main = async () => {
 
   console.log("Buying nft", buyNftRes);
 
-  // TODO: call royalty payment with the newly created trade payment
+  const [object1, object2] = buyNftRes.created;
+  const tradePaymentId =
+    parseObjectOwner(object1.owner) === "shared"
+      ? object1.reference.objectId
+      : object2.reference.objectId;
+
+  console.log(`Redeem royalty of trade payment ${tradePaymentId}`);
+  sendTx({
+    packageObjectId: COLLECTION_PACKAGE_ID,
+    module: "suimarines",
+    function: "collect_royalty",
+    typeArguments: [SUI_CURRENCY_TYPE],
+    arguments: [tradePaymentId],
+    gasBudget: 5000,
+  });
+
+  console.log("Trade successful!");
 };
 
 main();

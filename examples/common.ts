@@ -4,7 +4,7 @@ import { NftClient } from "../src";
 export const mnemonic =
   "muffin tuition fit fish average true slender tower salmon artist song biology";
 
-export const PACKAGE_OBJECT_ID = "0xefc6a42966fa145e483f0c9f210d949c7c63634f"; // Change to your deployed contract
+export const PACKAGE_OBJECT_ID = "0x6576655811fd59a40ab0715de1ba9a976362ddc5"; // Change to your deployed contract
 export const COLLECTION_ID = "0x6970f0cbafc83ea475853855e85ff4d58f7b4f0c"; // Change to your deployed contract
 export const LAUNCHPAD_ID = "0xc3ffd86a66fc945df9be6c48ba13b7f0cb278e45"; // Change to your deployed contract
 export const AUTHORITY_ID = "0xccf31da9c80d1d441f8836205185d330ac444e4b"; // Change to your deployed contract
