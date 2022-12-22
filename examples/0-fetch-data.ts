@@ -1,6 +1,6 @@
 import { GetObjectDataResponse, SuiTransactionResponse, TransactionQuery } from '@mysten/sui.js';
 import {
-  CollectionParser, FixedPriceMarketParser, FlatFeeParser, LaunchpadParser, LaunchpadSlotParser, MintCapParser,
+  CollectionParser, FixedPriceMarketParser, FlatFeeParser, InventoryParser, LaunchpadParser, LaunchpadSlotParser, MintCapParser,
 } from '../src';
 import {
   client, PACKAGE_OBJECT_ID, provider, signer,
@@ -31,6 +31,7 @@ const resolveFields = async (allObjects: GetObjectDataResponse[]) => {
     fees,
     [mintCap],
     markets,
+    inventories,
   ] = await Promise.all([
     client.parseObjects(allObjects, CollectionParser),
     client.parseObjects(allObjects, LaunchpadParser),
@@ -38,6 +39,7 @@ const resolveFields = async (allObjects: GetObjectDataResponse[]) => {
     client.parseObjects(allObjects, FlatFeeParser),
     client.parseObjects(allObjects, MintCapParser),
     client.parseObjects(allObjects, FixedPriceMarketParser),
+    client.parseObjects(allObjects, InventoryParser),
   ]);
 
   return {
@@ -47,6 +49,7 @@ const resolveFields = async (allObjects: GetObjectDataResponse[]) => {
     launchpadIds: launchpads.length ? launchpads.map((_) => _.id) : undefined,
     launchpadSlotIds: launchpadSlots.length ? launchpadSlots.map((_) => _.id) : undefined,
     marketIds: markets.length ? markets.map((_) => _.id) : undefined,
+    inventories: inventories.length ? inventories.map((_) => _.id) : undefined,
   };
 };
 

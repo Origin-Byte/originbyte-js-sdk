@@ -1,6 +1,7 @@
 import { MoveCallTransaction } from '@mysten/sui.js';
 import { NftClient } from '../src';
 import {
+  INVENTORY_ID,
   LAUNCHPAD_SLOT_ID, MARKET_ID, MINT_CAP_ID, PACKAGE_OBJECT_ID, signer,
 } from './common';
 
@@ -37,10 +38,9 @@ export const mintNFt = async () => {
       name: `Test NFT ${i}`,
       description: `Test NFT ${i} Description `,
       mintCap: MINT_CAP_ID,
-      slot: LAUNCHPAD_SLOT_ID,
-      marketId: MARKET_ID,
       packageObjectId: PACKAGE_OBJECT_ID,
-      moduleName: 'suimarines',
+      inventoryId: INVENTORY_ID,
+      moduleName: 'suitraders',
       url: 'https://images.ctfassets.net/6kz06gcm2189/27OknKy2oUNvX8rGm1fHXH/1c5dd162685656aae5cbd3a54c27102c/how-to-mint-an-nft.png',
       attributes: {
         rarity: 'Common',

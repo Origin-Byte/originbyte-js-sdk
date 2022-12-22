@@ -14,16 +14,18 @@ export const mnemonic = 'celery access afford success prize fish huge vacuum shi
   - ID:  , Owner: Shared
  */
 // Step 0 - Publish
-export const PACKAGE_OBJECT_ID = '0x184582a006db60d5b16813079f19d52667e38a41'; // Change to your deployed contract
-export const COLLECTION_ID = '0x634766b330497078b6b8b456e118d27b17c03252'; // Change to your deployed contract
-export const MINT_CAP_ID = '0x0dc4b4e1f9c1cf800ffddc0ebbcd4c314a137a74'; // Change to your deployed contract
+export const PACKAGE_OBJECT_ID = '0x59cb3ed4cfd80f22aed8bb3db3fb7fda0d94c9b7'; // Change to your deployed contract
+export const COLLECTION_ID = '0xb7aaa80ff9e3419bac417c93f5a782f067d1615c'; // Change to your deployed contract
+export const MINT_CAP_ID = '0x9ae9ced1468b7c92fbf2de36db027c3b5419ebee'; // Change to your deployed contract
 // Step 1 - create Flat fee
-export const FEE_OBJECT_ID = '0x0ba2a79612ca87e59fea7ba61d7c7fb3e7e68910'; // Change to your deployed contract
+export const FEE_OBJECT_ID = '0x9e373bba8e2f530449bd3a9737dd4111eab03fa0'; // Change to your deployed contract
 // Step 2 - Init launchpad
-export const LAUNCHPAD_ID = '0x50f45622479a13afb32beabca58772ea18a6e2ba'; // Change to your deployed contract
+export const LAUNCHPAD_ID = '0x90d284697724e8f53f274321c05070e32bdf0f87'; // Change to your deployed contract
 // Step 3 - Init LP Slot
-export const LAUNCHPAD_SLOT_ID = '0x9577a7bcf6970f1b7632e7ab0cadbdd0c9a066be'; // Change to your deployed contract
-// Step 4 - Create Market
+export const LAUNCHPAD_SLOT_ID = '0x890bf91cd1bd48f4e0916de9a36a36189d6a04ae'; // Change to your deployed contract
+// Step 4 - Create Inventory
+export const INVENTORY_ID = '0x902f37eb854c7c8fc9102d3ab01cba26ec190751'; // Change to your deployed contract
+// Step 5 - Create Market
 export const MARKET_ID = '0xe2475ddb43781772807193effa75713ebcf76a53'; // Change to your deployed contract
 
 export function normalizeMnemonics(mnemonics: string): string {

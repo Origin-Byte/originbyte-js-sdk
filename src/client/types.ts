@@ -36,20 +36,6 @@ export interface NftCollectionRpcResponse {
 
 export interface MintCapRPCResponse {
   collection_id: string
-  supply_policy: {
-    type: string
-    fields: {
-      regulated: boolean,
-      supply: {
-        type: string
-        fields: {
-          current: number,
-          frozen: boolean,
-          max: number
-        }
-      }
-    }
-  }
 }
 
 export interface FixedPriceMarketRpcResponse {
@@ -194,11 +180,13 @@ export interface WithRawResponse {
 }
 
 export interface InventoryRpcResponse {
-  queue: string
-  nfts: string[]
+  queue: string[]
+  nfts_on_sale: string[]
 }
 
-export interface Inventory extends InventoryRpcResponse, WithId { }
+export interface Inventory extends Omit<InventoryRpcResponse, 'nfts_on_sale'>, WithId {
+  nftsOnSale: string[]
+}
 
 export interface FixedPriceMarket extends WithRawResponse, WithId {
   price: number
@@ -242,10 +230,10 @@ export interface Launchpad extends WithId, WithPackageObjectId, WithRawResponse 
 
 export interface MintCap extends WithRawResponse, WithId {
   collectionId: string
-  regulated: boolean
-  currentSupply: number
-  maxSupply: number
-  frozen: boolean
+  // regulated: boolean
+  // currentSupply: number
+  // maxSupply: number
+  // frozen: boolean
 }
 
 export interface ArtNftRpcResponse {
@@ -359,9 +347,8 @@ export type BuildMintNftParams = WithPackageObjectId & {
   description: string
   moduleName: string
   mintCap: string
-  slot: string
-  marketId: string
   url: string
+  inventoryId: string
   attributes: { [c: string]: string };
   // mintAuthority: string
   // launchpadId: string
@@ -407,14 +394,23 @@ export type BuildInitLaunchpadParams = WithPackageObjectId & {
   autoApprove: boolean
   defaultFee: string // Flat fee address
 }
+
 export type BuildInitSlotParams = WithPackageObjectId & {
   launchpad: string
   slotAdmin: string
   receiver: string
 }
 
-export type BuildCreateFixedPriceMarket = WithPackageObjectId & {
+export type BuildCreateFixedPriceMarketParams = WithPackageObjectId & {
   slot: string
   isWhitelisted: boolean // Define if the buyers need to be whitelisted
   price: number
+}
+
+export type BuildCreateFixedPriceMarketWithInventoryParams = Omit<BuildCreateFixedPriceMarketParams, 'isWhitelisted'> & {
+  inventoryId: string
+}
+
+export type BuildCreateInventoryParams = WithPackageObjectId & {
+  isWhitelisted: boolean // Define if the buyers need to be whitelisted
 }

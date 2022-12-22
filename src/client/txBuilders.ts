@@ -2,11 +2,14 @@ import { MoveCallTransaction } from '@mysten/sui.js';
 import {
   BuildBuyNftCertificateParams,
   BuildClaimNftCertificateParams,
-  BuildCreateFixedPriceMarket,
+  BuildCreateFixedPriceMarketWithInventoryParams,
+  BuildCreateInventoryParams,
   BuildCreateFlatFeeParams,
   BuildEnableSalesParams,
   BuildInitLaunchpadParams,
-  BuildInitSlotParams, BuildMintNftParams,
+  BuildInitSlotParams,
+  BuildMintNftParams,
+  BuildCreateFixedPriceMarketParams,
 } from './types';
 
 export const biuldMintNft = (params: BuildMintNftParams): MoveCallTransaction => {
@@ -30,10 +33,7 @@ export const biuldMintNft = (params: BuildMintNftParams): MoveCallTransaction =>
       keys,
       values,
       params.mintCap,
-      params.slot,
-      params.marketId,
-      // params.tierIndex ?? 0,
-      // params.launchpadId,
+      params.inventoryId,
     ],
     gasBudget: 10000,
   };
@@ -55,7 +55,22 @@ export const buildBuyNftCertificate = (params: BuildBuyNftCertificateParams): Mo
   gasBudget: 5000,
 });
 
-export const buildCreateFixedPriceMarket = (params: BuildCreateFixedPriceMarket): MoveCallTransaction => ({
+export const buildCreateFixedPriceMarketWithInventory = (params: BuildCreateFixedPriceMarketWithInventoryParams): MoveCallTransaction => ({
+  packageObjectId: params.packageObjectId,
+  module: 'fixed_price',
+  function: 'init_market_with_inventory',
+  typeArguments: [
+    '0x2::sui::SUI',
+  ],
+  arguments: [
+    params.slot,
+    params.inventoryId,
+    params.price,
+  ],
+  gasBudget: 5000,
+});
+
+export const buildCreateFixedPriceMarket = (params: BuildCreateFixedPriceMarketParams): MoveCallTransaction => ({
   packageObjectId: params.packageObjectId,
   module: 'fixed_price',
   function: 'init_market',
@@ -132,6 +147,17 @@ export const buildInitSlot = (params: BuildInitSlotParams): MoveCallTransaction 
     params.launchpad,
     params.slotAdmin,
     params.receiver,
+  ],
+  gasBudget: 5000,
+});
+
+export const buildCreateInventoryTx = (params: BuildCreateInventoryParams): MoveCallTransaction => ({
+  packageObjectId: params.packageObjectId,
+  module: 'inventory',
+  function: 'create_and_transfer',
+  typeArguments: [],
+  arguments: [
+    params.isWhitelisted,
   ],
   gasBudget: 5000,
 });

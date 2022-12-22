@@ -139,7 +139,7 @@ const initLaunchpadSlot = async (launchpadId: string) => {
 };
 
 const createMarket = async (lpSlotId: string) => {
-  const transaction = NftClient.buildCreateFixedPriceMarket({
+  const transaction = NftClient.buildCreateFixedPriceMarketWithInventory({
     packageObjectId: CONFIG.contractId,
     slot: lpSlotId,
     isWhitelisted: false,

@@ -96,13 +96,14 @@ export const CollectionParser: SuiObjectParser<NftCollectionRpcResponse, NftColl
 
 export const MintCapParser: SuiObjectParser<MintCapRPCResponse, MintCap> = {
   parser: (data, suiData, _) => {
+    console.log('data: ', JSON.stringify(data));
     return {
       id: suiData.reference.objectId,
       collectionId: data.collection_id,
-      regulated: data.supply_policy.fields.regulated,
-      currentSupply: data.supply_policy.fields.supply.fields.current,
-      maxSupply: data.supply_policy.fields.supply.fields.max,
-      frozen: data.supply_policy.fields.supply.fields.frozen,
+      // regulated: data.supply_policy.fields.regulated,
+      // currentSupply: data.supply_policy.fields.supply.fields.current,
+      // maxSupply: data.supply_policy.fields.supply.fields.max,
+      // frozen: data.supply_policy.fields.supply.fields.frozen,
       rawResponse: _,
     };
   },
@@ -231,7 +232,7 @@ export const InventoryParser: SuiObjectParser<InventoryRpcResponse, Inventory> =
     return {
       id: suiData.reference.objectId,
       queue: data.queue,
-      nfts: data.nfts,
+      nftsOnSale: data.nfts_on_sale,
     };
   },
 };

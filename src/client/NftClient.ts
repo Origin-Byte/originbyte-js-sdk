@@ -8,9 +8,11 @@ import {
   buildEnableSales,
   buildClaimNftCertificate,
   buildCreateFlatFee,
-  buildCreateFixedPriceMarket,
+  buildCreateFixedPriceMarketWithInventory,
   buildInitLaunchpad,
   buildInitSlot,
+  buildCreateFixedPriceMarket,
+  buildCreateInventoryTx,
 } from './txBuilders';
 import { toMap, uniq } from '../utils';
 import {
@@ -245,9 +247,13 @@ export class NftClient {
 
   static buildCreateFlatFee = buildCreateFlatFee
 
+  static buildCreateFixedPriceMarketWithInventory = buildCreateFixedPriceMarketWithInventory
+
   static buildCreateFixedPriceMarket = buildCreateFixedPriceMarket
 
   static buildInitLaunchpad = buildInitLaunchpad
+
+  static buildCreateInventoryTx = buildCreateInventoryTx
 
   static buildInitSlot = buildInitSlot
 
