@@ -16,10 +16,11 @@ import {
   SUI_CURRENCY_TYPE,
 } from "./common";
 
-const COLLECTION_PACKAGE_ID = "0xbe9a9258e0a84f8b319d4f15d85da7086d0f6106";
+const COLLECTION_PACKAGE_ID = "0x735d8035efe816f14d5ba5a52d9ccafd3ae7e815";
 const COLLECTION_TYPE = `${COLLECTION_PACKAGE_ID}::suimarines::SUIMARINES`;
-const WHITELIST_ID = "0x7a1f1693af3c830a4f8f2b55d6df5625ad3ac83e";
-const NFT_ID = "0x5dfba214a714a99bbddfff54427d8c795f7812b8";
+const COLLECTION_ID = "0xbbcc368589dc8d5dd0e0bc23110f09af041df561";
+const WHITELIST_ID = "0x9e9836ce2f5f01e51f0bb14028dd2773394bf431";
+const NFT_ID = "0x0f2a2fa797a22c1fb886fb24057c9c9442f48e09";
 
 async function sendTx(tx: MoveCallTransaction): Promise<TransactionEffects> {
   const res = await signer.executeMoveCall(tx);
@@ -74,7 +75,7 @@ async function pressToContinue(msg: string) {
 }
 
 const main = async () => {
-  await pressToContinue("Creating Safe object for sender ...");
+  await pressToContinue("Creating Safe object for seller ...");
   const [sellerSafeId, sellerOwnerCapId] = await createSafe();
 
   await pressToContinue(`Depositing NFT ${NFT_ID} to Safe ${sellerSafeId} ...`);
@@ -158,15 +159,16 @@ const main = async () => {
   await pressToContinue(
     `Redeem royalty of trade payment ${tradePaymentId} ...`
   );
-  sendTx({
+  await sendTx({
     packageObjectId: COLLECTION_PACKAGE_ID,
     module: "suimarines",
     function: "collect_royalty",
     typeArguments: [SUI_CURRENCY_TYPE],
-    arguments: [tradePaymentId],
+    arguments: [tradePaymentId, COLLECTION_ID],
     gasBudget: 5000,
   });
 
+  console.log();
   console.log("Trade successful!");
 };
 
