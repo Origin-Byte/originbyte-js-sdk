@@ -9,6 +9,8 @@ export const COLLECTION_ID = "0x6970f0cbafc83ea475853855e85ff4d58f7b4f0c"; // Ch
 export const LAUNCHPAD_ID = "0xc3ffd86a66fc945df9be6c48ba13b7f0cb278e45"; // Change to your deployed contract
 export const AUTHORITY_ID = "0xccf31da9c80d1d441f8836205185d330ac444e4b"; // Change to your deployed contract
 
+export const SUI_CURRENCY_TYPE = "0x2::sui::SUI";
+
 export function normalizeMnemonics(mnemonics: string): string {
   return mnemonics
     .trim()

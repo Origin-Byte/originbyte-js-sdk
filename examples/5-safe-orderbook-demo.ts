@@ -1,5 +1,7 @@
 /* eslint-disable no-console */
 
+// eslint-disable-next-line
+import * as pressAnyKey from "press-any-key";
 import {
   MoveCallTransaction,
   ObjectId,
@@ -7,12 +9,17 @@ import {
 } from "@mysten/sui.js";
 import { OrderbookClient, SafeClient } from "../src";
 import { parseObjectOwner } from "../src/client/utils";
-import { PACKAGE_OBJECT_ID, signer, provider } from "./common";
+import {
+  PACKAGE_OBJECT_ID,
+  signer,
+  provider,
+  SUI_CURRENCY_TYPE,
+} from "./common";
 
-const SUI_CURRENCY_TYPE = "0x2::sui::SUI";
 const COLLECTION_PACKAGE_ID = "0xbe9a9258e0a84f8b319d4f15d85da7086d0f6106";
 const COLLECTION_TYPE = `${COLLECTION_PACKAGE_ID}::suimarines::SUIMARINES`;
 const WHITELIST_ID = "0x7a1f1693af3c830a4f8f2b55d6df5625ad3ac83e";
+const NFT_ID = "0x5dfba214a714a99bbddfff54427d8c795f7812b8";
 
 async function sendTx(tx: MoveCallTransaction): Promise<TransactionEffects> {
   const res = await signer.executeMoveCall(tx);
@@ -22,12 +29,8 @@ async function sendTx(tx: MoveCallTransaction): Promise<TransactionEffects> {
     );
   }
 
+  console.log(`(tx digest ${res.EffectsCert.certificate.transactionDigest})`);
   return res.EffectsCert.effects.effects;
-}
-
-async function coinBalance(coinId: ObjectId): Promise<number> {
-  const coin = await provider.getObject(coinId);
-  return parseInt((coin.details as any).data.fields.balance, 10);
 }
 
 async function coinWithBalanceGreaterThanOrEqual(
@@ -64,37 +67,41 @@ async function createSafe(): Promise<[ObjectId, ObjectId]> {
   return [safeId, ownerCapId];
 }
 
+async function pressToContinue(msg: string) {
+  console.log();
+  console.log(msg);
+  await pressAnyKey("Press any key to continue ...");
+}
+
 const main = async () => {
-  console.log("Creating Safe object for sender ...");
-
-  const nftId = "0x064521f4b243b7a7b06bc2b227e05da83cfb0715";
-
+  await pressToContinue("Creating Safe object for sender ...");
   const [sellerSafeId, sellerOwnerCapId] = await createSafe();
 
-  console.log(`Depositing NFT ${nftId} to Safe ${sellerSafeId} ...`);
+  await pressToContinue(`Depositing NFT ${NFT_ID} to Safe ${sellerSafeId} ...`);
   await sendTx(
     SafeClient.depositNftTx({
       packageObjectId: PACKAGE_OBJECT_ID,
       safe: sellerSafeId,
-      nft: nftId,
+      nft: NFT_ID,
       collection: COLLECTION_TYPE,
     })
   );
 
-  console.log(`Creating transfer cap with owner cap ${sellerOwnerCapId} ...`);
+  await pressToContinue(
+    `Creating transfer cap with owner cap ${sellerOwnerCapId} ...`
+  );
   const createTransferCapRes = await sendTx(
     SafeClient.createExclusiveTransferCapForSenderTx({
       packageObjectId: PACKAGE_OBJECT_ID,
       safe: sellerSafeId,
-      nft: nftId,
+      nft: NFT_ID,
       ownerCap: sellerOwnerCapId,
     })
   );
-
   const transferCapId = createTransferCapRes.created[0].reference.objectId;
   console.log(`Transfer cap created: ${transferCapId}`);
 
-  console.log("Creating orderbook ...");
+  await pressToContinue("Creating orderbook ...");
   const createOrderbookRes = await sendTx(
     OrderbookClient.createOrderbookTx({
       packageObjectId: PACKAGE_OBJECT_ID,
@@ -105,7 +112,7 @@ const main = async () => {
 
   const orderbookId = createOrderbookRes.created[0].reference.objectId;
 
-  console.log(`Creating ask order in orderbook ${orderbookId}...`);
+  await pressToContinue(`Creating ask order in orderbook ${orderbookId} ...`);
   const ASK_AMOUNT = 21;
   await sendTx(
     OrderbookClient.createAskTx({
@@ -119,10 +126,12 @@ const main = async () => {
     })
   );
 
-  console.log("Creating second safe into which we deposit NFT...");
+  await pressToContinue("Creating second safe into which we deposit NFT ...");
   const [buyerSafeId, _buyerOwnerCapId] = await createSafe();
 
-  console.log(`Buying NFT into second safe ${buyerSafeId} ...`);
+  await pressToContinue(
+    `Buying NFT and depositing to second safe ${buyerSafeId} ...`
+  );
   const coinId = await coinWithBalanceGreaterThanOrEqual(ASK_AMOUNT);
   const buyNftRes = await sendTx(
     OrderbookClient.buyNftTx({
@@ -130,7 +139,7 @@ const main = async () => {
       collection: COLLECTION_TYPE,
       ft: SUI_CURRENCY_TYPE,
       book: orderbookId,
-      nft: nftId,
+      nft: NFT_ID,
       sellerSafe: sellerSafeId,
       buyerSafe: buyerSafeId,
       wallet: coinId,
@@ -139,15 +148,16 @@ const main = async () => {
     })
   );
 
-  console.log("Buying nft", buyNftRes);
-
   const [object1, object2] = buyNftRes.created;
+  // creates two objects, one of which is the trade payment (shared)
   const tradePaymentId =
     parseObjectOwner(object1.owner) === "shared"
       ? object1.reference.objectId
       : object2.reference.objectId;
 
-  console.log(`Redeem royalty of trade payment ${tradePaymentId}`);
+  await pressToContinue(
+    `Redeem royalty of trade payment ${tradePaymentId} ...`
+  );
   sendTx({
     packageObjectId: COLLECTION_PACKAGE_ID,
     module: "suimarines",
