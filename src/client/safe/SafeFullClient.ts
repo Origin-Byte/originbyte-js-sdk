@@ -1,4 +1,9 @@
-import { Ed25519Keypair, ObjectId, Provider } from "@mysten/sui.js";
+import {
+  Ed25519Keypair,
+  ObjectId,
+  Provider,
+  TransactionEffects,
+} from "@mysten/sui.js";
 import { FullClient } from "../FullClient";
 import { SafeReadClient } from "./SafeReadClient";
 import { GlobalParams } from "../types";
@@ -17,6 +22,7 @@ import {
   enableDepositsOfCollectionTx,
   restrictDepositsTx,
 } from "./txBuilder";
+import { parseObjectOwner } from "../utils";
 
 export class SafeFullClient extends SafeReadClient {
   constructor(
@@ -67,34 +73,63 @@ export class SafeFullClient extends SafeReadClient {
     );
   }
 
-  public createExclusiveTransferCapForSender(p: {
+  public async createExclusiveTransferCapForSender(p: {
     safe: ObjectId;
     ownerCap: ObjectId;
     nft: ObjectId;
-  }) {
-    return this.client.sendTxWaitForEffects(
+  }): Promise<{ transferCap: ObjectId; effects: TransactionEffects }> {
+    const effects = await this.client.sendTxWaitForEffects(
       createExclusiveTransferCapForSenderTx({
         ...this.opts,
         ...p,
       })
     );
+
+    // there's always exactly one object created in this tx
+    return { transferCap: effects.created[0].reference.objectId, effects };
   }
 
-  public createSafeForSender() {
-    return this.client.sendTxWaitForEffects(createSafeForSenderTx(this.opts));
+  public async createSafeForSender(): Promise<{
+    safeId: ObjectId;
+    ownerCapId: ObjectId;
+    effects: TransactionEffects;
+  }> {
+    const effects = await this.client.sendTxWaitForEffects(
+      createSafeForSenderTx(this.opts)
+    );
+
+    const [object1, object2] = effects.created;
+
+    let safeId;
+    let ownerCapId;
+
+    // two objects are created, one is the safe which is a shared object,
+    // the other is the owner cap which is owned by the sender
+    if (parseObjectOwner(object1.owner) === "shared") {
+      safeId = object1.reference.objectId;
+      ownerCapId = object2.reference.objectId;
+    } else {
+      safeId = object2.reference.objectId;
+      ownerCapId = object1.reference.objectId;
+    }
+
+    return { safeId, ownerCapId, effects };
   }
 
-  public createTransferCapForSender(p: {
+  public async createTransferCapForSender(p: {
     safe: ObjectId;
     ownerCap: ObjectId;
     nft: ObjectId;
   }) {
-    return this.client.sendTxWaitForEffects(
+    const effects = await this.client.sendTxWaitForEffects(
       createTransferCapForSenderTx({
         ...this.opts,
         ...p,
       })
     );
+
+    // there's always exactly one object created in this tx
+    return { transferCap: effects.created[0].reference.objectId, effects };
   }
 
   public async delistNft(p: {
