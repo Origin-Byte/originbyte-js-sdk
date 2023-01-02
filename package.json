@@ -14,8 +14,7 @@
     "lint": "eslint 'src/**/*.{ts, tsx}'",
     "format": "prettier --write 'src/**/*.{ts, tsx}' 'examples/**/*.{ts, tsx}'",
     "fmt": "npm run format",
-    "build": "./scripts/build.sh",
-    "example-5": "ts-node examples/5-safe-orderbook-demo.ts"
+    "build": "./scripts/build.sh"
   },
   "homepage": "https://originbyte.io/",
   "main": "dist/index.js",
@@ -55,7 +54,6 @@
     "typescript-eslint-parser": "^22.0.0"
   },
   "dependencies": {
-    "@mysten/sui.js": "^0.20.0",
-    "console-log-colors": "^0.3.3"
+    "@mysten/sui.js": "^0.20.0"
   }
 }

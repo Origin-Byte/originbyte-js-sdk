@@ -1615,11 +1615,6 @@ confusing-browser-globals@^1.0.10:
   resolved "https://registry.npmjs.org/confusing-browser-globals/-/confusing-browser-globals-1.0.11.tgz"
   integrity sha512-JsPKdmh8ZkmnHxDk55FZ1TqVLvEQTvoByJZRN9jzI0UjxK/QgAmsphz7PGtqgPieQZ/CQcHWXCR7ATDNhGe+YA==
 
-console-log-colors@^0.3.3:
-  version "0.3.3"
-  resolved "https://registry.yarnpkg.com/console-log-colors/-/console-log-colors-0.3.3.tgz#d1d22c1e919789b6f4ef36779bb415916b1bed5c"
-  integrity sha512-B4FfSlK/w2GFKZKnIEuK+KFuN4JLr4mqLXSpgSgvebCdXk4HUi+slxX35irN+pVPMKKy3zn+f4jWFUyvUV1YMw==
-
 convert-source-map@^1.4.0, convert-source-map@^1.6.0, convert-source-map@^1.7.0:
   version "1.7.0"
   resolved "https://registry.npmjs.org/convert-source-map/-/convert-source-map-1.7.0.tgz"
