@@ -1,140 +1,111 @@
-import { MoveCallTransaction } from "@mysten/sui.js";
+import { MoveCallTransaction, ObjectId, SuiJsonValue } from "@mysten/sui.js";
+import { GlobalParams } from "../types";
 import {
-  CreateSafeForSenderParams,
-  AuthorizationParams,
-  DepositsOfCollectionParams,
-  DepositNftParams,
-  DepositNftPrivilegedParams,
-  CreateTransferCapForSenderParams,
-} from "./types";
+  DEFAULT_GAS_BUDGET,
+  DEFAULT_PACKAGE_ID,
+  DEFAULT_SAFE_MODULE,
+} from "../consts";
 
-const DEFAULT_MODULE = "safe";
-const DEFAULT_GAS_BUDGET = 5000;
+export interface CollectionParam {
+  collection: string;
+}
 
-export const createSafeForSenderTx = (
-  params: CreateSafeForSenderParams
-): MoveCallTransaction => {
+export interface SafeParam {
+  safe: ObjectId;
+}
+
+export interface AuthParam {
+  ownerCap: ObjectId;
+}
+
+export interface NftParam {
+  nft: ObjectId;
+}
+
+export interface TransferCapParam {
+  transferCap: ObjectId;
+}
+
+export type NftParams = GlobalParams & NftParam & SafeParam;
+export type AuthParams = GlobalParams & SafeParam & AuthParam;
+export type ColAuthParams = AuthParams & CollectionParam;
+export type NftAuthParams = AuthParam & NftParams;
+
+function txObj(
+  fun: string,
+  p: GlobalParams,
+  args: SuiJsonValue[],
+  tArgs: string[]
+): MoveCallTransaction {
   return {
-    packageObjectId: params.packageObjectId,
-    module: params.moduleName ?? DEFAULT_MODULE,
-    function: "create_for_sender",
-    typeArguments: [],
-    arguments: [],
-    gasBudget: params.gasBudget ?? DEFAULT_GAS_BUDGET,
+    packageObjectId: p.packageObjectId ?? DEFAULT_PACKAGE_ID,
+    module: p.moduleName ?? DEFAULT_SAFE_MODULE,
+    function: fun,
+    typeArguments: tArgs,
+    arguments: args,
+    gasBudget: p.gasBudget ?? DEFAULT_GAS_BUDGET,
   };
+}
+
+function authNftArgs(p: NftParam & AuthParam & SafeParam) {
+  return [p.nft, p.ownerCap, p.safe];
+}
+
+export const createSafeForSenderTx = (p: GlobalParams) => {
+  return txObj("create_for_sender", p, [], []);
 };
 
-export const restrictDepositsTx = (
-  params: AuthorizationParams
-): MoveCallTransaction => {
-  return {
-    packageObjectId: params.packageObjectId,
-    module: params.moduleName ?? DEFAULT_MODULE,
-    function: "restrict_deposits",
-    typeArguments: [],
-    arguments: [params.ownerCap, params.safe],
-    gasBudget: params.gasBudget ?? DEFAULT_GAS_BUDGET,
-  };
+export const restrictDepositsTx = (p: AuthParams) => {
+  return txObj("restrict_deposits", p, [p.ownerCap, p.safe], []);
 };
 
-export const enableAnyDepositTx = (
-  params: AuthorizationParams
-): MoveCallTransaction => {
-  return {
-    packageObjectId: params.packageObjectId,
-    module: params.moduleName ?? DEFAULT_MODULE,
-    function: "enable_any_deposit",
-    typeArguments: [],
-    arguments: [params.ownerCap, params.safe],
-    gasBudget: params.gasBudget ?? DEFAULT_GAS_BUDGET,
-  };
+export const enableAnyDepositTx = (p: AuthParams) => {
+  return txObj("enable_any_deposit", p, [p.ownerCap, p.safe], []);
 };
 
-export const setDepositsOfCollectionTx = (
-  params: DepositsOfCollectionParams
+export const enableDepositsOfCollectionTx = (p: ColAuthParams) => {
+  const fun = "enable_deposits_of_collection";
+  return txObj(fun, p, [p.ownerCap, p.safe], [p.collection]);
+};
+
+export const disableDepositsOfCollectionTx = (p: ColAuthParams) => {
+  const fun = "disable_deposits_of_collection";
+  return txObj(fun, p, [p.ownerCap, p.safe], [p.collection]);
+};
+
+export const depositNftTx = (p: NftParams & CollectionParam) => {
+  return txObj("deposit_nft", p, [p.nft, p.safe], [p.collection]);
+};
+
+export const depositGenericNftTx = (p: NftParams & CollectionParam) => {
+  return txObj("deposit_generic_nft", p, [p.nft, p.safe], [p.collection]);
+};
+
+export const depositNftPrivilegedTx = (p: ColAuthParams & NftParam) => {
+  return txObj("deposit_nft_privileged", p, authNftArgs(p), [p.collection]);
+};
+
+export const depositGenericNftPrivilegedTx = (p: ColAuthParams & NftParam) => {
+  const fun = "deposit_generic_nft_privileged";
+  return txObj(fun, p, authNftArgs(p), [p.collection]);
+};
+
+export const createTransferCapForSenderTx = (p: NftAuthParams) => {
+  const fun = "create_transfer_cap_for_sender";
+  return txObj(fun, p, authNftArgs(p), []);
+};
+
+export const createExclusiveTransferCapForSenderTx = (p: NftAuthParams) => {
+  const fun = "create_exclusive_transfer_cap_for_sender";
+  return txObj(fun, p, authNftArgs(p), []);
+};
+
+export const delistNftTx = (p: NftAuthParams) => {
+  return txObj("delist_nft", p, authNftArgs(p), []);
+};
+
+export const burnTransferCapTx = (
+  p: GlobalParams & TransferCapParam & SafeParam
 ) => {
-  return {
-    packageObjectId: params.packageObjectId,
-    module: params.moduleName ?? DEFAULT_MODULE,
-    function: `${params.setPermission}_deposits_of_collection`,
-    typeArguments: [params.collection],
-    arguments: [params.ownerCap, params.safe],
-    gasBudget: params.gasBudget ?? DEFAULT_GAS_BUDGET,
-  };
-};
-
-export const depositNftTx = (params: DepositNftParams): MoveCallTransaction => {
-  return {
-    packageObjectId: params.packageObjectId,
-    module: params.moduleName ?? DEFAULT_MODULE,
-    function: "deposit_nft",
-    typeArguments: [params.collection],
-    arguments: [params.nft, params.safe],
-    gasBudget: params.gasBudget ?? DEFAULT_GAS_BUDGET,
-  };
-};
-
-export const depositNftPrivilegedTx = (
-  params: DepositNftPrivilegedParams
-): MoveCallTransaction => {
-  return {
-    packageObjectId: params.packageObjectId,
-    module: params.moduleName ?? DEFAULT_MODULE,
-    function: "deposit_nft_privileged",
-    typeArguments: [params.collection],
-    arguments: [params.nft, params.ownerCap, params.safe],
-    gasBudget: params.gasBudget ?? DEFAULT_GAS_BUDGET,
-  };
-};
-
-export const depositGenericNftTx = (
-  params: DepositNftParams
-): MoveCallTransaction => {
-  return {
-    packageObjectId: params.packageObjectId,
-    module: params.moduleName ?? DEFAULT_MODULE,
-    function: "deposit_generic_nft",
-    typeArguments: [params.collection],
-    arguments: [params.nft, params.safe],
-    gasBudget: params.gasBudget ?? DEFAULT_GAS_BUDGET,
-  };
-};
-
-export const depositGenericNftPrivilegedTx = (
-  params: DepositNftPrivilegedParams
-): MoveCallTransaction => {
-  return {
-    packageObjectId: params.packageObjectId,
-    module: params.moduleName ?? DEFAULT_MODULE,
-    function: "deposit_generic_nft_privileged",
-    typeArguments: [params.collection],
-    arguments: [params.nft, params.ownerCap, params.safe],
-    gasBudget: params.gasBudget ?? DEFAULT_GAS_BUDGET,
-  };
-};
-
-export const createTransferCapForSenderTx = (
-  params: CreateTransferCapForSenderParams
-): MoveCallTransaction => {
-  return {
-    packageObjectId: params.packageObjectId,
-    module: params.moduleName ?? DEFAULT_MODULE,
-    function: "create_transfer_cap_for_sender",
-    typeArguments: [],
-    arguments: [params.nft, params.ownerCap, params.safe],
-    gasBudget: params.gasBudget ?? DEFAULT_GAS_BUDGET,
-  };
-};
-
-export const createExclusiveTransferCapForSenderTx = (
-  params: CreateTransferCapForSenderParams
-): MoveCallTransaction => {
-  return {
-    packageObjectId: params.packageObjectId,
-    module: params.moduleName ?? DEFAULT_MODULE,
-    function: "create_exclusive_transfer_cap_for_sender",
-    typeArguments: [],
-    arguments: [params.nft, params.ownerCap, params.safe],
-    gasBudget: params.gasBudget ?? DEFAULT_GAS_BUDGET,
-  };
+  return txObj("burn_transfer_cap", p, [p.transferCap, p.safe], []);
 };

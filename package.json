@@ -15,7 +15,7 @@
     "format": "prettier --write 'src/**/*.{ts, tsx}' 'examples/**/*.{ts, tsx}'",
     "fmt": "npm run format",
     "build": "./scripts/build.sh",
-    "example": "ts-node"
+    "example-5": "ts-node examples/5-safe-orderbook-demo.ts"
   },
   "homepage": "https://originbyte.io/",
   "main": "dist/index.js",

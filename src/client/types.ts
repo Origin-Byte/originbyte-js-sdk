@@ -9,7 +9,7 @@ import {
 export interface GlobalParams {
   gasBudget?: number;
   moduleName?: string;
-  packageObjectId: ObjectId;
+  packageObjectId?: ObjectId;
 }
 
 export enum NftType {
