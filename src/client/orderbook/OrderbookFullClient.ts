@@ -75,7 +75,8 @@ export class OrderbookFullClient extends OrderbookReadClient {
     );
 
     return {
-      trade: effects.created[0], // might be undefined
+      // undefined if trade not executed instantly
+      trade: effects.created?.find(Boolean)?.reference.objectId,
       effects,
     };
   }
@@ -98,7 +99,8 @@ export class OrderbookFullClient extends OrderbookReadClient {
     );
 
     return {
-      trade: effects.created[0], // might be undefined
+      // undefined if trade not executed instantly
+      trade: effects.created?.find(Boolean)?.reference.objectId,
       effects,
     };
   }
@@ -122,7 +124,8 @@ export class OrderbookFullClient extends OrderbookReadClient {
     );
 
     return {
-      trade: effects.created[0], // might be undefined
+      // undefined if trade not executed instantly
+      trade: effects.created?.find(Boolean)?.reference.objectId,
       effects,
     };
   }
@@ -189,7 +192,8 @@ export class OrderbookFullClient extends OrderbookReadClient {
     );
 
     return {
-      trade: effects.created[0], // might be undefined
+      // undefined if trade not executed instantly
+      trade: effects.created?.find(Boolean)?.reference.objectId,
       effects,
     };
   }
@@ -212,7 +216,8 @@ export class OrderbookFullClient extends OrderbookReadClient {
     );
 
     return {
-      trade: effects.created[0], // might be undefined
+      // undefined if trade not executed instantly
+      trade: effects.created?.find(Boolean)?.reference.objectId,
       effects,
     };
   }
