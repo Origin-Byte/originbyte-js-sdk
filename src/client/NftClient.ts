@@ -25,8 +25,7 @@ import {
   GetMarketsParams,
 } from "./types";
 import { isObjectExists } from "./utils";
-
-const TESTNET_URL = "https://fullnode.devnet.sui.io";
+import { TESTNET_URL } from "./consts";
 
 export class NftClient {
   private provider: JsonRpcProvider;

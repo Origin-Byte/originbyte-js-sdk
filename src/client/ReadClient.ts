@@ -1,6 +1,5 @@
 import { JsonRpcProvider, Provider } from "@mysten/sui.js";
-
-const TESTNET_URL = "https://fullnode.devnet.sui.io";
+import { TESTNET_URL } from "./consts";
 
 export class ReadClient {
   // eslint-disable-next-line

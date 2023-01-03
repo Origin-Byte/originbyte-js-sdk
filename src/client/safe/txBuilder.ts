@@ -1,30 +1,17 @@
-import { MoveCallTransaction, ObjectId, SuiJsonValue } from "@mysten/sui.js";
-import { GlobalParams } from "../types";
+import { MoveCallTransaction, SuiJsonValue } from "@mysten/sui.js";
+import {
+  AuthParam,
+  CollectionParam,
+  GlobalParams,
+  NftParam,
+  SafeParam,
+  TransferCapParam,
+} from "../types";
 import {
   DEFAULT_GAS_BUDGET,
   DEFAULT_PACKAGE_ID,
   DEFAULT_SAFE_MODULE,
 } from "../consts";
-
-export interface CollectionParam {
-  collection: string;
-}
-
-export interface SafeParam {
-  safe: ObjectId;
-}
-
-export interface AuthParam {
-  ownerCap: ObjectId;
-}
-
-export interface NftParam {
-  nft: ObjectId;
-}
-
-export interface TransferCapParam {
-  transferCap: ObjectId;
-}
 
 export type NftParams = GlobalParams & NftParam & SafeParam;
 export type AuthParams = GlobalParams & SafeParam & AuthParam;

@@ -89,31 +89,27 @@ export class SafeFullClient extends SafeReadClient {
     return { transferCap: effects.created[0].reference.objectId, effects };
   }
 
-  public async createSafeForSender(): Promise<{
-    safeId: ObjectId;
-    ownerCapId: ObjectId;
-    effects: TransactionEffects;
-  }> {
+  public async createSafeForSender() {
     const effects = await this.client.sendTxWaitForEffects(
       createSafeForSenderTx(this.opts)
     );
 
     const [object1, object2] = effects.created;
 
-    let safeId;
-    let ownerCapId;
+    let safe;
+    let ownerCap;
 
     // two objects are created, one is the safe which is a shared object,
     // the other is the owner cap which is owned by the sender
     if (parseObjectOwner(object1.owner) === "shared") {
-      safeId = object1.reference.objectId;
-      ownerCapId = object2.reference.objectId;
+      safe = object1.reference.objectId;
+      ownerCap = object2.reference.objectId;
     } else {
-      safeId = object2.reference.objectId;
-      ownerCapId = object1.reference.objectId;
+      safe = object2.reference.objectId;
+      ownerCap = object1.reference.objectId;
     }
 
-    return { safeId, ownerCapId, effects };
+    return { safe, ownerCap, effects };
   }
 
   public async createTransferCapForSender(p: {
