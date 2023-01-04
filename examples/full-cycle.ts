@@ -17,24 +17,24 @@ import {
   NftClient,
 } from '../src';
 
-const mnemonic = 'jazz cinnamon outside deputy original doll stereo virtual dawn crater fat size';
+export const mnemonic = 'harvest empty express erase pause bundle clarify box install arena push guard';
 export const keypair = Ed25519Keypair.deriveKeypair(mnemonic);
 
 export const provider = new JsonRpcProvider('https://fullnode.devnet.sui.io');
 export const signer = new RawSigner(keypair, provider);
 export const client = new NftClient(provider);
 
-const GLOBAL_RECEIVER = '0x9036f2196a443937c467d247bf2ce797ce41eeef'; // pubkey
+const GLOBAL_RECEIVER = '0x1c66e815c11de62b17329f58dbedd8331c2fa5b4'; // pubkey
 const CONFIG = {
-  nftProtocolContractId: '0xc26b281fe871a05a82f63f4254b29fadbd2e7704', // NFT-PROTOCOL
-  nftContractId: '0x4b0c7244990d170ddf599054799c7954f2cadc2d', // SUIGODS
+  nftProtocolContractId: '0xa581a7bab1c2cc9b5439d6634dcf8b345567bfdb', // NFT-PROTOCOL
+  nftContractId: '0xa581a7bab1c2cc9b5439d6634dcf8b345567bfdb', // SUIGODS
   launchpadAdmin: GLOBAL_RECEIVER,
   launchpadReceiver: GLOBAL_RECEIVER,
   lpSlotAdmin: GLOBAL_RECEIVER,
   lpSlotReceiver: GLOBAL_RECEIVER,
   feesRate: 1000, // bps
-  mintTestNFTs: true,
-  moduleName: 'suigods', // TODO: parse on the fly
+  mintTestNFTs: false,
+  moduleName: 'suimarines', // TODO: parse on the fly
 };
 
 const loadAllTxs = async (query: TransactionQuery) => {
@@ -96,6 +96,8 @@ const resolveFields = async (allObjects: GetObjectDataResponse[]) => {
 
 const loadProgram = async () => {
   const start = Date.now();
+  const addr = await signer.getAddress();
+  console.log('Address:', addr);
   const publishTx = await loadAllTxs({ MutatedObject: CONFIG.nftProtocolContractId });
   const publishObjectIds = publishTx
     .map((_) => _.effects.created || [])
@@ -238,6 +240,7 @@ const createMarket = async (slotId: string, inventoryId: string) => {
     const createdObjects = createMarketResult.EffectsCert.effects.effects.created?.map(
       (_) => _.reference.objectId,
     );
+    console.log('Created objects', createdObjects);
     const markets = await client.fetchAndParseObjectsById(
       createdObjects || [],
       FixedPriceMarketParser,
@@ -287,7 +290,7 @@ const doFullCycle = async () => {
   }
 
   if (CONFIG.mintTestNFTs) {
-    for (let i = 0; i < 10; i += 1) {
+    for (let i = 0; i < 100; i += 1) {
       const tx = NftClient.biuldMintNft({
         name: `Test NFT ${i}`,
         description: `Test NFT ${i} Description `,

@@ -1,7 +1,6 @@
 import { MoveCallTransaction } from '@mysten/sui.js';
 import {
-  BuildBuyNftCertificateParams,
-  BuildClaimNftCertificateParams,
+  BuildBuyNftParams,
   BuildCreateFixedPriceMarketWithInventoryParams,
   BuildCreateInventoryParams,
   BuildCreateFlatFeeParams,
@@ -12,6 +11,7 @@ import {
   BuildCreateFixedPriceMarketParams,
 } from './types';
 
+const SUI_TYPE = '0x2::sui::SUI';
 export const biuldMintNft = (
   params: BuildMintNftParams,
 ): MoveCallTransaction => {
@@ -41,14 +41,14 @@ export const biuldMintNft = (
   };
 };
 
-export const buildBuyNftCertificate = (
-  params: BuildBuyNftCertificateParams,
+export const buildBuyNft = (
+  params: BuildBuyNftParams,
 ): MoveCallTransaction => ({
   packageObjectId: params.packageObjectId,
   module: 'fixed_price',
-  function: 'buy_nft_certificate',
-  typeArguments: ['0x2::sui::SUI'],
-  arguments: [params.launchpadId, params.slotId, params.marketId, params.coin],
+  function: 'buy_nft',
+  typeArguments: [params.nftType, SUI_TYPE],
+  arguments: [params.slotId, params.marketId, params.coin],
   gasBudget: 5000,
 });
 
@@ -58,7 +58,7 @@ export const buildCreateFixedPriceMarketWithInventory = (
   packageObjectId: params.packageObjectId,
   module: 'fixed_price',
   function: 'init_market_with_inventory',
-  typeArguments: ['0x2::sui::SUI'],
+  typeArguments: [SUI_TYPE],
   arguments: [params.slot, params.inventoryId, params.price],
   gasBudget: 5000,
 });
@@ -69,7 +69,7 @@ export const buildCreateFixedPriceMarket = (
   packageObjectId: params.packageObjectId,
   module: 'fixed_price',
   function: 'init_market',
-  typeArguments: ['0x2::sui::SUI'],
+  typeArguments: [SUI_TYPE],
   arguments: [params.slot, params.isWhitelisted, params.price],
   gasBudget: 5000,
 });
@@ -82,17 +82,6 @@ export const buildEnableSales = (
   function: 'sale_on',
   typeArguments: [],
   arguments: [params.slotId],
-  gasBudget: 5000,
-});
-
-export const buildClaimNftCertificate = (
-  params: BuildClaimNftCertificateParams,
-): MoveCallTransaction => ({
-  packageObjectId: params.packageObjectId,
-  module: 'slot',
-  function: 'transfer_nft',
-  typeArguments: [params.nftType],
-  arguments: [params.certificateId, params.slotId, params.recepient],
   gasBudget: 5000,
 });
 

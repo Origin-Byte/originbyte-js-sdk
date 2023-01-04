@@ -3,10 +3,9 @@ import {
   isSuiMoveObject, isSuiObject, JsonRpcProvider,
 } from '@mysten/sui.js';
 import {
-  buildBuyNftCertificate,
+  buildBuyNft,
   biuldMintNft,
   buildEnableSales,
-  buildClaimNftCertificate,
   buildCreateFlatFee,
   buildCreateFixedPriceMarketWithInventory,
   buildInitLaunchpad,
@@ -167,7 +166,7 @@ export class NftClient {
     return launchpad;
   }
 
-  getLaunchpadSlotById = async (params: GetLaunchpadSlotParams) => {
+  getLaunchpadsSlotsById = async (params: GetLaunchpadSlotParams) => {
     const slots = await this.fetchAndParseObjectsById([params.slotId], LaunchpadSlotParser);
     if (!slots.length) {
       return undefined;
@@ -185,7 +184,7 @@ export class NftClient {
     return { ...slot, inventoriesId: inventories?.value, marketId: market?.value };
   }
 
-  getInventoryById = async (params: GetInventoryParams) => {
+  getInventoriesById = async (params: GetInventoryParams) => {
     return this.fetchAndParseObjectsById([params.inventoryId], InventoryParser);
   }
 
@@ -221,29 +220,11 @@ export class NftClient {
     return this.getNftsById({ objectIds });
   }
 
-  getNftCertificatesById = async (params: GetNftCertificateParams) => {
-    const certificates = await this.fetchAndParseObjectsById(params.objectIds, NftCertificateParser);
-    const nftIds = uniq(certificates.map((_) => _.nftId));
-    const nfts = await this.getNftsById({ objectIds: nftIds });
-    const nftsMap = toMap(nfts, (_) => _.id);
-    return certificates.map((certificate) => ({
-      data: certificate,
-      nft: nftsMap.get(certificate.nftId),
-    }));
-  }
-
-  getNftCertificatesForAddress = async (address: string) => {
-    const objectIds = await this.fetchObjectIdsForAddress(address, NftCertificateParser);
-    return this.getNftCertificatesById({ objectIds });
-  }
-
   static biuldMintNft = biuldMintNft
 
-  static buildBuyNftCertificate = buildBuyNftCertificate
+  static buildBuyNft = buildBuyNft
 
   static buildEnableSales = buildEnableSales
-
-  static buildClaimNftCertificate = buildClaimNftCertificate
 
   static buildCreateFlatFee = buildCreateFlatFee
 

@@ -328,20 +328,6 @@ export type DynamicField = {
   value: string
 }
 
-export type BuildFixedPriceSlingshotParams = WithPackageObjectId & {
-  collectionId: string
-  admin: string,
-  receiver: string,
-  price: number,
-}
-
-export type BuildClaimNftParams = WithPackageObjectId & {
-  nft: string
-  launchpadId: string
-  certificate: string
-  recepient: string
-}
-
 export type BuildMintNftParams = WithPackageObjectId & {
   name: string
   description: string
@@ -355,22 +341,15 @@ export type BuildMintNftParams = WithPackageObjectId & {
   // tierIndex?: number
 }
 
-export type BuildBuyNftCertificateParams = WithPackageObjectId & {
-  launchpadId: string
+export type BuildBuyNftParams = WithPackageObjectId & {
   slotId: string
   coin: string
   marketId: string
+  nftType: string
 }
 
 export interface BuildEnableSalesParams extends WithPackageObjectId {
   slotId: string
-}
-
-export type BuildClaimNftCertificateParams = WithPackageObjectId & {
-  nftType: string
-  certificateId: string
-  slotId: string
-  recepient: string
 }
 
 export type FetchFnParser<RpcResponse, DataModel> = (
