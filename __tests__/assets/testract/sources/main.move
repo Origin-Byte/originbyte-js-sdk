@@ -8,7 +8,7 @@ module testract::testract {
     use nft_protocol::transfer_allowlist;
 
     // mint more NFTs if not enough for new tests
-    const NFTS_TO_MINT: u64 = 10;
+    const NFTS_TO_MINT: u64 = 32;
 
     struct TESTRACT has drop {}
 

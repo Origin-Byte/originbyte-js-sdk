@@ -7,7 +7,7 @@ import {
 import { ReadClient } from "../ReadClient";
 import { GlobalParams } from "../types";
 
-interface SafeState {
+export interface SafeState {
   id: ObjectId;
   collectionsWithEnabledDeposits: string[];
   enableAnyDeposits: boolean;
@@ -19,11 +19,20 @@ interface SafeState {
   }>;
 }
 
-interface TransferCapState {
+export interface TransferCapState {
   safe: ObjectId;
   isExclusivelyListed: boolean;
   nft: ObjectId;
   version: string;
+}
+
+export function transformTransferCap({ fields }: any): TransferCapState {
+  return {
+    safe: fields.safe,
+    isExclusivelyListed: fields.inner.fields.is_exclusive,
+    nft: fields.inner.fields.nft,
+    version: fields.inner.fields.version,
+  };
 }
 
 export class SafeReadClient {
@@ -125,13 +134,6 @@ export class SafeReadClient {
       throw new Error("Cannot fetch owner cap details");
     }
 
-    const { fields } = details.data as any;
-
-    return {
-      safe: fields.safe,
-      isExclusivelyListed: fields.inner.fields.is_exclusive,
-      nft: fields.inner.fields.nft,
-      version: fields.inner.fields.version,
-    };
+    return transformTransferCap(details.data as any);
   }
 }

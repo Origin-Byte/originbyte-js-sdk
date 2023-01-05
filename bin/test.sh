@@ -3,8 +3,11 @@
 set -e
 
 # TODO: get nft-protocol version
-# TODO: optimise by skipping operations if not needed
+# OPT: skip operations that've already been ran (e.g. fetching deps)
 
+nft_protocol_rev="682c91939cde00bcda05ac5b640607229b463b8b"
+
+# check for dependencies
 sui --version &>/dev/null || (echo "ERROR: missing dependency sui" && exit 1)
 toml --version &>/dev/null ||
     (echo "ERROR: missing dependency toml" && echo "\$ cargo install toml-cli" && exit 1)
@@ -51,8 +54,8 @@ echo "Fetching nft-protocol dependency"
 rm -rf "${test_assets_tmp_dir}/nft-protocol"
 git clone --quiet --depth 1 "git@github.com:Origin-Byte/nft-protocol.git" "${nft_protocol_dir}"
 cd "${nft_protocol_dir}"
-git fetch --quiet --depth 1 origin 682c91939cde00bcda05ac5b640607229b463b8b
-git checkout --quiet 682c91939cde00bcda05ac5b640607229b463b8b
+git fetch --quiet --depth 1 origin "${nft_protocol_rev}"
+git checkout --quiet "${nft_protocol_rev}"
 originmate_rev=$(
     toml get "${nft_protocol_dir}/Move.toml" dependencies.Originmate.rev |
         tr -d '"'
@@ -118,15 +121,20 @@ coin_obj_count=$(
 # transfer some coins to test user if they don't have any
 if [ "${coin_obj_count}" -eq 0 ]; then
     echo "Transfering SUI to test user"
-    coin_id=$(
-        sui client --client.config "${test_validator_config}" gas --json |
-            jq -r '.[0].id.id'
-    )
-    sui client --client.config "${test_validator_config}" \
-        pay_all_sui \
-        --gas-budget 30000 \
-        --input-coins "${coin_id}" \
-        --recipient "${test_addr}" 1>/dev/null
+
+    # one for gas, one for SUI wallet
+    for _i in {1..2}; do
+        coin_id=$(
+            sui client --client.config "${test_validator_config}" gas --json |
+                jq -r '.[0].id.id'
+        )
+        sui client --client.config "${test_validator_config}" \
+            pay_all_sui \
+            --gas-budget 30000 \
+            --input-coins "${coin_id}" \
+            --recipient "${test_addr}" 1>/dev/null
+    done
+
 fi
 
 export NFT_PROTOCOL_ADDRESS="${nft_protocol_address}"
