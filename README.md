@@ -3,9 +3,9 @@
 [![npm version](https://badge.fury.io/js/@originbyte%2Fjs-sdk.svg)](https://badge.fury.io/js/@originbyte%2Fjs-sdk)
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
-Javascipt/Typescript SDK to work with Origin Byte NFT protocol.
+Javascript/Typescript SDK to work with Origin Byte NFT protocol.
 
-Please note: The project is in active development stage, some methods might change dramatically.
+Please note: The project is in an active development stage. Hence, some methods might change dramatically.
 
 ## Installation
 
@@ -22,9 +22,9 @@ npm add  @originbyte/js-sdk
 ## Usage
 
 The main point of the SDK is `NftClient` class. It provides all necessary methods to fetch the data from the blockchain and build transactions to interact with the contract.
-However, under the hood the `NftClient` data fetcher use idea of parsers approach: you can create your own parser and fetch any data from the blockchain - by user wallet address or directly by Object ID.
+However, under the hood, the `NftClient` data fetcher uses the idea of a parsers' approach: you can create your own parser and fetch any data from the blockchain - by user wallet address or directly by Object ID.
 
-The parser, by itself, is an object which implements interface:
+The parser, by itself, is an object which implements an interface:
 
 ```typescript
 export interface SuiObjectParser<RpcResponse, DataModel> {
@@ -68,7 +68,7 @@ export const CollectionParser: SuiObjectParser<
 };
 ```
 
-Beside of that, the SDK provide predefined parsers and methods to interact with Origin Byte's NFT protocol. Next methods are available:
+Besides of that, the SDK provides predefined parsers and methods to interact with Origin Byte's NFT protocol. Next methods are available:
 
 - fetchAndParseObjectsById
 - fetchAndParseObjectsForAddress

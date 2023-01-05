@@ -9,7 +9,7 @@
     "move"
   ],
   "scripts": {
-    "test": "yarn jest --detectOpenHandles --runInBand",
+    "test": "./bin/test.sh",
     "tsc": "tsc",
     "typecheck": "yarn tsc --project ./tsconfig-typecheck.json",
     "lint": "eslint 'src/**/*.{ts, tsx}'",

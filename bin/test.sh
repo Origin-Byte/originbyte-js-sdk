@@ -140,4 +140,4 @@ fi
 export NFT_PROTOCOL_ADDRESS="${nft_protocol_address}"
 export TESTRACT_ADDRESS="${testract_address}"
 
-npm t
+yarn jest --detectOpenHandles --runInBand
