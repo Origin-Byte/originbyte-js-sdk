@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 sui --version &>/dev/null || (echo "ERROR: missing dependency sui" && exit 1)
 
 localnet_dir="__tests__/assets/.tmp/localnet"
