@@ -34,7 +34,6 @@ import {
   SuiObjectParser,
   MintCap,
   NftCollection,
-  GetNftCertificateParams,
   GetMarketsParams,
   GetLaunchpadParams,
   GetCollectionDomainsParams,
