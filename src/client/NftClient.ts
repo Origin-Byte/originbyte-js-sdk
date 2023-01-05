@@ -214,6 +214,7 @@ export class NftClient {
         packageModuleClassName: nft.packageModuleClassName,
         id: nft.id,
         rawResponse: nft.rawResponse,
+        ownerAddress: nft.ownerAddress,
       };
     });
   };

@@ -249,6 +249,7 @@ export interface NftCollection extends ProtocolData, WithId {
 export interface ArtNftRaw extends ProtocolData, WithRawResponse, WithId {
   logicalOwner: string
   bagId: string
+  ownerAddress: string
 }
 
 export interface ArtNft extends ProtocolData, WithRawResponse, WithId {
@@ -256,6 +257,7 @@ export interface ArtNft extends ProtocolData, WithRawResponse, WithId {
   name?: string
   description?: string
   url?: string
+  ownerAddress: string
 }
 
 export interface CollectionDomains {
