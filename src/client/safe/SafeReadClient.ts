@@ -13,9 +13,17 @@ interface SafeState {
   enableAnyDeposits: boolean;
   nfts: Array<{
     id: ObjectId;
+    version: string;
     isExclusivelyListed: boolean;
     transferCapsCount: number;
   }>;
+}
+
+interface TransferCapState {
+  safe: ObjectId;
+  isExclusivelyListed: boolean;
+  nft: ObjectId;
+  version: string;
 }
 
 export class SafeReadClient {
@@ -87,6 +95,7 @@ export class SafeReadClient {
     const refs = fields.inner.fields.refs.fields.contents;
     const nfts = refs.map((r: any) => ({
       id: r.fields.key,
+      version: r.fields.value.fields.version,
       isExclusivelyListed: r.fields.value.fields.is_exclusively_listed,
       transferCapsCount: parseInt(
         r.fields.value.fields.transfer_cap_counter,
@@ -104,6 +113,25 @@ export class SafeReadClient {
       enableAnyDeposits: fields.enable_any_deposit,
       collectionsWithEnabledDeposits,
       nfts,
+    };
+  }
+
+  public async fetchTransferCap(
+    transferCap: ObjectId
+  ): Promise<TransferCapState> {
+    const details = await this.client.getObject(transferCap);
+
+    if (typeof details !== "object" || !("data" in details)) {
+      throw new Error("Cannot fetch owner cap details");
+    }
+
+    const { fields } = details.data as any;
+
+    return {
+      safe: fields.safe,
+      isExclusivelyListed: fields.inner.fields.is_exclusive,
+      nft: fields.inner.fields.nft,
+      version: fields.inner.fields.version,
     };
   }
 }

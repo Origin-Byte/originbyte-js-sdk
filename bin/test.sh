@@ -3,7 +3,14 @@
 set -e
 
 # TODO: get nft-protocol version
-# TODO: deps toml-cli, curl, jq, git, sui
+# TODO: optimise by skipping operations if not needed
+
+sui --version &>/dev/null || (echo "ERROR: missing dependency sui" && exit 1)
+toml --version &>/dev/null ||
+    (echo "ERROR: missing dependency toml" && echo "\$ cargo install toml-cli" && exit 1)
+curl --version &>/dev/null || (echo "ERROR: missing dependency curl" && exit 1)
+jq --version &>/dev/null || (echo "ERROR: missing dependency jq" && exit 1)
+git --version &>/dev/null || (echo "ERROR: missing dependency git" && exit 1)
 
 sui_validator_http="http://0.0.0.0:9000"
 # exit if sui local validator not running
@@ -106,7 +113,7 @@ echo "Testract deployed under address '${testract_address}'"
 
 coin_obj_count=$(
     sui client --client.config "${test_validator_config}" objects "${test_addr}" --json |
-        jq length
+        jq 'map( select( .type | contains("Coin") ) ) | length'
 )
 # transfer some coins to test user if they don't have any
 if [ "${coin_obj_count}" -eq 0 ]; then

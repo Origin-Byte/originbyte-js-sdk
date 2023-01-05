@@ -9,7 +9,7 @@
     "move"
   ],
   "scripts": {
-    "test": "yarn jest --detectOpenHandles",
+    "test": "yarn jest --detectOpenHandles --runInBand",
     "typecheck": "yarn tsc --project ./tsconfig-typecheck.json",
     "lint": "eslint 'src/**/*.{ts, tsx}'",
     "format": "prettier --write 'src/**/*.{ts, tsx}' 'examples/**/*.{ts, tsx}' '__tests__/**/*.{ts, tsx}'",
@@ -54,5 +54,8 @@
   },
   "dependencies": {
     "@mysten/sui.js": "^0.20.0"
+  },
+  "jest": {
+    "testTimeout": 15000
   }
 }
