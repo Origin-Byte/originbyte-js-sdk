@@ -2,7 +2,8 @@ import { Ed25519Keypair, JsonRpcProvider, RawSigner } from "@mysten/sui.js";
 import { NftClient } from "../src";
 
 // export const mnemonic = 'muffin tuition fit fish average true slender tower salmon artist song biology';
-export const mnemonic = "harvest empty express erase pause bundle clarify box install arena push guard";
+export const mnemonic =
+  "harvest empty express erase pause bundle clarify box install arena push guard";
 
 /**
  * Created Objects:

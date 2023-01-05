@@ -17,7 +17,8 @@ import {
   NftClient,
 } from "../src";
 
-export const mnemonic = "harvest empty express erase pause bundle clarify box install arena push guard";
+export const mnemonic =
+  "harvest empty express erase pause bundle clarify box install arena push guard";
 export const keypair = Ed25519Keypair.deriveKeypair(mnemonic);
 
 export const provider = new JsonRpcProvider("https://fullnode.devnet.sui.io");
@@ -47,14 +48,14 @@ const loadAllTxs = async (query: TransactionQuery) => {
       query,
       cursor,
       null,
-      "descending",
+      "descending"
     );
     // eslint-disable-next-line no-await-in-loop
     const txs = await provider.getTransactionWithEffectsBatch(txIds.data);
     result = [...result, ...txs];
     if (!txIds.nextCursor) {
       return result.sort(
-        (a, b) => (b.timestamp_ms ?? 0) - (a.timestamp_ms ?? 0),
+        (a, b) => (b.timestamp_ms ?? 0) - (a.timestamp_ms ?? 0)
       );
     }
     cursor = txIds.nextCursor;
@@ -98,7 +99,9 @@ const loadProgram = async () => {
   const start = Date.now();
   const addr = await signer.getAddress();
   console.log("Address:", addr);
-  const publishTx = await loadAllTxs({ MutatedObject: CONFIG.nftProtocolContractId });
+  const publishTx = await loadAllTxs({
+    MutatedObject: CONFIG.nftProtocolContractId,
+  });
   const publishObjectIds = publishTx
     .map((_) => _.effects.created || [])
     .flat()
@@ -112,7 +115,7 @@ const loadProgram = async () => {
       { InputObject: CONFIG.nftProtocolContractId },
       cursor,
       100,
-      "ascending",
+      "ascending"
     );
     // eslint-disable-next-line no-await-in-loop
     const txObjects = await provider.getTransactionWithEffectsBatch(txIds.data);
@@ -120,21 +123,21 @@ const loadProgram = async () => {
     const objectsForTx = await provider.getObjectBatch(
       txObjects
         .flatMap((_) => _.effects.created || [])
-        .map((_) => _.reference.objectId),
+        .map((_) => _.reference.objectId)
     );
     objectsCache.push(...objectsForTx);
     // eslint-disable-next-line no-await-in-loop
     const result = await resolveFields(objectsCache);
 
     const hasMultipleAddresses = Object.values(result).some(
-      (_) => Array.isArray(_) && _.length > 1,
+      (_) => Array.isArray(_) && _.length > 1
     );
 
     if (hasMultipleAddresses) {
       throw new Error(`Multiple addresses found: ${JSON.stringify(result)}`);
     }
     const resultHasUndefined = Object.values(result).some(
-      (_) => _ === undefined,
+      (_) => _ === undefined
     );
     if (!resultHasUndefined || txIds.nextCursor === null) {
       return result;
@@ -151,12 +154,13 @@ const createFees = async (): Promise<string | undefined> => {
   });
   const createFeeResult = await signer.executeMoveCall(transaction);
   if ("EffectsCert" in createFeeResult && createFeeResult.EffectsCert) {
-    const createdObjects = createFeeResult.EffectsCert.effects.effects.created?.map(
-      (_) => _.reference.objectId,
-    );
+    const createdObjects =
+      createFeeResult.EffectsCert.effects.effects.created?.map(
+        (_) => _.reference.objectId
+      );
     const feeId = await client.fetchAndParseObjectsById(
       createdObjects || [],
-      FlatFeeParser,
+      FlatFeeParser
     );
     return feeId[0].id;
   }
@@ -173,12 +177,13 @@ const initLaunchpad = async (defaultFeeId: string) => {
   });
   const initLaunchpadResult = await signer.executeMoveCall(transaction);
   if ("EffectsCert" in initLaunchpadResult && initLaunchpadResult.EffectsCert) {
-    const createdObjects = initLaunchpadResult.EffectsCert.effects.effects.created?.map(
-      (_) => _.reference.objectId,
-    );
+    const createdObjects =
+      initLaunchpadResult.EffectsCert.effects.effects.created?.map(
+        (_) => _.reference.objectId
+      );
     const launchpads = await client.fetchAndParseObjectsById(
       createdObjects || [],
-      LaunchpadParser,
+      LaunchpadParser
     );
     return launchpads[0].id;
   }
@@ -194,12 +199,13 @@ const initLaunchpadSlot = async (launchpadId: string) => {
   });
   const initSlotResult = await signer.executeMoveCall(transaction);
   if ("EffectsCert" in initSlotResult && initSlotResult.EffectsCert) {
-    const createdObjects = initSlotResult.EffectsCert.effects.effects.created?.map(
-      (_) => _.reference.objectId,
-    );
+    const createdObjects =
+      initSlotResult.EffectsCert.effects.effects.created?.map(
+        (_) => _.reference.objectId
+      );
     const slots = await client.fetchAndParseObjectsById(
       createdObjects || [],
-      LaunchpadSlotParser,
+      LaunchpadSlotParser
     );
     return slots[0].id;
   }
@@ -213,15 +219,16 @@ export const createInventory = async () => {
   });
   const createInventoryResult = await signer.executeMoveCall(transaction);
   if (
-    "EffectsCert" in createInventoryResult
-    && createInventoryResult.EffectsCert
+    "EffectsCert" in createInventoryResult &&
+    createInventoryResult.EffectsCert
   ) {
-    const createdObjects = createInventoryResult.EffectsCert.effects.effects.created?.map(
-      (_) => _.reference.objectId,
-    );
+    const createdObjects =
+      createInventoryResult.EffectsCert.effects.effects.created?.map(
+        (_) => _.reference.objectId
+      );
     const inventories = await client.fetchAndParseObjectsById(
       createdObjects || [],
-      InventoryParser,
+      InventoryParser
     );
     return inventories[0].id;
   }
@@ -237,13 +244,14 @@ const createMarket = async (slotId: string, inventoryId: string) => {
   });
   const createMarketResult = await signer.executeMoveCall(transaction);
   if ("EffectsCert" in createMarketResult && createMarketResult.EffectsCert) {
-    const createdObjects = createMarketResult.EffectsCert.effects.effects.created?.map(
-      (_) => _.reference.objectId,
-    );
+    const createdObjects =
+      createMarketResult.EffectsCert.effects.effects.created?.map(
+        (_) => _.reference.objectId
+      );
     console.log("Created objects", createdObjects);
     const markets = await client.fetchAndParseObjectsById(
       createdObjects || [],
-      FixedPriceMarketParser,
+      FixedPriceMarketParser
     );
     return markets[0].id;
   }
@@ -271,8 +279,8 @@ const doFullCycle = async () => {
   }
 
   if (
-    !loadedContract.launchpadSlotIds
-    || !loadedContract.launchpadSlotIds.length
+    !loadedContract.launchpadSlotIds ||
+    !loadedContract.launchpadSlotIds.length
   ) {
     const slotId = await initLaunchpadSlot(loadedContract.launchpadIds[0]);
     if (!slotId) {
@@ -307,12 +315,12 @@ const doFullCycle = async () => {
       // eslint-disable-next-line no-await-in-loop
       const mintResult = await signer.executeMoveCall(tx);
       if (
-        "EffectsCert" in mintResult
-        && mintResult.EffectsCert.effects.effects.created
+        "EffectsCert" in mintResult &&
+        mintResult.EffectsCert.effects.effects.created
       ) {
         console.log(
           "Minted NFT:",
-          mintResult.EffectsCert.effects.effects.created[0].reference.objectId,
+          mintResult.EffectsCert.effects.effects.created[0].reference.objectId
         );
       }
     }
@@ -321,7 +329,7 @@ const doFullCycle = async () => {
   if (!loadedContract.marketIds || !loadedContract.marketIds.length) {
     const marketId = await createMarket(
       loadedContract.launchpadSlotIds[0],
-      loadedContract.inventories[0],
+      loadedContract.inventories[0]
     );
     if (!marketId) {
       throw new Error("Market not created");

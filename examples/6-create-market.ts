@@ -1,6 +1,9 @@
 import { NftClient } from "../src";
 import {
- INVENTORY_ID, LAUNCHPAD_SLOT_ID, PACKAGE_OBJECT_ID, signer
+  INVENTORY_ID,
+  LAUNCHPAD_SLOT_ID,
+  PACKAGE_OBJECT_ID,
+  signer,
 } from "./common";
 
 export const createMarket = async () => {

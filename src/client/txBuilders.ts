@@ -13,7 +13,7 @@ import {
 
 const SUI_TYPE = "0x2::sui::SUI";
 export const biuldMintNft = (
-  params: BuildMintNftParams,
+  params: BuildMintNftParams
 ): MoveCallTransaction => {
   const keys: string[] = [];
   const values: string[] = [];
@@ -42,7 +42,7 @@ export const biuldMintNft = (
 };
 
 export const buildBuyNft = (
-  params: BuildBuyNftParams,
+  params: BuildBuyNftParams
 ): MoveCallTransaction => ({
   packageObjectId: params.packageObjectId,
   module: "fixed_price",
@@ -53,7 +53,7 @@ export const buildBuyNft = (
 });
 
 export const buildCreateFixedPriceMarketWithInventory = (
-  params: BuildCreateFixedPriceMarketWithInventoryParams,
+  params: BuildCreateFixedPriceMarketWithInventoryParams
 ): MoveCallTransaction => ({
   packageObjectId: params.packageObjectId,
   module: "fixed_price",
@@ -64,7 +64,7 @@ export const buildCreateFixedPriceMarketWithInventory = (
 });
 
 export const buildCreateFixedPriceMarket = (
-  params: BuildCreateFixedPriceMarketParams,
+  params: BuildCreateFixedPriceMarketParams
 ): MoveCallTransaction => ({
   packageObjectId: params.packageObjectId,
   module: "fixed_price",
@@ -75,7 +75,7 @@ export const buildCreateFixedPriceMarket = (
 });
 
 export const buildEnableSales = (
-  params: BuildEnableSalesParams,
+  params: BuildEnableSalesParams
 ): MoveCallTransaction => ({
   packageObjectId: params.packageObjectId,
   module: "slot",
@@ -86,7 +86,7 @@ export const buildEnableSales = (
 });
 
 export const buildCreateFlatFee = (
-  params: BuildCreateFlatFeeParams,
+  params: BuildCreateFlatFeeParams
 ): MoveCallTransaction => ({
   packageObjectId: params.packageObjectId,
   module: "flat_fee",
@@ -97,7 +97,7 @@ export const buildCreateFlatFee = (
 });
 
 export const buildInitLaunchpad = (
-  params: BuildInitLaunchpadParams,
+  params: BuildInitLaunchpadParams
 ): MoveCallTransaction => ({
   packageObjectId: params.packageObjectId,
   module: "launchpad",
@@ -113,7 +113,7 @@ export const buildInitLaunchpad = (
 });
 
 export const buildInitSlot = (
-  params: BuildInitSlotParams,
+  params: BuildInitSlotParams
 ): MoveCallTransaction => ({
   packageObjectId: params.packageObjectId,
   module: "slot",
@@ -124,7 +124,7 @@ export const buildInitSlot = (
 });
 
 export const buildCreateInventoryTx = (
-  params: BuildCreateInventoryParams,
+  params: BuildCreateInventoryParams
 ): MoveCallTransaction => ({
   packageObjectId: params.packageObjectId,
   module: "inventory",

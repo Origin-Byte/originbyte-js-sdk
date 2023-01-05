@@ -1,8 +1,6 @@
 import { MoveCallTransaction } from "@mysten/sui.js";
 import { NftClient } from "../src";
-import {
-  INVENTORY_ID, MINT_CAP_ID, PACKAGE_OBJECT_ID, signer
-} from "./common";
+import { INVENTORY_ID, MINT_CAP_ID, PACKAGE_OBJECT_ID, signer } from "./common";
 
 export const splitBy = <T>(list: T[], chunkSize: number): T[][] => {
   const result: T[][] = [];
@@ -33,19 +31,21 @@ const mintChunk = async (txs: MoveCallTransaction[]) => {
 export const mintNFt = async () => {
   const txs: MoveCallTransaction[] = [];
   for (let i = 0; i < 10000; i += 1) {
-    txs.push(NftClient.biuldMintNft({
-      name: `Test NFT ${i}`,
-      description: `Test NFT ${i} Description `,
-      mintCap: MINT_CAP_ID,
-      packageObjectId: PACKAGE_OBJECT_ID,
-      inventoryId: INVENTORY_ID,
-      moduleName: "suitraders",
-      url: "https://images.ctfassets.net/6kz06gcm2189/27OknKy2oUNvX8rGm1fHXH/1c5dd162685656aae5cbd3a54c27102c/how-to-mint-an-nft.png",
-      attributes: {
-        rarity: "Common",
-        type: "NFT",
-      },
-    }));
+    txs.push(
+      NftClient.biuldMintNft({
+        name: `Test NFT ${i}`,
+        description: `Test NFT ${i} Description `,
+        mintCap: MINT_CAP_ID,
+        packageObjectId: PACKAGE_OBJECT_ID,
+        inventoryId: INVENTORY_ID,
+        moduleName: "suitraders",
+        url: "https://images.ctfassets.net/6kz06gcm2189/27OknKy2oUNvX8rGm1fHXH/1c5dd162685656aae5cbd3a54c27102c/how-to-mint-an-nft.png",
+        attributes: {
+          rarity: "Common",
+          type: "NFT",
+        },
+      })
+    );
   }
   const chunks = splitBy(txs, 10000);
   await Promise.all(chunks.map((chunk) => mintChunk(chunk)));

@@ -10,7 +10,10 @@ export const initLaunchpadSlot = async () => {
     launchpad: LAUNCHPAD_ID,
   });
   const initLaunchpadSlotResult = await signer.executeMoveCall(transaction);
-  console.log("initLaunchpadSlotResult", JSON.stringify(initLaunchpadSlotResult));
+  console.log(
+    "initLaunchpadSlotResult",
+    JSON.stringify(initLaunchpadSlotResult)
+  );
 };
 
 initLaunchpadSlot();
