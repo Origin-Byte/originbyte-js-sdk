@@ -2,8 +2,8 @@ export * from "./NftClient";
 export * from "./txBuilders";
 export * from "./types";
 
-export * from "./safe/SafeClient";
-export * from "./safe/types";
+export * from "./orderbook/OrderbookFullClient";
+export * from "./orderbook/OrderbookReadClient";
 
-export * from "./orderbook/OrderbookClient";
-export * from "./orderbook/types";
+export * from "./safe/SafeReadClient";
+export * from "./safe/SafeFullClient";

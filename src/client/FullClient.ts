@@ -41,6 +41,12 @@ export class FullClient extends ReadClient {
       );
     }
 
+    if (res.EffectsCert.effects.effects.status.status === "failure") {
+      throw new Error(
+        `Transaction failed: ${res.EffectsCert.effects.effects.status.error}`
+      );
+    }
+
     return res.EffectsCert.effects.effects;
   }
 }

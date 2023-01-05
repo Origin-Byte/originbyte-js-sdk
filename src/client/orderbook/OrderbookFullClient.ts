@@ -23,8 +23,15 @@ export class OrderbookFullClient extends OrderbookReadClient {
     super(client);
   }
 
-  public static fromKeypair(keypair: Ed25519Keypair, provider?: Provider) {
-    return new OrderbookFullClient(FullClient.fromKeypair(keypair, provider));
+  public static fromKeypair(
+    keypair: Ed25519Keypair,
+    provider?: Provider,
+    opts?: Partial<GlobalParams>
+  ) {
+    return new OrderbookFullClient(
+      FullClient.fromKeypair(keypair, provider),
+      opts
+    );
   }
 
   static createOrderbookTx = createOrderbookTx;

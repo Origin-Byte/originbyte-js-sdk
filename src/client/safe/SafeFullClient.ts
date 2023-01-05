@@ -5,8 +5,9 @@ import {
   TransactionEffects,
 } from "@mysten/sui.js";
 import { FullClient } from "../FullClient";
-import { SafeReadClient } from "./SafeReadClient";
 import { GlobalParams } from "../types";
+import { parseObjectOwner } from "../utils";
+import { SafeReadClient } from "./SafeReadClient";
 import {
   burnTransferCapTx,
   createExclusiveTransferCapForSenderTx,
@@ -22,7 +23,6 @@ import {
   enableDepositsOfCollectionTx,
   restrictDepositsTx,
 } from "./txBuilder";
-import { parseObjectOwner } from "../utils";
 
 export class SafeFullClient extends SafeReadClient {
   constructor(
@@ -30,11 +30,15 @@ export class SafeFullClient extends SafeReadClient {
     // eslint-disable-next-line
     public opts: Partial<GlobalParams> = {}
   ) {
-    super(client);
+    super(client, opts);
   }
 
-  public static fromKeypair(keypair: Ed25519Keypair, provider?: Provider) {
-    return new SafeFullClient(FullClient.fromKeypair(keypair, provider));
+  public static fromKeypair(
+    keypair: Ed25519Keypair,
+    provider?: Provider,
+    opts?: Partial<GlobalParams>
+  ) {
+    return new SafeFullClient(FullClient.fromKeypair(keypair, provider), opts);
   }
 
   static burnTransferCapTx = burnTransferCapTx;
