@@ -1,6 +1,9 @@
 import {
   GetObjectDataResponse,
-  isSuiMoveObject, isSuiObject, JsonRpcProvider,
+  is,
+  SuiObject,
+  SuiMoveObject,
+  JsonRpcProvider,
 } from "@mysten/sui.js";
 import {
   buildBuyNft,
@@ -70,7 +73,7 @@ export class NftClient {
     const parsedObjects = objects
       .filter(isObjectExists)
       .map((_) => {
-        if (isSuiObject(_.details) && isSuiMoveObject(_.details.data) && _.details.data.type.match(parser.regex)) {
+        if (is(_.details, SuiObject) && is(_.details.data, SuiMoveObject) && _.details.data.type.match(parser.regex)) {
           return parser.parser(_.details.data.fields as RpcResponse, _.details, _);
         }
         return undefined;
@@ -157,7 +160,7 @@ export class NftClient {
       return launchpad;
     }
     const fee = fees[0];
-    if (isSuiObject(fee.details) && isSuiMoveObject(fee.details.data)) {
+    if (is(fee.details, SuiObject) && is(fee.details.data, SuiMoveObject)) {
       const feeBox = fee.details.data.fields as DefaultFeeBoxRpcResponse;
       const feeData = await this.fetchAndParseObjectsById([feeBox.value], FlatFeeParser);
 

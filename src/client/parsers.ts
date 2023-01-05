@@ -1,5 +1,5 @@
 import {
-  GetObjectDataResponse, isSuiMoveObject, isSuiObject, SuiMoveObject,
+  GetObjectDataResponse, is, SuiObject, SuiMoveObject,
 } from "@mysten/sui.js";
 import {
   ArtNftRaw,
@@ -256,9 +256,9 @@ const ATTRIBUTES_DOMAIN_REGEX = /dynamic_field::Field<(0x[a-f0-9]{39,40})::utils
 
 const isTypeMatchRegex = (d: GetObjectDataResponse, regex: RegExp) => {
   const { details } = d;
-  if (isSuiObject(details)) {
+  if (is(details, SuiObject)) {
     const { data } = details;
-    if (isSuiMoveObject(data)) {
+    if (is(data, SuiMoveObject)) {
       return data.type.match(regex);
     }
   }
@@ -274,32 +274,32 @@ export const parseDomains = (domains: GetObjectDataResponse[]) => {
   const tagsDomain = domains.find((d) => isTypeMatchRegex(d, TAGS_DOMAIN_REGEX));
   const attributesDomain = domains.find((d) => isTypeMatchRegex(d, ATTRIBUTES_DOMAIN_REGEX));
 
-  if (royaltyDomain && isSuiObject(royaltyDomain.details) && isSuiMoveObject(royaltyDomain.details.data)) {
+  if (royaltyDomain && is(royaltyDomain.details, SuiObject) && is(royaltyDomain.details.data, SuiMoveObject)) {
     const { data } = royaltyDomain.details;
     response.royaltyAggregationBagId = (data.fields as RoyaltyDomainRpcResponse).value.fields.aggregations.fields.id.id;
     response.royaltyStrategiesBagId = (data.fields as RoyaltyDomainRpcResponse).value.fields.strategies.fields.id.id;
   }
 
-  if (symbolDomain && isSuiObject(symbolDomain.details) && isSuiMoveObject(symbolDomain.details.data)) {
+  if (symbolDomain && is(symbolDomain.details, SuiObject) && is(symbolDomain.details.data, SuiMoveObject)) {
     const { data } = symbolDomain.details;
     response.symbol = (data.fields as SymbolDomainRpcResponse).value.fields.symbol;
   }
 
-  if (urlDomain && isSuiObject(urlDomain.details) && isSuiMoveObject(urlDomain.details.data)) {
+  if (urlDomain && is(urlDomain.details, SuiObject) && is(urlDomain.details.data, SuiMoveObject)) {
     const { data } = urlDomain.details;
     response.url = (data.fields as UrlDomainRpcResponse).value.fields.url;
   }
-  if (displayDomain && isSuiObject(displayDomain.details) && isSuiMoveObject(displayDomain.details.data)) {
+  if (displayDomain && is(displayDomain.details, SuiObject) && is(displayDomain.details.data, SuiMoveObject)) {
     const { data } = displayDomain.details;
     response.description = (data.fields as DisplayDomainRpcResponse).value.fields.description;
     response.name = (data.fields as DisplayDomainRpcResponse).value.fields.name;
   }
-  if (tagsDomain && isSuiObject(tagsDomain.details) && isSuiMoveObject(tagsDomain.details.data)) {
+  if (tagsDomain && is(tagsDomain.details, SuiObject) && is(tagsDomain.details.data, SuiMoveObject)) {
     const { data } = tagsDomain.details;
     response.tagsBagId = (data.fields as TagsDomainRpcResponse).value.fields.bag.fields.id.id;
   }
 
-  if (attributesDomain && isSuiObject(attributesDomain.details) && isSuiMoveObject(attributesDomain.details.data)) {
+  if (attributesDomain && is(attributesDomain.details, SuiObject) && is(attributesDomain.details.data, SuiMoveObject)) {
     const { data } = attributesDomain.details;
     const royalties = (data.fields as AttributionDomainRpcResponse)
       .value.fields.creators.fields.contents.map((c) => ({
@@ -313,7 +313,7 @@ export const parseDomains = (domains: GetObjectDataResponse[]) => {
 
 export const parseTags = (tags: GetObjectDataResponse[]) => {
   return tags.map((tag) => {
-    if (isSuiObject(tag.details) && isSuiMoveObject(tag.details.data)) {
+    if (is(tag.details, SuiObject) && is(tag.details.data, SuiMoveObject)) {
       const { data } = tag.details;
       const fields = data.fields as TagRpcResponse;
       return fields.value.type.split(":tags::")[1];
