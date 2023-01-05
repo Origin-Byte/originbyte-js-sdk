@@ -12,7 +12,8 @@
     "test": "yarn jest --detectOpenHandles",
     "typecheck": "yarn tsc --project ./tsconfig-typecheck.json",
     "lint": "eslint 'src/**/*.{ts, tsx}'",
-    "format": "prettier --write 'src/**/*.{ts, tsx}'",
+    "format": "prettier --write 'src/**/*.{ts, tsx}' 'examples/**/*.{ts, tsx}'",
+    "fmt": "npm run format",
     "build": "./scripts/build.sh"
   },
   "homepage": "https://originbyte.io/",
@@ -36,7 +37,7 @@
     "eslint": "^7.32.0",
     "eslint-config-airbnb": "^18.1.0",
     "eslint-config-airbnb-base": "^15.0.0",
-    "eslint-config-prettier": "^8.3.0",
+    "eslint-config-prettier": "^8.5.0",
     "eslint-config-typescript": "^3.0.0",
     "eslint-formatter-pretty": "^4.1.0",
     "eslint-import-resolver-typescript": "^3.5.1",

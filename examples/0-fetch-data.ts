@@ -1,18 +1,18 @@
-import { GetObjectDataResponse, SuiTransactionResponse, TransactionQuery } from '@mysten/sui.js';
+import { GetObjectDataResponse, SuiTransactionResponse, TransactionQuery } from "@mysten/sui.js";
 import {
   CollectionParser, FixedPriceMarketParser, FlatFeeParser, InventoryParser, LaunchpadParser, LaunchpadSlotParser, MintCapParser,
-} from '../src';
+} from "../src";
 import {
   client, PACKAGE_OBJECT_ID, provider, signer,
-} from './common';
+} from "./common";
 
 const loadAllTxs = async (query: TransactionQuery) => {
   let result: SuiTransactionResponse[] = [];
   let cursor: string | null = null;
   while (true) {
-    console.log('start search...');
+    console.log("start search...");
     // eslint-disable-next-line no-await-in-loop
-    const txIds = await provider.getTransactions(query, cursor, null, 'descending');
+    const txIds = await provider.getTransactions(query, cursor, null, "descending");
     // eslint-disable-next-line no-await-in-loop
     const txs = await provider.getTransactionWithEffectsBatch(txIds.data);
     result = [...result, ...txs];
@@ -63,8 +63,8 @@ const loadV2 = async () => {
   let cursor: string | null = null;
   while (true) {
     // eslint-disable-next-line no-await-in-loop
-    const txIds = await provider.getTransactions({ InputObject: PACKAGE_OBJECT_ID }, cursor, 100, 'ascending');
-    console.log('txIds', txIds.data.length, txIds.nextCursor);
+    const txIds = await provider.getTransactions({ InputObject: PACKAGE_OBJECT_ID }, cursor, 100, "ascending");
+    console.log("txIds", txIds.data.length, txIds.nextCursor);
     // eslint-disable-next-line no-await-in-loop
     const txObjects = await provider.getTransactionWithEffectsBatch(txIds.data);
     // eslint-disable-next-line no-await-in-loop
@@ -74,9 +74,9 @@ const loadV2 = async () => {
     const result = await resolveFields(objectsCache);
 
     const resultHasUndefined = Object.values(result).some((_) => _ === undefined);
-    console.log('Found: ', result, Date.now() - start);
+    console.log("Found: ", result, Date.now() - start);
     if (!resultHasUndefined || txIds.nextCursor === null) {
-      console.log('result', Date.now() - start, result);
+      console.log("result", Date.now() - start, result);
       return;
     }
     cursor = txIds.nextCursor;
@@ -96,7 +96,7 @@ const parseProgram = async () => {
   // const allObjects = await Promise.all(chunks.map((_) => provider.getObjectBatch(_)));
 
   const allObjects = await provider.getObjectBatch(allCreatedObjects);
-  console.log('Objects found: ', allObjects.length, allTxs.length, Date.now() - start);
+  console.log("Objects found: ", allObjects.length, allTxs.length, Date.now() - start);
 
   const [
     [collection],
@@ -124,7 +124,7 @@ const parseProgram = async () => {
     marketIds: markets.map((_) => _.id),
   };
 
-  console.log('result', result, Date.now() - start);
+  console.log("result", result, Date.now() - start);
 };
 
 loadV2();

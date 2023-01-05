@@ -1,7 +1,7 @@
 import {
   GetObjectDataResponse,
   isSuiMoveObject, isSuiObject, JsonRpcProvider,
-} from '@mysten/sui.js';
+} from "@mysten/sui.js";
 import {
   buildBuyNft,
   biuldMintNft,
@@ -12,22 +12,21 @@ import {
   buildInitSlot,
   buildCreateFixedPriceMarket,
   buildCreateInventoryTx,
-} from './txBuilders';
-import { toMap, uniq } from '../utils';
+} from "./txBuilders";
+import { toMap } from "../utils";
 import {
   LaunchpadParser,
   ArtNftParser,
   CollectionParser,
   FixedPriceMarketParser,
   MintCapParser,
-  NftCertificateParser,
   parseDomains,
   parseTags,
   FlatFeeParser,
   LaunchpadSlotParser,
   DynamicFieldParser,
   InventoryParser,
-} from './parsers';
+} from "./parsers";
 import {
   GetAuthoritiesParams,
   GetCollectionsParams,
@@ -43,10 +42,10 @@ import {
   GetInventoryParams,
   GetLaunchpadSlotParams,
   ArtNft,
-} from './types';
-import { isObjectExists } from './utils';
+} from "./types";
+import { isObjectExists } from "./utils";
 
-const TESTNET_URL = 'https://fullnode.devnet.sui.io';
+const TESTNET_URL = "https://fullnode.devnet.sui.io";
 
 export class NftClient {
   private provider: JsonRpcProvider;
@@ -55,13 +54,17 @@ export class NftClient {
     this.provider = _provider;
   }
 
-  private fetchObjectIdsForAddress =
-    async <RpcResponse, DataModel>(address: string, parser: SuiObjectParser<RpcResponse, DataModel>): Promise<string[]> => {
-      const objectsForWallet = await this.provider.getObjectsOwnedByAddress(address);
-      return objectsForWallet
-        .filter((_) => _.type.match(parser.regex))
-        .map((_) => _.objectId);
-    }
+  private fetchObjectIdsForAddress = async <RpcResponse, DataModel>(
+    address: string,
+    parser: SuiObjectParser<RpcResponse, DataModel>
+  ): Promise<string[]> => {
+    const objectsForWallet = await this.provider.getObjectsOwnedByAddress(
+      address
+    );
+    return objectsForWallet
+      .filter((_) => _.type.match(parser.regex))
+      .map((_) => _.objectId);
+  };
 
   parseObjects = async <RpcResponse, DataModel>(
     objects: GetObjectDataResponse[], parser: SuiObjectParser<RpcResponse, DataModel>): Promise<DataModel[]> => {
@@ -76,7 +79,7 @@ export class NftClient {
       .filter((_): _ is DataModel => !!_);
 
     return parsedObjects;
-  }
+  };
 
   fetchAndParseObjectsById = async <RpcResponse, DataModel>(
     ids: string[], parser: SuiObjectParser<RpcResponse, DataModel>): Promise<DataModel[]> => {
@@ -213,12 +216,15 @@ export class NftClient {
         rawResponse: nft.rawResponse,
       };
     });
-  }
+  };
 
   getNftsForAddress = async (address: string) => {
-    const objectIds = await this.fetchObjectIdsForAddress(address, ArtNftParser);
+    const objectIds = await this.fetchObjectIdsForAddress(
+      address,
+      ArtNftParser
+    );
     return this.getNftsById({ objectIds });
-  }
+  };
 
   static biuldMintNft = biuldMintNft
 
@@ -244,5 +250,5 @@ export class NftClient {
       ...collectionsMap.get(mintCap.collectionId),
       mintCap,
     }));
-  }
+  };
 }

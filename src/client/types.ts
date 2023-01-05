@@ -1,7 +1,7 @@
 /* eslint-disable camelcase */
 import {
   GetObjectDataResponse, SuiObject,
-} from '@mysten/sui.js';
+} from "@mysten/sui.js";
 
 export interface WithPackageObjectId {
   packageObjectId: string
@@ -184,7 +184,7 @@ export interface InventoryRpcResponse {
   nfts_on_sale: string[]
 }
 
-export interface Inventory extends Omit<InventoryRpcResponse, 'nfts_on_sale'>, WithId {
+export interface Inventory extends Omit<InventoryRpcResponse, "nfts_on_sale">, WithId {
   nftsOnSale: string[]
 }
 
@@ -293,8 +293,7 @@ export interface GetLaunchpadParams {
   launchpadId: string
 }
 
-export interface GetNftsParams extends WithIds {
-}
+export interface GetNftsParams extends WithIds {}
 
 export interface GetCollectionsParams extends WithIds {
 }
@@ -306,12 +305,8 @@ export interface GetCollectionDomainsParams {
 export interface GetAuthoritiesParams extends WithIds {
 }
 
-export interface GetMarketsParams extends WithIds {
-
-}
-export interface GetNftCertificateParams extends WithIds {
-
-}
+export interface GetMarketsParams extends WithIds {}
+export interface GetNftCertificateParams extends WithIds {}
 
 export type DynamicFieldRpcResponse = {
   id: ID
@@ -356,11 +351,11 @@ export type FetchFnParser<RpcResponse, DataModel> = (
   typedData: RpcResponse,
   suiObject: SuiObject,
   rpcResponse: GetObjectDataResponse
-) => DataModel | undefined
+) => DataModel | undefined;
 
 export interface SuiObjectParser<RpcResponse, DataModel> {
-  parser: FetchFnParser<RpcResponse, DataModel>
-  regex: RegExp
+  parser: FetchFnParser<RpcResponse, DataModel>;
+  regex: RegExp;
 }
 
 export type BuildCreateFlatFeeParams = WithPackageObjectId & {
@@ -386,7 +381,7 @@ export type BuildCreateFixedPriceMarketParams = WithPackageObjectId & {
   price: number
 }
 
-export type BuildCreateFixedPriceMarketWithInventoryParams = Omit<BuildCreateFixedPriceMarketParams, 'isWhitelisted'> & {
+export type BuildCreateFixedPriceMarketWithInventoryParams = Omit<BuildCreateFixedPriceMarketParams, "isWhitelisted"> & {
   inventoryId: string
 }
 

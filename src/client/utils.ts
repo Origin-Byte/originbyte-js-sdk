@@ -1,15 +1,16 @@
-import { GetObjectDataResponse, ObjectOwner } from '@mysten/sui.js';
+import { GetObjectDataResponse, ObjectOwner } from "@mysten/sui.js";
 
-export const isObjectExists = (o: GetObjectDataResponse) => o.status === 'Exists';
+export const isObjectExists = (o: GetObjectDataResponse) =>
+  o.status === "Exists";
 
 export const parseObjectOwner = (owner: ObjectOwner) => {
-  let ownerAddress = '';
+  let ownerAddress = "";
 
-  if (typeof owner === 'object') {
-    if ('AddressOwner' in owner) {
+  if (typeof owner === "object") {
+    if ("AddressOwner" in owner) {
       ownerAddress = owner.AddressOwner;
     }
-    if ('ObjectOwner' in owner) {
+    if ("ObjectOwner" in owner) {
       ownerAddress = owner.ObjectOwner;
     }
   }

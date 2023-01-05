@@ -1,6 +1,6 @@
 import {
   GetObjectDataResponse, isSuiMoveObject, isSuiObject, SuiMoveObject,
-} from '@mysten/sui.js';
+} from "@mysten/sui.js";
 import {
   ArtNftRaw,
   ArtNftRpcResponse,
@@ -31,15 +31,15 @@ import {
   DynamicField,
   InventoryRpcResponse,
   Inventory,
-} from './types';
-import { parseObjectOwner } from './utils';
+} from "./types";
+import { parseObjectOwner } from "./utils";
 
 // eslint-disable-next-line max-len
 const ArtNftRegex = /(0x[a-f0-9]{39,40})::nft::Nft<0x[a-f0-9]{39,40}::([a-zA-Z]{1,})::([a-zA-Z]{1,})>/;
 
 export const ArtNftParser: SuiObjectParser<ArtNftRpcResponse, ArtNftRaw> = {
   parser: (data, suiData, _) => {
-    if (typeof _.details === 'object' && 'data' in _.details) {
+    if (typeof _.details === "object" && "data" in _.details) {
       const { owner } = _.details;
 
       const matches = (suiData.data as SuiMoveObject).type.match(ArtNftRegex);
@@ -71,7 +71,10 @@ export const ArtNftParser: SuiObjectParser<ArtNftRpcResponse, ArtNftRaw> = {
 // eslint-disable-next-line max-len
 const CollectionRegex = /(0x[a-f0-9]{39,40})::collection::Collection<0x[a-f0-9]{39,40}::([a-zA-Z_]{1,})::([a-zA-Z_]{1,})>/;
 
-export const CollectionParser: SuiObjectParser<NftCollectionRpcResponse, NftCollection> = {
+export const CollectionParser: SuiObjectParser<
+  NftCollectionRpcResponse,
+  NftCollection
+> = {
   parser: (data, suiData, _) => {
     const matches = (suiData.data as SuiMoveObject).type.match(CollectionRegex);
     if (!matches) {
@@ -96,7 +99,7 @@ export const CollectionParser: SuiObjectParser<NftCollectionRpcResponse, NftColl
 
 export const MintCapParser: SuiObjectParser<MintCapRPCResponse, MintCap> = {
   parser: (data, suiData, _) => {
-    console.log('data: ', JSON.stringify(data));
+    console.log("data: ", JSON.stringify(data));
     return {
       id: suiData.reference.objectId,
       collectionId: data.collection_id,
@@ -114,7 +117,10 @@ export const MintCapParser: SuiObjectParser<MintCapRPCResponse, MintCap> = {
 // eslint-disable-next-line max-len
 export const FixedPriceMarketRegex = /(0x[a-f0-9]{40})::fixed_price::FixedPriceMarket/;
 
-export const FixedPriceMarketParser: SuiObjectParser<FixedPriceMarketRpcResponse, FixedPriceMarket> = {
+export const FixedPriceMarketParser: SuiObjectParser<
+  FixedPriceMarketRpcResponse,
+  FixedPriceMarket
+> = {
   parser: (data, suiData, _) => {
     return {
       id: suiData.reference.objectId,
@@ -129,7 +135,9 @@ export const FixedPriceMarketParser: SuiObjectParser<FixedPriceMarketRpcResponse
 const NftCertificateRegex = /(0x[a-f0-9]{40})::slot::NftCertificate/;
 export const NftCertificateParser: SuiObjectParser<NftCertificateRpcResponse, NftCertificate> = {
   parser: (data, suiData, _) => {
-    const matches = (suiData.data as SuiMoveObject).type.match(NftCertificateRegex);
+    const matches = (suiData.data as SuiMoveObject).type.match(
+      NftCertificateRegex
+    );
 
     if (!matches) {
       return undefined;
@@ -308,7 +316,7 @@ export const parseTags = (tags: GetObjectDataResponse[]) => {
     if (isSuiObject(tag.details) && isSuiMoveObject(tag.details.data)) {
       const { data } = tag.details;
       const fields = data.fields as TagRpcResponse;
-      return fields.value.type.split(':tags::')[1];
+      return fields.value.type.split(":tags::")[1];
     }
     return undefined;
   });
