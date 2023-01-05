@@ -141,6 +141,21 @@ const mintToLaunchpad = async () => {
 
 More examples could be found [there](https://github.com/Origin-Byte/originbyte-js-sdk/tree/main/examples).
 
+## Tests
+
+See the `__tests__` directory.
+We deploy `__tests__/assets/testract` contract to the local validator.
+It is used to set resources up which would otherwise be beyond the scope of the test suite.
+
+The `__tests__/assets/.tmp` directory
+
+- contains the localnet validator network;
+- `originmate` dependency;
+- `ntf-protocol` dependency.
+
+Start the localnet validator network with `$ ./bin/start-localnet.sh`.
+Then, in a separate terminal, run the test suite with `$ ./bin/test.sh`.
+
 ## Useful Links
 
 - [Website](https://originbyte.io)
