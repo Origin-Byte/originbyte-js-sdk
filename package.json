@@ -1,6 +1,6 @@
 {
   "name": "@originbyte/js-sdk",
-  "version": "0.3.4",
+  "version": "0.16.0",
   "keywords": [
     "originbyte",
     "sdk",
@@ -10,11 +10,12 @@
   ],
   "scripts": {
     "test": "yarn jest --detectOpenHandles --runInBand",
+    "tsc": "tsc",
     "typecheck": "yarn tsc --project ./tsconfig-typecheck.json",
     "lint": "eslint 'src/**/*.{ts, tsx}'",
     "format": "prettier --write 'src/**/*.{ts, tsx}' 'examples/**/*.{ts, tsx}' '__tests__/**/*.{ts, tsx}'",
     "fmt": "npm run format",
-    "build": "./scripts/build.sh"
+    "build": "./bin/build.sh"
   },
   "homepage": "https://originbyte.io/",
   "main": "dist/index.js",
@@ -53,7 +54,7 @@
     "typescript": "^4.4.4"
   },
   "dependencies": {
-    "@mysten/sui.js": "^0.20.0"
+    "@mysten/sui.js": "^0.21.0"
   },
   "jest": {
     "testTimeout": 15000

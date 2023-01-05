@@ -1,13 +1,18 @@
 import { MoveCallTransaction } from "@mysten/sui.js";
 import {
-  BuildMintNftParams,
-  BuildBuyNftCertificateParams,
+  BuildBuyNftParams,
+  BuildCreateFixedPriceMarketWithInventoryParams,
+  BuildCreateInventoryParams,
+  BuildCreateFlatFeeParams,
   BuildEnableSalesParams,
-  BuildClaimNftCertificateParams,
+  BuildInitLaunchpadParams,
+  BuildInitSlotParams,
+  BuildMintNftParams,
+  BuildCreateFixedPriceMarketParams,
 } from "./types";
-import { strToByteArray } from "../utils";
 
-export const buildMintNftTx = (
+const SUI_TYPE = "0x2::sui::SUI";
+export const biuldMintNft = (
   params: BuildMintNftParams
 ): MoveCallTransaction => {
   const keys: string[] = [];
@@ -27,24 +32,45 @@ export const buildMintNftTx = (
       params.name,
       params.description,
       params.url,
-      keys.map((_) => strToByteArray(_)),
-      values.map((_) => strToByteArray(_)),
-      params.mintAuthority,
-      params.tierIndex ?? 0,
-      params.launchpadId,
+      keys,
+      values,
+      params.mintCap,
+      params.inventoryId,
     ],
-    gasBudget: 5000,
+    gasBudget: 10000,
   };
 };
 
-export const buildBuyNftCertificate = (
-  params: BuildBuyNftCertificateParams
+export const buildBuyNft = (
+  params: BuildBuyNftParams
 ): MoveCallTransaction => ({
   packageObjectId: params.packageObjectId,
   module: "fixed_price",
-  function: "buy_nft_certificate",
-  typeArguments: [params.collectionType],
-  arguments: [params.wallet, params.launchpadId, params.tierIndex ?? 0],
+  function: "buy_nft",
+  typeArguments: [params.nftType, SUI_TYPE],
+  arguments: [params.slotId, params.marketId, params.coin],
+  gasBudget: 5000,
+});
+
+export const buildCreateFixedPriceMarketWithInventory = (
+  params: BuildCreateFixedPriceMarketWithInventoryParams
+): MoveCallTransaction => ({
+  packageObjectId: params.packageObjectId,
+  module: "fixed_price",
+  function: "init_market_with_inventory",
+  typeArguments: [SUI_TYPE],
+  arguments: [params.slot, params.inventoryId, params.price],
+  gasBudget: 5000,
+});
+
+export const buildCreateFixedPriceMarket = (
+  params: BuildCreateFixedPriceMarketParams
+): MoveCallTransaction => ({
+  packageObjectId: params.packageObjectId,
+  module: "fixed_price",
+  function: "init_market",
+  typeArguments: [SUI_TYPE],
+  arguments: [params.slot, params.isWhitelisted, params.price],
   gasBudget: 5000,
 });
 
@@ -52,29 +78,58 @@ export const buildEnableSales = (
   params: BuildEnableSalesParams
 ): MoveCallTransaction => ({
   packageObjectId: params.packageObjectId,
-  module: "fixed_price",
+  module: "slot",
   function: "sale_on",
-  typeArguments: [params.collectionType],
-  arguments: [params.launchpadId],
+  typeArguments: [],
+  arguments: [params.slotId],
   gasBudget: 5000,
 });
 
-export const buildClaimNftCertificate = (
-  params: BuildClaimNftCertificateParams
+export const buildCreateFlatFee = (
+  params: BuildCreateFlatFeeParams
 ): MoveCallTransaction => ({
   packageObjectId: params.packageObjectId,
-  module: "slingshot",
-  function: "claim_nft_embedded",
-  typeArguments: [
-    params.collectionType,
-    `${params.packageObjectId}::fixed_price::FixedPriceMarket`,
-    `${params.packageObjectId}::${params.nftType}`,
-  ],
+  module: "flat_fee",
+  function: "init_fee",
+  typeArguments: [],
+  arguments: [params.rate],
+  gasBudget: 5000,
+});
+
+export const buildInitLaunchpad = (
+  params: BuildInitLaunchpadParams
+): MoveCallTransaction => ({
+  packageObjectId: params.packageObjectId,
+  module: "launchpad",
+  function: "init_launchpad",
+  typeArguments: [`${params.packageObjectId}::flat_fee::FlatFee`],
   arguments: [
-    params.launchpadId,
-    params.nftId,
-    params.certificateId,
-    params.recepient,
+    params.admin,
+    params.receiver,
+    params.autoApprove,
+    params.defaultFee,
   ],
+  gasBudget: 5000,
+});
+
+export const buildInitSlot = (
+  params: BuildInitSlotParams
+): MoveCallTransaction => ({
+  packageObjectId: params.packageObjectId,
+  module: "slot",
+  function: "init_slot",
+  typeArguments: [],
+  arguments: [params.launchpad, params.slotAdmin, params.receiver],
+  gasBudget: 5000,
+});
+
+export const buildCreateInventoryTx = (
+  params: BuildCreateInventoryParams
+): MoveCallTransaction => ({
+  packageObjectId: params.packageObjectId,
+  module: "inventory",
+  function: "create_for_sender",
+  typeArguments: [],
+  arguments: [params.isWhitelisted],
   gasBudget: 5000,
 });
