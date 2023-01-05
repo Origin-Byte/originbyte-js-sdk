@@ -1,7 +1,7 @@
-import { NftClient } from '../src';
+import { NftClient } from "../src";
 import {
- INVENTORY_ID, LAUNCHPAD_SLOT_ID, PACKAGE_OBJECT_ID, signer 
-} from './common';
+ INVENTORY_ID, LAUNCHPAD_SLOT_ID, PACKAGE_OBJECT_ID, signer
+} from "./common";
 
 export const createMarket = async () => {
   const transaction = NftClient.buildCreateFixedPriceMarketWithInventory({
@@ -11,7 +11,7 @@ export const createMarket = async () => {
     price: 100,
   });
   const createMarketResult = await signer.executeMoveCall(transaction);
-  console.log('createMarketResult', JSON.stringify(createMarketResult));
+  console.log("createMarketResult", JSON.stringify(createMarketResult));
 };
 
 createMarket();

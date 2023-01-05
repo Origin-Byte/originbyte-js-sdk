@@ -1,5 +1,5 @@
-import { NftClient } from '../src';
-import { FEE_OBJECT_ID, PACKAGE_OBJECT_ID, signer } from './common';
+import { NftClient } from "../src";
+import { FEE_OBJECT_ID, PACKAGE_OBJECT_ID, signer } from "./common";
 
 export const initLaunchpad = async () => {
   const pubKey = await signer.getAddress();
@@ -11,7 +11,7 @@ export const initLaunchpad = async () => {
     autoApprove: true,
   });
   const initLaunchpadResult = await signer.executeMoveCall(transaction);
-  console.log('initLaunchpadResult', JSON.stringify(initLaunchpadResult));
+  console.log("initLaunchpadResult", JSON.stringify(initLaunchpadResult));
 };
 
 initLaunchpad();

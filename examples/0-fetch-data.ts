@@ -1,9 +1,9 @@
 import { GetObjectDataResponse, SuiTransactionResponse, TransactionQuery } from "@mysten/sui.js";
 import {
-  CollectionParser, FixedPriceMarketParser, FlatFeeParser, InventoryParser, LaunchpadParser, LaunchpadSlotParser, MintCapParser,
+  CollectionParser, FixedPriceMarketParser, FlatFeeParser, InventoryParser, LaunchpadParser, LaunchpadSlotParser, MintCapParser
 } from "../src";
 import {
-  client, PACKAGE_OBJECT_ID, provider, signer,
+  client, PACKAGE_OBJECT_ID, provider
 } from "./common";
 
 const loadAllTxs = async (query: TransactionQuery) => {
@@ -17,7 +17,7 @@ const loadAllTxs = async (query: TransactionQuery) => {
     const txs = await provider.getTransactionWithEffectsBatch(txIds.data);
     result = [...result, ...txs];
     if (!txIds.nextCursor) {
-      return result.sort((a, b) => b.timestamp_ms - a.timestamp_ms);
+      return result.sort((a, b) => (b.timestamp_ms ?? 0) - (a.timestamp_ms ?? 0));
     }
     cursor = txIds.nextCursor;
   }

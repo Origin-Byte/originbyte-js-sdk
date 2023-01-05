@@ -1,7 +1,5 @@
-import { NftClient } from '../src';
-import {
-  LAUNCHPAD_ID, LAUNCHPAD_SLOT_ID, MARKET_ID, PACKAGE_OBJECT_ID, signer,
-} from './common';
+import { NftClient } from "../src";
+import { LAUNCHPAD_SLOT_ID, MARKET_ID, PACKAGE_OBJECT_ID, signer } from "./common";
 
 const buyFromLaunchpad = async () => {
   // const markets = await client.getMarketsByParams({ objectIds: [LAUNCHPAD_ID] });
@@ -14,15 +12,15 @@ const buyFromLaunchpad = async () => {
   //     throw new Error('Market has no sales');
   //   }
 
-  const buyCertificateTransaction = NftClient.buildBuyNftCertificate({
+  const buyCertificateTransaction = NftClient.buildBuyNft({
     packageObjectId: PACKAGE_OBJECT_ID,
-    launchpadId: LAUNCHPAD_ID,
-    coin: '0xb5efaa9f3cf903a76ca01de4e6591c3814936f9d',
+    nftType: "suimarines",
+    coin: "0xb5efaa9f3cf903a76ca01de4e6591c3814936f9d",
     slotId: LAUNCHPAD_SLOT_ID,
     marketId: MARKET_ID,
   });
   const buyResult = await signer.executeMoveCall(buyCertificateTransaction);
-  console.log('buyResult', JSON.stringify(buyResult));
+  console.log("buyResult", JSON.stringify(buyResult));
 };
 
 buyFromLaunchpad();

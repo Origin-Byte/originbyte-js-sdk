@@ -1,5 +1,5 @@
-import { NftClient } from '../src';
-import { LAUNCHPAD_SLOT_ID, PACKAGE_OBJECT_ID, signer } from './common';
+import { NftClient } from "../src";
+import { LAUNCHPAD_SLOT_ID, PACKAGE_OBJECT_ID, signer } from "./common";
 
 const enableSales = async () => {
   const mintNftTransaction = NftClient.buildEnableSales({
@@ -8,7 +8,7 @@ const enableSales = async () => {
   });
 
   const enableSalesResult = await signer.executeMoveCall(mintNftTransaction);
-  console.log('enableSalesResult', JSON.stringify(enableSalesResult));
+  console.log("enableSalesResult", JSON.stringify(enableSalesResult));
 };
 
 enableSales();
