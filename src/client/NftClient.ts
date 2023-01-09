@@ -46,8 +46,7 @@ import {
   ArtNft,
 } from "./types";
 import { isObjectExists } from "./utils";
-
-const TESTNET_URL = "https://fullnode.devnet.sui.io";
+import { TESTNET_URL } from "./consts";
 
 export class NftClient {
   private provider: JsonRpcProvider;
@@ -153,7 +152,7 @@ export class NftClient {
   };
 
   getCollectionsForAddress = async (address: string) => {
-    // Since collectiona are shared object, we have to fetch MintCaps first
+    // Since collections are shared object, we have to fetch MintCaps first
     const authoritiesIds = await this.fetchObjectIdsForAddress(
       address,
       MintCapParser

@@ -3,16 +3,23 @@ import { GetObjectDataResponse, ObjectOwner } from "@mysten/sui.js";
 export const isObjectExists = (o: GetObjectDataResponse) =>
   o.status === "Exists";
 
-export const parseObjectOwner = (owner: ObjectOwner) => {
-  let ownerAddress = "";
-
+export const parseObjectOwner = (
+  owner: ObjectOwner
+): "shared" | "immutable" | string => {
   if (typeof owner === "object") {
     if ("AddressOwner" in owner) {
-      ownerAddress = owner.AddressOwner;
+      return owner.AddressOwner;
     }
     if ("ObjectOwner" in owner) {
-      ownerAddress = owner.ObjectOwner;
+      return owner.ObjectOwner;
+    }
+    if ("Shared" in owner) {
+      return "shared";
+    }
+    if ("Immutable" in owner) {
+      return "immutable";
     }
   }
-  return ownerAddress;
+
+  throw new Error("Unexpected owner type");
 };
