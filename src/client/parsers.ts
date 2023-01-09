@@ -4,6 +4,7 @@ import {
   SuiObject,
   SuiMoveObject,
 } from "@mysten/sui.js";
+import {record, object, string, any, boolean} from "superstruct";
 import {
   ArtNftRaw,
   ArtNftRpcResponse,
@@ -36,6 +37,15 @@ import {
   Inventory,
 } from "./types";
 import { parseObjectOwner } from "./utils";
+
+
+export const MoveObject = object({
+  type: string(),
+  dataType: string(),
+  fields: record(string(), any()),
+  has_public_transfer: boolean(),
+})
+
 
 // eslint-disable-next-line max-len
 const ArtNftRegex =
@@ -81,6 +91,7 @@ export const CollectionParser: SuiObjectParser<
   NftCollection
 > = {
   parser: (data, suiData, _) => {
+
     const matches = (suiData.data as SuiMoveObject).type.match(CollectionRegex);
     if (!matches) {
       return undefined;
@@ -104,7 +115,6 @@ export const CollectionParser: SuiObjectParser<
 
 export const MintCapParser: SuiObjectParser<MintCapRPCResponse, MintCap> = {
   parser: (data, suiData, _) => {
-    console.log("data: ", JSON.stringify(data));
     return {
       id: suiData.reference.objectId,
       collectionId: data.collection_id,
@@ -287,7 +297,7 @@ const isTypeMatchRegex = (d: GetObjectDataResponse, regex: RegExp) => {
   const { details } = d;
   if (is(details, SuiObject)) {
     const { data } = details;
-    if (is(data, SuiMoveObject)) {
+    if (is(data, MoveObject)) {
       return data.type.match(regex);
     }
   }
@@ -316,7 +326,7 @@ export const parseDomains = (domains: GetObjectDataResponse[]) => {
   if (
     royaltyDomain &&
     is(royaltyDomain.details, SuiObject) &&
-    is(royaltyDomain.details.data, SuiMoveObject)
+    is(royaltyDomain.details.data, MoveObject)
   ) {
     const { data } = royaltyDomain.details;
     response.royaltyAggregationBagId = (
@@ -330,7 +340,7 @@ export const parseDomains = (domains: GetObjectDataResponse[]) => {
   if (
     symbolDomain &&
     is(symbolDomain.details, SuiObject) &&
-    is(symbolDomain.details.data, SuiMoveObject)
+    is(symbolDomain.details.data, MoveObject)
   ) {
     const { data } = symbolDomain.details;
     response.symbol = (
@@ -341,7 +351,7 @@ export const parseDomains = (domains: GetObjectDataResponse[]) => {
   if (
     urlDomain &&
     is(urlDomain.details, SuiObject) &&
-    is(urlDomain.details.data, SuiMoveObject)
+    is(urlDomain.details.data, MoveObject)
   ) {
     const { data } = urlDomain.details;
     response.url = (data.fields as UrlDomainRpcResponse).value.fields.url;
@@ -349,7 +359,7 @@ export const parseDomains = (domains: GetObjectDataResponse[]) => {
   if (
     displayDomain &&
     is(displayDomain.details, SuiObject) &&
-    is(displayDomain.details.data, SuiMoveObject)
+    is(displayDomain.details.data, MoveObject)
   ) {
     const { data } = displayDomain.details;
     response.description = (
@@ -360,7 +370,7 @@ export const parseDomains = (domains: GetObjectDataResponse[]) => {
   if (
     tagsDomain &&
     is(tagsDomain.details, SuiObject) &&
-    is(tagsDomain.details.data, SuiMoveObject)
+    is(tagsDomain.details.data, MoveObject)
   ) {
     const { data } = tagsDomain.details;
     response.tagsBagId = (
@@ -371,7 +381,7 @@ export const parseDomains = (domains: GetObjectDataResponse[]) => {
   if (
     attributesDomain &&
     is(attributesDomain.details, SuiObject) &&
-    is(attributesDomain.details.data, SuiMoveObject)
+    is(attributesDomain.details.data, MoveObject)
   ) {
     const { data } = attributesDomain.details;
     const royalties = (

@@ -2,7 +2,6 @@ import {
   GetObjectDataResponse,
   is,
   SuiObject,
-  SuiMoveObject,
   JsonRpcProvider,
 } from "@mysten/sui.js";
 import {
@@ -29,6 +28,7 @@ import {
   LaunchpadSlotParser,
   DynamicFieldParser,
   InventoryParser,
+  MoveObject,
 } from "./parsers";
 import {
   GetAuthoritiesParams,
@@ -77,7 +77,7 @@ export class NftClient {
       .map((_) => {
         if (
           is(_.details, SuiObject) &&
-          is(_.details.data, SuiMoveObject) &&
+          is(_.details.data, MoveObject) &&
           _.details.data.type.match(parser.regex)
         ) {
           return parser.parser(
@@ -188,7 +188,7 @@ export class NftClient {
       return launchpad;
     }
     const fee = fees[0];
-    if (is(fee.details, SuiObject) && is(fee.details.data, SuiMoveObject)) {
+    if (is(fee.details, SuiObject) && is(fee.details.data, MoveObject)) {
       const feeBox = fee.details.data.fields as DefaultFeeBoxRpcResponse;
       const feeData = await this.fetchAndParseObjectsById(
         [feeBox.value],
