@@ -1,3 +1,4 @@
+
 import { MoveCallTransaction } from "@mysten/sui.js";
 import {
   BuildBuyNftParams,
@@ -13,7 +14,7 @@ import {
 
 const SUI_TYPE = "0x2::sui::SUI";
 export const biuldMintNft = (
-  params: BuildMintNftParams
+  params: BuildMintNftParams,
 ): MoveCallTransaction => {
   const keys: string[] = [];
   const values: string[] = [];
@@ -37,67 +38,73 @@ export const biuldMintNft = (
       params.mintCap,
       params.inventoryId,
     ],
-    gasBudget: 10000,
+    // @ts-ignore
+    gasBudget: "10000",
   };
 };
 
 export const buildBuyNft = (
-  params: BuildBuyNftParams
+  params: BuildBuyNftParams,
 ): MoveCallTransaction => ({
   packageObjectId: params.packageObjectId,
   module: "fixed_price",
   function: "buy_nft",
   typeArguments: [params.nftType, SUI_TYPE],
   arguments: [params.slotId, params.marketId, params.coin],
+  // @ts-ignore
   gasBudget: 5000,
 });
 
 export const buildCreateFixedPriceMarketWithInventory = (
-  params: BuildCreateFixedPriceMarketWithInventoryParams
+  params: BuildCreateFixedPriceMarketWithInventoryParams,
 ): MoveCallTransaction => ({
   packageObjectId: params.packageObjectId,
   module: "fixed_price",
   function: "init_market_with_inventory",
   typeArguments: [SUI_TYPE],
-  arguments: [params.slot, params.inventoryId, params.price],
+  arguments: [params.slot, params.inventoryId, params.price.toFixed(0)],
+  // @ts-ignore
   gasBudget: 5000,
 });
 
 export const buildCreateFixedPriceMarket = (
-  params: BuildCreateFixedPriceMarketParams
+  params: BuildCreateFixedPriceMarketParams,
 ): MoveCallTransaction => ({
   packageObjectId: params.packageObjectId,
   module: "fixed_price",
   function: "init_market",
   typeArguments: [SUI_TYPE],
-  arguments: [params.slot, params.isWhitelisted, params.price],
+  arguments: [params.slot, params.isWhitelisted, params.price.toFixed(0)],
+  // @ts-ignore
   gasBudget: 5000,
 });
 
 export const buildEnableSales = (
-  params: BuildEnableSalesParams
+  params: BuildEnableSalesParams,
 ): MoveCallTransaction => ({
   packageObjectId: params.packageObjectId,
   module: "slot",
   function: "sale_on",
   typeArguments: [],
   arguments: [params.slotId],
+  // @ts-ignore
   gasBudget: 5000,
 });
 
 export const buildCreateFlatFee = (
-  params: BuildCreateFlatFeeParams
+  params: BuildCreateFlatFeeParams,
 ): MoveCallTransaction => ({
   packageObjectId: params.packageObjectId,
   module: "flat_fee",
   function: "init_fee",
   typeArguments: [],
-  arguments: [params.rate],
+  arguments: [params.rate.toFixed(0)],
+  // @ts-ignore
   gasBudget: 5000,
 });
 
 export const buildInitLaunchpad = (
-  params: BuildInitLaunchpadParams
+  params: BuildInitLaunchpadParams,
 ): MoveCallTransaction => ({
   packageObjectId: params.packageObjectId,
   module: "launchpad",
@@ -109,27 +116,30 @@ export const buildInitLaunchpad = (
     params.autoApprove,
     params.defaultFee,
   ],
+  // @ts-ignore
   gasBudget: 5000,
 });
 
 export const buildInitSlot = (
-  params: BuildInitSlotParams
+  params: BuildInitSlotParams,
 ): MoveCallTransaction => ({
   packageObjectId: params.packageObjectId,
   module: "slot",
   function: "init_slot",
   typeArguments: [],
   arguments: [params.launchpad, params.slotAdmin, params.receiver],
+  // @ts-ignore
   gasBudget: 5000,
 });
 
 export const buildCreateInventoryTx = (
-  params: BuildCreateInventoryParams
+  params: BuildCreateInventoryParams,
 ): MoveCallTransaction => ({
   packageObjectId: params.packageObjectId,
   module: "inventory",
   function: "create_for_sender",
   typeArguments: [],
   arguments: [params.isWhitelisted],
+  // @ts-ignore
   gasBudget: 5000,
 });
