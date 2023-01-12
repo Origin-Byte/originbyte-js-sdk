@@ -2,13 +2,35 @@
 
 set -e
 
-# TODO: get nft-protocol version
 # OPT: skip operations that've already been ran (e.g. fetching deps)
 
-nft_protocol_rev="682c91939cde00bcda05ac5b640607229b463b8b"
+export $(cat "__tests__/.env.test" | xargs)
+
+# current dir
+root="$(pwd)"
+# defined by mnemonic in test consts
+test_addr="2d1770323750638a27e8a2b4ad4fe54ec2b7edf0"
+# path to test assets
+test_assets_dir="${root}/__tests__/assets"
+test_assets_tmp_dir="${test_assets_dir}/.tmp"
+nft_protocol_dir="${test_assets_tmp_dir}/nft-protocol"
+originmate_dir="${test_assets_tmp_dir}/originmate"
+test_validator_config="${test_assets_tmp_dir}/localnet/client.yaml"
+sui_bin="${test_assets_tmp_dir}/sui"
+
+mkdir -p "${test_assets_tmp_dir}"
+
+# if sui file does not exist, download it
+# TODO: check sui version as well
+if [ ! -f "${sui_bin}" ]; then
+    echo "Downloading sui binary version '${SUI_TAG}'"
+
+    wget "https://github.com/MystenLabs/sui/releases/download/${SUI_TAG}/sui" \
+        -O "${sui_bin}" -q
+    chmod +x "${sui_bin}"
+fi
 
 # check for dependencies
-sui --version &>/dev/null || (echo "ERROR: missing dependency sui" && exit 1)
 toml --version &>/dev/null ||
     (echo "ERROR: missing dependency toml" && echo "\$ cargo install toml-cli" && exit 1)
 curl --version &>/dev/null || (echo "ERROR: missing dependency curl" && exit 1)
@@ -23,24 +45,13 @@ curl --silent \
     --data-raw '{ "jsonrpc":"2.0", "method":"rpc.discover","id":1}' 1>/dev/null ||
     (echo "Sui local validator not running on ${sui_validator_http}" && exit 1)
 
-# current dir
-root="$(pwd)"
-# defined by mnemonic in test consts
-test_addr="2d1770323750638a27e8a2b4ad4fe54ec2b7edf0"
-# path to test assets
-test_assets_dir="${root}/__tests__/assets"
-test_assets_tmp_dir="${test_assets_dir}/.tmp"
-nft_protocol_dir="${test_assets_tmp_dir}/nft-protocol"
-originmate_dir="${test_assets_tmp_dir}/originmate"
-test_validator_config="${test_assets_tmp_dir}/localnet/client.yaml"
-
 function deploy_package {
     # @arg path to package
     # @returns the address of the published module
 
     package_dir="${1}"
 
-    sui client --client.config "${test_validator_config}" \
+    $sui_bin client --client.config "${test_validator_config}" \
         publish \
         --gas-budget 30000 \
         --json \
@@ -48,14 +59,12 @@ function deploy_package {
         jq -r '.effects.created[] | select( .owner == "Immutable" ) | .reference.objectId'
 }
 
-mkdir -p "${test_assets_tmp_dir}"
-
 echo "Fetching nft-protocol dependency"
 rm -rf "${test_assets_tmp_dir}/nft-protocol"
 git clone --quiet --depth 1 "git@github.com:Origin-Byte/nft-protocol.git" "${nft_protocol_dir}"
 cd "${nft_protocol_dir}"
-git fetch --quiet --depth 1 origin "${nft_protocol_rev}"
-git checkout --quiet "${nft_protocol_rev}"
+git fetch --quiet --depth 1 origin "${NFT_PROTOCOL_REV}"
+git checkout --quiet "${NFT_PROTOCOL_REV}"
 originmate_rev=$(
     toml get "${nft_protocol_dir}/Move.toml" dependencies.Originmate.rev |
         tr -d '"'
@@ -115,7 +124,7 @@ testract_address=$(deploy_package "${test_assets_dir}/testract")
 echo "Testract deployed under address '${testract_address}'"
 
 coin_obj_count=$(
-    sui client --client.config "${test_validator_config}" objects "${test_addr}" --json |
+    $sui_bin client --client.config "${test_validator_config}" objects "${test_addr}" --json |
         jq 'map( select( .type | contains("Coin") ) ) | length'
 )
 # transfer some coins to test user if they don't have any
@@ -125,10 +134,10 @@ if [ "${coin_obj_count}" -eq 0 ]; then
     # one for gas, one for SUI wallet
     for _i in {1..2}; do
         coin_id=$(
-            sui client --client.config "${test_validator_config}" gas --json |
+            $sui_bin client --client.config "${test_validator_config}" gas --json |
                 jq -r '.[0].id.id'
         )
-        sui client --client.config "${test_validator_config}" \
+        $sui_bin client --client.config "${test_validator_config}" \
             pay_all_sui \
             --gas-budget 30000 \
             --input-coins "${coin_id}" \
