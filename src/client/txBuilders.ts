@@ -1,3 +1,4 @@
+
 import { MoveCallTransaction } from "@mysten/sui.js";
 import {
   BuildBuyNftParams,
@@ -37,7 +38,8 @@ export const biuldMintNft = (
       params.mintCap,
       params.inventoryId,
     ],
-    gasBudget: 10000,
+    // @ts-ignore
+    gasBudget: "10000",
   };
 };
 
@@ -49,6 +51,7 @@ export const buildBuyNft = (
   function: "buy_nft",
   typeArguments: [params.nftType, SUI_TYPE],
   arguments: [params.slotId, params.marketId, params.coin],
+  // @ts-ignore
   gasBudget: 5000,
 });
 
@@ -59,7 +62,8 @@ export const buildCreateFixedPriceMarketWithInventory = (
   module: "fixed_price",
   function: "init_market_with_inventory",
   typeArguments: [SUI_TYPE],
-  arguments: [params.slot, params.inventoryId, params.price],
+  arguments: [params.slot, params.inventoryId, params.price.toFixed(0)],
+  // @ts-ignore
   gasBudget: 5000,
 });
 
@@ -70,7 +74,8 @@ export const buildCreateFixedPriceMarket = (
   module: "fixed_price",
   function: "init_market",
   typeArguments: [SUI_TYPE],
-  arguments: [params.slot, params.isWhitelisted, params.price],
+  arguments: [params.slot, params.isWhitelisted, params.price.toFixed(0)],
+  // @ts-ignore
   gasBudget: 5000,
 });
 
@@ -82,6 +87,7 @@ export const buildEnableSales = (
   function: "sale_on",
   typeArguments: [],
   arguments: [params.slotId],
+  // @ts-ignore
   gasBudget: 5000,
 });
 
@@ -92,7 +98,8 @@ export const buildCreateFlatFee = (
   module: "flat_fee",
   function: "init_fee",
   typeArguments: [],
-  arguments: [params.rate],
+  arguments: [params.rate.toFixed(0)],
+  // @ts-ignore
   gasBudget: 5000,
 });
 
@@ -109,6 +116,7 @@ export const buildInitLaunchpad = (
     params.autoApprove,
     params.defaultFee,
   ],
+  // @ts-ignore
   gasBudget: 5000,
 });
 
@@ -120,6 +128,7 @@ export const buildInitSlot = (
   function: "init_slot",
   typeArguments: [],
   arguments: [params.launchpad, params.slotAdmin, params.receiver],
+  // @ts-ignore
   gasBudget: 5000,
 });
 
@@ -131,5 +140,6 @@ export const buildCreateInventoryTx = (
   function: "create_for_sender",
   typeArguments: [],
   arguments: [params.isWhitelisted],
+  // @ts-ignore
   gasBudget: 5000,
 });
