@@ -17,6 +17,20 @@ import {
   NftClient,
 } from "../src";
 
+
+/**
+ * All steps needed for a full cycle of NFT creation.
+ * Pre-requisites: publish the contract
+ * Steps:
+ * 1. Create a fee object
+ * 2. Initialize launchpad
+ * 3. Initialize launchpad slot
+ * 4. Create inventory
+ * 5. Mint NFTs to intventory
+ * 6. Create a market
+ * 7. Enale sales for market
+ */
+
 export const mnemonic =
   "harvest empty express erase pause bundle clarify box install arena push guard";
 export const keypair = Ed25519Keypair.deriveKeypair(mnemonic);
