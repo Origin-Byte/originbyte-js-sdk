@@ -11,3 +11,8 @@ Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to
 ### Changed
 
 - Formatting adheres to `prettier` rules.
+
+### Added
+
+- Initial orderbook SDKs support. We support all actions and fetch state.
+- Initial safe SDKs support. We support all actions and fetch state.

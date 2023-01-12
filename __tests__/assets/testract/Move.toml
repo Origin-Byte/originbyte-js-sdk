@@ -1,0 +1,9 @@
+[package]
+name = "Testract"
+version = "0.1.0"
+
+[dependencies.NftProtocol]
+local = "../.tmp/nft-protocol"
+
+[addresses]
+testract = "0x0"
