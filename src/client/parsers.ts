@@ -4,7 +4,7 @@ import {
   SuiObject,
   SuiMoveObject,
 } from "@mysten/sui.js";
-import {record, object, string, any, boolean} from "superstruct";
+import { record, object, string, any, boolean } from "superstruct";
 import {
   ArtNftRaw,
   ArtNftRpcResponse,
@@ -38,14 +38,12 @@ import {
 } from "./types";
 import { parseObjectOwner } from "./utils";
 
-
 export const MoveObject = object({
   type: string(),
   dataType: string(),
   fields: record(string(), any()),
   has_public_transfer: boolean(),
-})
-
+});
 
 // eslint-disable-next-line max-len
 const ArtNftRegex =
@@ -91,7 +89,6 @@ export const CollectionParser: SuiObjectParser<
   NftCollection
 > = {
   parser: (data, suiData, _) => {
-
     const matches = (suiData.data as SuiMoveObject).type.match(CollectionRegex);
     if (!matches) {
       return undefined;

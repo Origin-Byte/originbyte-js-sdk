@@ -1,5 +1,16 @@
 /* eslint-disable camelcase */
-import { GetObjectDataResponse, SuiObject } from "@mysten/sui.js";
+import {
+  GetObjectDataResponse,
+  ObjectId,
+  SuiAddress,
+  SuiObject,
+} from "@mysten/sui.js";
+
+export interface GlobalParams {
+  gasBudget?: number;
+  moduleName?: string;
+  packageObjectId?: ObjectId;
+}
 
 export interface WithPackageObjectId {
   packageObjectId: string;
@@ -361,6 +372,62 @@ export interface SuiObjectParser<RpcResponse, DataModel> {
   regex: RegExp;
 }
 
+export interface CollectionParam {
+  collection: string;
+}
+
+export interface SafeParam {
+  safe: ObjectId;
+}
+
+export interface AuthParam {
+  ownerCap: ObjectId;
+}
+
+export interface NftParam {
+  nft: ObjectId;
+}
+
+export interface TransferCapParam {
+  transferCap: ObjectId;
+}
+
+export interface FTParam {
+  ft: string;
+}
+
+export interface OrderbookParam {
+  orderbook: ObjectId;
+}
+
+export interface CommissionParams {
+  beneficiary: SuiAddress;
+  commission: number;
+}
+
+export interface PriceParam {
+  price: number;
+}
+
+export interface WalletParam {
+  wallet: ObjectId;
+}
+
+export interface SellerSafeParam {
+  sellerSafe: ObjectId;
+}
+
+export interface BuyerSafeParam {
+  buyerSafe: ObjectId;
+}
+
+export interface AllowlistParam {
+  allowlist: ObjectId;
+}
+
+export interface TradeParam {
+  trade: ObjectId;
+}
 export type BuildCreateFlatFeeParams = WithPackageObjectId & {
   rate: number;
 };
