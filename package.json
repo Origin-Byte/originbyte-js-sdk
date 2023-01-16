@@ -48,7 +48,6 @@
     "eslint": "^7.32.0",
     "jest": "^27.3.1",
     "prettier": "^2.4.1",
-    "random": "^4.1.0",
     "ts-jest": "^27.0.7",
     "ts-node": "^10.9.1",
     "typescript-eslint-parser": "^22.0.0",
