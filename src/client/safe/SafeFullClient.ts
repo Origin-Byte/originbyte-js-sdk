@@ -93,7 +93,11 @@ export class SafeFullClient extends SafeReadClient {
     return { transferCap: effects.created[0].reference.objectId, effects };
   }
 
-  public async createSafeForSender() {
+  public async createSafeForSender(): Promise<{
+    safe: ObjectId;
+    ownerCap: ObjectId;
+    effects: TransactionEffects;
+  }> {
     const effects = await this.client.sendTxWaitForEffects(
       createSafeForSenderTx(this.opts)
     );

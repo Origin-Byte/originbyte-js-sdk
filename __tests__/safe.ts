@@ -1,5 +1,5 @@
 import {
-  TESTRACT_TYPE,
+  TESTRACT_OTW_TYPE,
   NFT_GENERIC_TYPE,
   safeClient,
   user,
@@ -55,16 +55,16 @@ export default function suite() {
     await safeClient.enableDepositsOfCollection({
       safe,
       ownerCap,
-      collection: TESTRACT_TYPE,
+      collection: TESTRACT_OTW_TYPE,
     });
     const stateTwo = await safeClient.fetchSafe(safe);
     expect(stateTwo.collectionsWithEnabledDeposits.length).toBe(1);
-    expect(stateTwo.collectionsWithEnabledDeposits[0]).toBe(TESTRACT_TYPE);
+    expect(stateTwo.collectionsWithEnabledDeposits[0]).toBe(TESTRACT_OTW_TYPE);
 
     await safeClient.disableDepositsOfCollection({
       safe,
       ownerCap,
-      collection: TESTRACT_TYPE,
+      collection: TESTRACT_OTW_TYPE,
     });
     const stateThree = await safeClient.fetchSafe(safe);
     expect(stateThree.collectionsWithEnabledDeposits.length).toBe(0);
@@ -80,13 +80,13 @@ export default function suite() {
       safe,
       ownerCap,
       nft: nfts[0],
-      collection: TESTRACT_TYPE,
+      collection: TESTRACT_OTW_TYPE,
     });
     for (const nft of nfts.slice(1)) {
       await safeClient.depositNft({
         safe,
         nft,
-        collection: TESTRACT_TYPE,
+        collection: TESTRACT_OTW_TYPE,
       });
     }
 
@@ -103,8 +103,10 @@ export default function suite() {
   });
 
   test("deposit generic NFT", async () => {
-    const nfts = await fetchGenericNfts();
-    expect(nfts.length).toBeGreaterThan(1);
+    const allNfts = await fetchGenericNfts();
+    expect(allNfts.length).toBeGreaterThan(5);
+    const nfts = allNfts.slice(0, 5);
+
     const { safe, ownerCap } = await safeClient.createSafeForSender();
 
     await safeClient.depositGenericNftPrivileged({
@@ -141,7 +143,7 @@ export default function suite() {
     await safeClient.depositNft({
       safe,
       nft,
-      collection: TESTRACT_TYPE,
+      collection: TESTRACT_OTW_TYPE,
     });
 
     const { transferCap } = await safeClient.createTransferCapForSender({
@@ -158,6 +160,7 @@ export default function suite() {
     expect(transferCapState.safe).toBe(safe);
     expect(transferCapState.isExclusivelyListed).toBe(false);
     expect(transferCapState.nft).toBe(nft);
+    expect(transferCapState.isGeneric).toBe(false);
     expect(transferCapState.version).toBe(safeState.nfts[0].version);
 
     await safeClient.delistNft({ safe, nft, ownerCap });
@@ -184,7 +187,7 @@ export default function suite() {
     await safeClient.depositNft({
       safe,
       nft,
-      collection: TESTRACT_TYPE,
+      collection: TESTRACT_OTW_TYPE,
     });
 
     const { transferCap } =

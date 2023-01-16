@@ -50,7 +50,7 @@ export const createAskTx = (
   return txObj(
     "create_ask",
     p,
-    [p.orderbook, p.price, p.transferCap, p.sellerSafe],
+    [p.orderbook, String(p.price), p.transferCap, p.sellerSafe],
     [p.collection, p.ft]
   );
 };
@@ -67,10 +67,10 @@ export const createAskWithCommissionTx = (
     p,
     [
       p.orderbook,
-      p.price,
+      String(p.price),
       p.transferCap,
       p.beneficiary,
-      p.commission,
+      String(p.commission),
       p.sellerSafe,
     ],
     [p.collection, p.ft]
@@ -91,7 +91,7 @@ export const buyNftTx = (
     [
       p.orderbook,
       p.nft,
-      p.price,
+      String(p.price),
       p.wallet,
       p.sellerSafe,
       p.buyerSafe,
@@ -101,11 +101,22 @@ export const buyNftTx = (
   );
 };
 
+export const buyGenericNftTx = (
+  p: OrderbookParams & NftParam & DebitParams & SellerSafeParam & BuyerSafeParam
+) => {
+  return txObj(
+    "buy_generic_nft",
+    p,
+    [p.orderbook, p.nft, String(p.price), p.wallet, p.sellerSafe, p.buyerSafe],
+    [p.collection, p.ft]
+  );
+};
+
 export const cancelAskTx = (p: OrderbookParams & NftParam & PriceParam) => {
   return txObj(
     "cancel_ask",
     p,
-    [p.orderbook, p.price, p.nft],
+    [p.orderbook, String(p.price), p.nft],
     [p.collection, p.ft]
   );
 };
@@ -125,13 +136,24 @@ export const finishTradeTx = (
   );
 };
 
+export const finishTradeOfGenericNftTx = (
+  p: OrderbookTParams & SellerSafeParam & BuyerSafeParam & TradeParam
+) => {
+  return txObj(
+    "finish_trade_of_generic_nft",
+    p,
+    [p.trade, p.sellerSafe, p.buyerSafe],
+    [p.collection, p.ft]
+  );
+};
+
 export const createBidTx = (
   p: OrderbookParams & DebitParams & BuyerSafeParam
 ) => {
   return txObj(
     "create_bid",
     p,
-    [p.orderbook, p.buyerSafe, p.price, p.wallet],
+    [p.orderbook, p.buyerSafe, String(p.price), p.wallet],
     [p.collection, p.ft]
   );
 };
@@ -142,7 +164,14 @@ export const createBidWithCommissionTx = (
   return txObj(
     "create_bid_with_commission",
     p,
-    [p.orderbook, p.buyerSafe, p.price, p.beneficiary, p.commission, p.wallet],
+    [
+      p.orderbook,
+      p.buyerSafe,
+      String(p.price),
+      p.beneficiary,
+      String(p.commission),
+      p.wallet,
+    ],
     [p.collection, p.ft]
   );
 };
@@ -151,7 +180,7 @@ export const cancelBidTx = (p: OrderbookParams & PriceParam & WalletParam) => {
   return txObj(
     "cancel_bid",
     p,
-    [p.orderbook, p.price, p.wallet],
+    [p.orderbook, String(p.price), p.wallet],
     [p.collection, p.ft]
   );
 };
