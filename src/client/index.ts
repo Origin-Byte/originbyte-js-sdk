@@ -6,3 +6,6 @@ export * from "./orderbook/OrderbookReadClient";
 
 export * from "./safe/SafeReadClient";
 export * from "./safe/SafeFullClient";
+
+
+export * from "./NftClient"
