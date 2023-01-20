@@ -268,6 +268,7 @@ export interface ArtNft extends ProtocolData, WithRawResponse, WithId {
   description?: string;
   url?: string;
   ownerAddress: string;
+  attributes: { [c: string]: string };
 }
 
 export interface CollectionDomains {
@@ -279,7 +280,7 @@ export interface CollectionDomains {
   name: string;
   description: string;
   tags: string[];
-  attributes: {[key: string]: string};
+  attributes: { [key: string]: string };
 
   royalties: {
     who: string;

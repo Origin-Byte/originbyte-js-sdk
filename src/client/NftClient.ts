@@ -241,7 +241,6 @@ export class NftClient {
     const bags = await Promise.all(
       nfts.map(async (_) => {
         const content = await this.getBagContent(_.bagId);
-        console.log("content", JSON.stringify(content));
         return {
           nftId: _.id,
           content: parseDomains(content),
