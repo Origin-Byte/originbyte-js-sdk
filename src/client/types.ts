@@ -33,7 +33,7 @@ type ID = {
 };
 
 export interface NftCollectionRpcResponse {
-  domains: {
+  domains?: {
     type: string;
     fields: {
       id: ID;

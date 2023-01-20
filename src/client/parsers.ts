@@ -96,7 +96,7 @@ export const CollectionParser: SuiObjectParser<
     const packageModuleClassName = matches[3];
 
     return {
-      domainsBagId: data.domains.fields.id.id,
+      domainsBagId: data.domains?.fields.id.id,
       id: suiData.reference.objectId,
       packageObjectId,
       packageModule,
