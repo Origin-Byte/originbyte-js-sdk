@@ -8,8 +8,8 @@ import {
   FixedPriceMarketParser,
   FlatFeeParser,
   InventoryParser,
-  LaunchpadParser,
-  LaunchpadSlotParser,
+  MarketplaceParser,
+  ListingParser,
   MintCapParser,
 } from "../src";
 import { client, PACKAGE_OBJECT_ID, provider } from "./common";
@@ -49,8 +49,8 @@ const resolveFields = async (allObjects: GetObjectDataResponse[]) => {
     inventories,
   ] = await Promise.all([
     client.parseObjects(allObjects, CollectionParser),
-    client.parseObjects(allObjects, LaunchpadParser),
-    client.parseObjects(allObjects, LaunchpadSlotParser),
+    client.parseObjects(allObjects, MarketplaceParser),
+    client.parseObjects(allObjects, ListingParser),
     client.parseObjects(allObjects, FlatFeeParser),
     client.parseObjects(allObjects, MintCapParser),
     client.parseObjects(allObjects, FixedPriceMarketParser),
@@ -140,8 +140,8 @@ const parseProgram = async () => {
   const [[collection], launchpads, launchpadSlots, fees, [mintCap], markets] =
     await Promise.all([
       client.parseObjects(allObjects, CollectionParser),
-      client.parseObjects(allObjects, LaunchpadParser),
-      client.parseObjects(allObjects, LaunchpadSlotParser),
+      client.parseObjects(allObjects, MarketplaceParser),
+      client.parseObjects(allObjects, ListingParser),
       client.parseObjects(allObjects, FlatFeeParser),
       client.parseObjects(allObjects, MintCapParser),
       client.parseObjects(allObjects, FixedPriceMarketParser),

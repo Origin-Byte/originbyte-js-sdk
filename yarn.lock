@@ -587,31 +587,36 @@
   resolved "https://registry.yarnpkg.com/@mysten/bcs/-/bcs-0.5.0.tgz#d2570971e3d9121b83091ced38db13e907ab4198"
   integrity sha512-FjGnXZfR4dY01Q1l3xjgaU+ruIlVomXZk8vzgsQXPFOv7O4pNiOOpJyMEMUnWcyUiktk4R9MxoJJrygOtdxaUw==
 
-"@mysten/sui.js@^0.21.0":
-  version "0.21.0"
-  resolved "https://registry.yarnpkg.com/@mysten/sui.js/-/sui.js-0.21.0.tgz#49a532cfb201d2f4ac047462292f722aa982ac5f"
-  integrity sha512-sIHDcNlC7IQ3za5tecBe5TRDqqwU8BZLvA2RkcQuIDsJZRDg8aJxv7n2JZwH4tWkx/aT4Bs378kwKxZkwTwUuQ==
+"@mysten/sui.js@^0.23.0":
+  version "0.23.0"
+  resolved "https://registry.yarnpkg.com/@mysten/sui.js/-/sui.js-0.23.0.tgz#81540e2f6d29a662ff29e1ed44195d0b2b165b17"
+  integrity sha512-UeDTYm8czV955AKJ4MXCtax8A3F0lrPPNl4PzIkfK9FvprwAFKtILh/nsYdqvilyFSf6ySMJe+RafyWJlSCjHw==
   dependencies:
     "@mysten/bcs" "0.5.0"
-    "@noble/hashes" "^1.1.2"
-    "@noble/secp256k1" "^1.6.3"
-    "@scure/bip32" "^1.1.0"
+    "@noble/hashes" "^1.1.5"
+    "@noble/secp256k1" "^1.7.0"
+    "@scure/bip32" "^1.1.1"
     "@scure/bip39" "^1.1.0"
     "@suchipi/femver" "^1.0.0"
     bs58 "^5.0.0"
     cross-fetch "^3.1.5"
-    jayson "^3.6.6"
+    jayson "^4.0.0"
     js-sha3 "^0.8.0"
     rpc-websockets "^7.5.0"
     superstruct "^1.0.3"
     tweetnacl "^1.0.3"
 
-"@noble/hashes@^1.1.2", "@noble/hashes@~1.1.1", "@noble/hashes@~1.1.3":
+"@noble/hashes@^1.1.5", "@noble/hashes@~1.1.1", "@noble/hashes@~1.1.3":
   version "1.1.5"
   resolved "https://registry.yarnpkg.com/@noble/hashes/-/hashes-1.1.5.tgz#1a0377f3b9020efe2fae03290bd2a12140c95c11"
   integrity sha512-LTMZiiLc+V4v1Yi16TD6aX2gmtKszNye0pQgbaLqkvhIqP7nVsSaJsWloGQjJfJ8offaoP5GtX3yY5swbcJxxQ==
 
-"@noble/secp256k1@^1.6.3", "@noble/secp256k1@~1.7.0":
+"@noble/secp256k1@^1.7.0":
+  version "1.7.1"
+  resolved "https://registry.yarnpkg.com/@noble/secp256k1/-/secp256k1-1.7.1.tgz#b251c70f824ce3ca7f8dc3df08d58f005cc0507c"
+  integrity sha512-hOUk6AyBFmqVrv7k5WAw/LpszxVbj9gGN4JRkIX52fdFAj1UA61KXmZDvqVEm+pOyec3+fIeZB02LYa/pWOArw==
+
+"@noble/secp256k1@~1.7.0":
   version "1.7.0"
   resolved "https://registry.yarnpkg.com/@noble/secp256k1/-/secp256k1-1.7.0.tgz#d15357f7c227e751d90aa06b05a0e5cf993ba8c1"
   integrity sha512-kbacwGSsH/CTout0ZnZWxnW1B+jH/7r/WAAKLBtrRJ/+CUH7lgmQzl3GTrQua3SGKWNSDsS6lmjnDpIJ5Dxyaw==
@@ -654,10 +659,10 @@
   resolved "https://registry.yarnpkg.com/@scure/base/-/base-1.1.1.tgz#ebb651ee52ff84f420097055f4bf46cfba403938"
   integrity sha512-ZxOhsSyxYwLJj3pLZCefNitxsj093tb2vq90mp2txoYeBqbcjDjqFhyM8eUjq/uFm6zJ+mUuqxlS2FkuSY1MTA==
 
-"@scure/bip32@^1.1.0":
-  version "1.1.1"
-  resolved "https://registry.yarnpkg.com/@scure/bip32/-/bip32-1.1.1.tgz#f62e4a2f13cc3e5e720ad81b7582b8631ae6835a"
-  integrity sha512-UmI+liY7np2XakaW+6lMB6HZnpczWk1yXZTxvg8TM8MdOcKHCGL1YkraGj8eAjPfMwFNiAyek2hXmS/XFbab8g==
+"@scure/bip32@^1.1.1":
+  version "1.1.3"
+  resolved "https://registry.yarnpkg.com/@scure/bip32/-/bip32-1.1.3.tgz#c92ebf476f7bdaf8db01b459e3144179642ba37e"
+  integrity sha512-dSH3+LCWONlSNQuF34xZrG6Xas7tp2jSSqHb/pMfXWM0vKE4JZOtK3uJfoWouUVW5IGlls75HkXmYLldZ8ySgQ==
   dependencies:
     "@noble/hashes" "~1.1.3"
     "@noble/secp256k1" "~1.7.0"
@@ -2649,10 +2654,10 @@ istanbul-reports@^3.1.3:
     html-escaper "^2.0.0"
     istanbul-lib-report "^3.0.0"
 
-jayson@^3.6.6:
-  version "3.7.0"
-  resolved "https://registry.yarnpkg.com/jayson/-/jayson-3.7.0.tgz#b735b12d06d348639ae8230d7a1e2916cb078f25"
-  integrity sha512-tfy39KJMrrXJ+mFcMpxwBvFDetS8LAID93+rycFglIQM4kl3uNR3W4lBLE/FFhsoUCEox5Dt2adVpDm/XtebbQ==
+jayson@^4.0.0:
+  version "4.0.0"
+  resolved "https://registry.yarnpkg.com/jayson/-/jayson-4.0.0.tgz#145a0ced46f900934c9b307e1332bcb0c7dbdb17"
+  integrity sha512-v2RNpDCMu45fnLzSk47vx7I+QUaOsox6f5X0CUlabAFwxoP+8MfAY0NQRFwOEYXIxm8Ih5y6OaEa5KYiQMkyAA==
   dependencies:
     "@types/connect" "^3.4.33"
     "@types/node" "^12.12.54"
@@ -2664,7 +2669,6 @@ jayson@^3.6.6:
     eyes "^0.1.8"
     isomorphic-ws "^4.0.1"
     json-stringify-safe "^5.0.1"
-    lodash "^4.17.20"
     uuid "^8.3.2"
     ws "^7.4.5"
 
@@ -3249,7 +3253,7 @@ lodash.unescape@4.0.1:
   resolved "https://registry.yarnpkg.com/lodash.unescape/-/lodash.unescape-4.0.1.tgz#bf2249886ce514cda112fae9218cdc065211fc9c"
   integrity sha512-DhhGRshNS1aX6s5YdBE3njCCouPgnG29ebyHvImlZzXZf2SHgt+J08DHgytTPnpywNbO1Y8mNUFyQuIDBq2JZg==
 
-lodash@^4.17.20, lodash@^4.7.0:
+lodash@^4.7.0:
   version "4.17.21"
   resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.21.tgz#679591c564c3bffaae8454cf0b3df370c3d6911c"
   integrity sha512-v2kDEe57lecTulaDIuNTPy3Ry4gLGJ6Z1O3vE1krgXZNrsQ+LFTGHVxVjcXPs17LhbZVGedAJv8XZ1tvj5FvSg==

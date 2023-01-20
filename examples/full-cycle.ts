@@ -11,8 +11,8 @@ import {
   FixedPriceMarketParser,
   FlatFeeParser,
   InventoryParser,
-  LaunchpadParser,
-  LaunchpadSlotParser,
+  MarketplaceParser,
+  ListingParser,
   MintCapParser,
   NftClient,
 } from "../src";
@@ -87,8 +87,8 @@ const resolveFields = async (allObjects: GetObjectDataResponse[]) => {
     inventories,
   ] = await Promise.all([
     client.parseObjects(allObjects, CollectionParser),
-    client.parseObjects(allObjects, LaunchpadParser),
-    client.parseObjects(allObjects, LaunchpadSlotParser),
+    client.parseObjects(allObjects, MarketplaceParser),
+    client.parseObjects(allObjects, ListingParser),
     client.parseObjects(allObjects, FlatFeeParser),
     client.parseObjects(allObjects, MintCapParser),
     client.parseObjects(allObjects, FixedPriceMarketParser),
@@ -197,7 +197,7 @@ const initLaunchpad = async (defaultFeeId: string) => {
       );
     const launchpads = await client.fetchAndParseObjectsById(
       createdObjects || [],
-      LaunchpadParser
+      MarketplaceParser
     );
     return launchpads[0].id;
   }
@@ -205,9 +205,9 @@ const initLaunchpad = async (defaultFeeId: string) => {
 };
 
 const initLaunchpadSlot = async (launchpadId: string) => {
-  const transaction = NftClient.buildInitSlot({
+  const transaction = NftClient.buildInitListing({
     packageObjectId: CONFIG.nftProtocolContractId,
-    slotAdmin: CONFIG.lpSlotAdmin, // Slot admin,
+    listingAdmin: CONFIG.lpSlotAdmin, // Slot admin,
     receiver: CONFIG.lpSlotReceiver, // Slot receiver
     launchpad: launchpadId,
   });
@@ -219,7 +219,7 @@ const initLaunchpadSlot = async (launchpadId: string) => {
       );
     const slots = await client.fetchAndParseObjectsById(
       createdObjects || [],
-      LaunchpadSlotParser
+      ListingParser
     );
     return slots[0].id;
   }

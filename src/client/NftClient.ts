@@ -9,15 +9,19 @@ import {
   biuldMintNft,
   buildEnableSales,
   buildCreateFlatFee,
-  buildCreateFixedPriceMarketWithInventory,
-  buildInitLaunchpad,
-  buildInitSlot,
-  buildCreateFixedPriceMarket,
-  buildCreateInventoryTx,
+  buildCreateFixedPriceMarketOnInventory,
+  buildInitMarketplace,
+  buildInitListing,
+  buildInitFixedPriceMarket,
+  buildInitInventoryTx,
+  buildCreateFixedPriceMarketOnListing,
+  buildRequestToJoinMarketplace,
+  buildAcceptListingRequest,
+  buildAddInventoryToListing,
 } from "./txBuilders";
 import { toMap } from "../utils";
 import {
-  LaunchpadParser,
+  MarketplaceParser,
   ArtNftParser,
   CollectionParser,
   FixedPriceMarketParser,
@@ -25,7 +29,7 @@ import {
   parseDomains,
   parseTags,
   FlatFeeParser,
-  LaunchpadSlotParser,
+  ListingParser,
   DynamicFieldParser,
   InventoryParser,
   MoveObject,
@@ -38,11 +42,11 @@ import {
   MintCap,
   NftCollection,
   GetMarketsParams,
-  GetLaunchpadParams,
+  GetMarketplaceParams,
   GetCollectionDomainsParams,
   DefaultFeeBoxRpcResponse,
   GetInventoryParams,
-  GetLaunchpadSlotParams,
+  GetListingParams,
   ArtNft,
 } from "./types";
 import { isObjectExists } from "./utils";
@@ -142,6 +146,7 @@ export class NftClient {
 
   getCollectionDomains = async (params: GetCollectionDomainsParams) => {
     const domains = await this.getBagContent(params.domainsBagId);
+
     const parsedDomains = parseDomains(domains);
 
     if (parsedDomains.tagsBagId) {
@@ -171,20 +176,20 @@ export class NftClient {
     return this.mergeAuthoritiesWithCollections(collections, authorities);
   };
 
-  getLaunchpadsById = async (params: GetLaunchpadParams) => {
-    const launchpads = await this.fetchAndParseObjectsById(
-      [params.launchpadId],
-      LaunchpadParser
+  getMarketplaceById = async (params: GetMarketplaceParams) => {
+    const marketplaces = await this.fetchAndParseObjectsById(
+      [params.marketplaceId],
+      MarketplaceParser
     );
 
-    if (!launchpads.length) {
+    if (!marketplaces.length) {
       return undefined;
     }
-    const launchpad = launchpads[0];
-    const fees = await this.getBagContent(launchpad.defaultFeeBoxId);
+    const marketplace = marketplaces[0];
+    const fees = await this.getBagContent(marketplace.defaultFeeBoxId);
 
     if (!fees.length) {
-      return launchpad;
+      return marketplace;
     }
     const fee = fees[0];
     if (is(fee.details, SuiObject) && is(fee.details.data, MoveObject)) {
@@ -195,34 +200,32 @@ export class NftClient {
       );
 
       if (feeData.length) {
-        return { ...launchpad, defaultFee: feeData[0] };
+        return { ...marketplace, defaultFee: feeData[0] };
       }
     }
-    return launchpad;
+    return marketplace;
   };
 
-  getLaunchpadsSlotsById = async (params: GetLaunchpadSlotParams) => {
-    const slots = await this.fetchAndParseObjectsById(
-      [params.slotId],
-      LaunchpadSlotParser
+  getListingById = async (params: GetListingParams) => {
+    const listings = await this.fetchAndParseObjectsById(
+      [params.listingId],
+      ListingParser
     );
-    if (!slots.length) {
+    if (!listings.length) {
       return undefined;
     }
 
-    const slot = slots[0];
+    const listing = listings[0];
 
     if (!params.resolveBags) {
-      return slot;
+      return listing;
     }
-    const [[inventories], [market]] = await Promise.all([
-      this.getAndParseBagContent(slot.inventoriesBagId, DynamicFieldParser),
-      this.getAndParseBagContent(slot.marketsBagId, DynamicFieldParser),
+    const [[inventories]] = await Promise.all([
+      this.getAndParseBagContent(listing.inventoriesBagId, DynamicFieldParser),
     ]);
     return {
-      ...slot,
+      ...listing,
       inventoriesId: inventories?.value,
-      marketId: market?.value,
     };
   };
 
@@ -238,6 +241,7 @@ export class NftClient {
     const bags = await Promise.all(
       nfts.map(async (_) => {
         const content = await this.getBagContent(_.bagId);
+        console.log("content", JSON.stringify(content));
         return {
           nftId: _.id,
           content: parseDomains(content),
@@ -253,6 +257,7 @@ export class NftClient {
         name: fields?.content.name,
         description: fields?.content.description,
         url: fields?.content.url,
+        attributes: fields?.content.attributes,
         packageModule: nft.packageModule,
         packageObjectId: nft.packageObjectId,
         packageModuleClassName: nft.packageModuleClassName,
@@ -279,16 +284,25 @@ export class NftClient {
 
   static buildCreateFlatFee = buildCreateFlatFee;
 
-  static buildCreateFixedPriceMarketWithInventory =
-    buildCreateFixedPriceMarketWithInventory;
+  static buildCreateFixedPriceMarketOnInventory =
+    buildCreateFixedPriceMarketOnInventory;
 
-  static buildCreateFixedPriceMarket = buildCreateFixedPriceMarket;
+  static buildCreateFixedPriceMarketOnListing =
+    buildCreateFixedPriceMarketOnListing;
 
-  static buildInitLaunchpad = buildInitLaunchpad;
+  static buildInitFixedPriceMarket = buildInitFixedPriceMarket;
 
-  static buildCreateInventoryTx = buildCreateInventoryTx;
+  static buildInitMarketplace = buildInitMarketplace;
 
-  static buildInitSlot = buildInitSlot;
+  static buildInitInventory = buildInitInventoryTx;
+
+  static buildInitListing = buildInitListing;
+
+  static buildRequestToJoinMarketplace = buildRequestToJoinMarketplace;
+
+  static buildAcceptListingRequest = buildAcceptListingRequest;
+
+  static buildAddInventoryToListing = buildAddInventoryToListing;
 
   private mergeAuthoritiesWithCollections = (
     collections: NftCollection[],

@@ -1,4 +1,4 @@
-import { LaunchpadSlotParser } from "../src";
+import { ListingParser } from "../src";
 import { client, provider } from "./common";
 
 const fetchNft = async () => {
@@ -6,7 +6,7 @@ const fetchNft = async () => {
   // console.log('nfts', JSON.stringify(nfts, null, 2));
   const c = await client.fetchAndParseObjectsById(
     ["0x9577a7bcf6970f1b7632e7ab0cadbdd0c9a066be"],
-    LaunchpadSlotParser
+    ListingParser
   );
   console.log("C", JSON.stringify(c));
 };

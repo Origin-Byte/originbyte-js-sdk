@@ -30,7 +30,7 @@ const mintChunk = async (txs: MoveCallTransaction[]) => {
 
 export const mintNFt = async () => {
   const txs: MoveCallTransaction[] = [];
-  for (let i = 0; i < 10000; i += 1) {
+  for (let i = 0; i < 100; i += 1) {
     txs.push(
       NftClient.biuldMintNft({
         name: `Test NFT ${i}`,
@@ -38,7 +38,7 @@ export const mintNFt = async () => {
         mintCap: MINT_CAP_ID,
         packageObjectId: PACKAGE_OBJECT_ID,
         inventoryId: INVENTORY_ID,
-        moduleName: "suitraders",
+        moduleName: "suimarines",
         url: "https://images.ctfassets.net/6kz06gcm2189/27OknKy2oUNvX8rGm1fHXH/1c5dd162685656aae5cbd3a54c27102c/how-to-mint-an-nft.png",
         attributes: {
           rarity: "Common",
@@ -47,7 +47,7 @@ export const mintNFt = async () => {
       })
     );
   }
-  const chunks = splitBy(txs, 10000);
+  const chunks = splitBy(txs, 1000);
   await Promise.all(chunks.map((chunk) => mintChunk(chunk)));
   //   const createMarketResult = await signer.executeMoveCall(transaction);
   // console.log('createMarketResult', JSON.stringify(createMarketResult));
