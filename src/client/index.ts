@@ -9,3 +9,4 @@ export * from "./safe/SafeFullClient";
 
 
 export * from "./NftClient"
+export * from "./types"

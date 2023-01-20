@@ -53,7 +53,7 @@ export const buildBuyNft = (
   module: "fixed_price",
   function: "buy_nft",
   typeArguments: [
-    `${params.packageObjectId}::nft::Nft<${params.packageObjectId}::${params.nftModuleName}::${params.nftClassName}>`,
+    `${params.packageObjectId}::${params.nftModuleName}::${params.nftClassName}`,
     SUI_TYPE,
   ],
   arguments: [

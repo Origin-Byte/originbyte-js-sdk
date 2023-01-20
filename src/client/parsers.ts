@@ -236,8 +236,8 @@ export const InventoryParser: SuiObjectParser<InventoryRpcResponse, Inventory> =
     parser: (data, suiData, _) => {
       return {
         id: suiData.reference.objectId,
-        queue: data.queue,
         nftsOnSale: data.nfts_on_sale,
+        live: data.live.fields.contents.map((item) => ({ market: item.fields.key, live: item.fields.value })),
       };
     },
   };

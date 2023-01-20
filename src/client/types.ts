@@ -186,15 +186,29 @@ export interface WithRawResponse {
 }
 
 export interface InventoryRpcResponse {
-  queue: string[];
+  live: {
+    type: string;
+    fields: {
+      contents: {
+        type: string;
+        fields: {
+          key: string;
+          value: boolean;
+        }
+      }[];
+    }
+  };
   nfts_on_sale: string[];
 }
 
-export interface Inventory
-  extends Omit<InventoryRpcResponse, "nfts_on_sale">,
-  WithId {
+export type Inventory = WithId & {
   nftsOnSale: string[];
+  live: {
+    market: string;
+    live: boolean;
+  }[]
 }
+
 
 export interface FixedPriceMarket extends WithRawResponse, WithId {
   price: number;
