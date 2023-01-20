@@ -80,4 +80,5 @@ module.exports = {
     "\\.(ts|tsx)$": "ts-jest",
     "/node_modules/((lodash-es|[^/]+/es)|rc-animate|rc-util)/.*": "ts-jest",
   },
+  testTimeout: 30_000,
 };

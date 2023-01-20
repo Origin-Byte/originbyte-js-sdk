@@ -1,12 +1,11 @@
-import { Ed25519Keypair, JsonRpcProvider, SUI_TYPE_ARG } from "@mysten/sui.js";
+import { Ed25519Keypair, JsonRpcProvider } from "@mysten/sui.js";
 import { OrderbookFullClient, SafeFullClient } from "../src";
-import { DEFAULT_GAS_BUDGET } from "../src/client/consts";
 
 export const TESTRACT_ADDRESS = process.env.TESTRACT_ADDRESS;
-export const TESTRACT_TYPE = `${TESTRACT_ADDRESS}::testract::TESTRACT`;
+export const TESTRACT_OTW_TYPE = `${TESTRACT_ADDRESS}::testract::TESTRACT`;
 export const NFT_GENERIC_TYPE = `${TESTRACT_ADDRESS}::testract::CapyNft`;
 export const NFT_PROTOCOL_ADDRESS = process.env.NFT_PROTOCOL_ADDRESS;
-export const NFT_TYPE = `${NFT_PROTOCOL_ADDRESS}::nft::Nft<${TESTRACT_TYPE}>`;
+export const NFT_TYPE = `${NFT_PROTOCOL_ADDRESS}::nft::Nft<${TESTRACT_OTW_TYPE}>`;
 
 const provider = new JsonRpcProvider("LOCAL");
 // base64: 9Cc3IMAhroBmj32QTZ7LhjNL2vOhKmcnGYRHiCyTJLk=
@@ -48,5 +47,9 @@ export async function fetchNfts() {
 
 export async function fetchGenericNfts() {
   const objs = await safeClient.client.getObjects(user);
-  return objs.filter((o) => o.type === NFT_GENERIC_TYPE).map((o) => o.objectId);
+  const nfts = objs
+    .filter((o) => o.type === NFT_GENERIC_TYPE)
+    .map((o) => o.objectId);
+
+  return nfts;
 }

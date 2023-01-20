@@ -26,7 +26,7 @@ if [ ! -f "${sui_bin}" ]; then
     echo "Downloading sui binary version '${SUI_TAG}'"
 
     wget "https://github.com/MystenLabs/sui/releases/download/${SUI_TAG}/sui" \
-        -O "${sui_bin}" -q
+        -O "${sui_bin}" -q --show-progress
     chmod +x "${sui_bin}"
 fi
 
@@ -51,11 +51,22 @@ function deploy_package {
 
     package_dir="${1}"
 
-    $sui_bin client --client.config "${test_validator_config}" \
+    publish_output=$($sui_bin client --client.config "${test_validator_config}" \
         publish \
         --gas-budget 30000 \
         --json \
-        "${package_dir}" |
+        "${package_dir}")
+
+    # if last command failed, print
+    if [ $? -ne 0 ]; then
+        echo >&2 "Cannot deploy ${package_dir}:"
+        echo >&2
+        echo >&2
+        echo >&2 "${publish_output}"
+        exit 1
+    fi
+
+    echo "${publish_output}" |
         jq -r '.effects.created[] | select( .owner == "Immutable" ) | .reference.objectId'
 }
 
