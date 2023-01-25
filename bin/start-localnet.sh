@@ -15,7 +15,7 @@ if [ ! -f "${sui_bin}" ]; then
     echo "Downloading sui binary version '${SUI_TAG}'"
 
     wget "https://github.com/MystenLabs/sui/releases/download/${SUI_TAG}/sui" \
-        -O "${sui_bin}" -q
+        -O "${sui_bin}" -q --show-progress
     chmod +x "${sui_bin}"
 fi
 

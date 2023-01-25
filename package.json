@@ -56,8 +56,5 @@
   "dependencies": {
     "@mysten/sui.js": "^0.23.0",
     "superstruct": "^1.0.3"
-  },
-  "jest": {
-    "testTimeout": 15000
   }
 }

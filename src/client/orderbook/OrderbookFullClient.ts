@@ -3,6 +3,7 @@ import { FullClient } from "../FullClient";
 import { GlobalParams } from "../types";
 import { OrderbookReadClient } from "./OrderbookReadClient";
 import {
+  buyGenericNftTx,
   buyNftTx,
   cancelAskTx,
   cancelBidTx,
@@ -11,6 +12,7 @@ import {
   createBidTx,
   createBidWithCommissionTx,
   createOrderbookTx,
+  finishTradeOfGenericNftTx,
   finishTradeTx,
 } from "./txBuilder";
 
@@ -42,9 +44,13 @@ export class OrderbookFullClient extends OrderbookReadClient {
 
   static buyNftTx = buyNftTx;
 
+  static buyGenericNftTx = buyGenericNftTx;
+
   static cancelAskTx = cancelAskTx;
 
   static finishTradeTx = finishTradeTx;
+
+  static finishTradeOfGenericNft = finishTradeOfGenericNftTx;
 
   static createBidTx = createBidTx;
 
@@ -137,6 +143,28 @@ export class OrderbookFullClient extends OrderbookReadClient {
     };
   }
 
+  public async buyGenericNft(p: {
+    buyerSafe: ObjectId;
+    collection: string;
+    ft: string;
+    nft: ObjectId;
+    orderbook: ObjectId;
+    price: number;
+    sellerSafe: ObjectId;
+    wallet: ObjectId;
+  }) {
+    const effects = await this.client.sendTxWaitForEffects(
+      buyGenericNftTx({
+        ...this.opts,
+        ...p,
+      })
+    );
+
+    return {
+      effects,
+    };
+  }
+
   public async cancelAsk(p: {
     collection: string;
     ft: string;
@@ -177,6 +205,21 @@ export class OrderbookFullClient extends OrderbookReadClient {
   }) {
     return this.client.sendTxWaitForEffects(
       finishTradeTx({
+        ...this.opts,
+        ...p,
+      })
+    );
+  }
+
+  public async finishTradeOfGenericNft(p: {
+    buyerSafe: ObjectId;
+    collection: string;
+    ft: string;
+    sellerSafe: ObjectId;
+    trade: ObjectId;
+  }) {
+    return this.client.sendTxWaitForEffects(
+      finishTradeOfGenericNftTx({
         ...this.opts,
         ...p,
       })

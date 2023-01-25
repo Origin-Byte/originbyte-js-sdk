@@ -1,17 +1,19 @@
 import { SUI_TYPE_ARG } from "@mysten/sui.js";
 import {
+  fetchGenericNfts,
   fetchNfts,
   getGas,
+  NFT_GENERIC_TYPE,
   orderbookClient,
   safeClient,
-  TESTRACT_TYPE,
+  TESTRACT_OTW_TYPE,
   user,
 } from "./common";
 
 export default function suite() {
   test("create orderbook", async () => {
     const { orderbook } = await orderbookClient.createOrderbook({
-      collection: TESTRACT_TYPE,
+      collection: TESTRACT_OTW_TYPE,
       ft: SUI_TYPE_ARG,
     });
     const state = await orderbookClient.fetchOrderbook(orderbook);
@@ -30,13 +32,13 @@ export default function suite() {
     const { safe } = await safeClient.createSafeForSender();
 
     const { orderbook } = await orderbookClient.createOrderbook({
-      collection: TESTRACT_TYPE,
+      collection: TESTRACT_OTW_TYPE,
       ft: SUI_TYPE_ARG,
     });
 
     await orderbookClient.createBid({
       buyerSafe: safe,
-      collection: TESTRACT_TYPE,
+      collection: TESTRACT_OTW_TYPE,
       ft: SUI_TYPE_ARG,
       orderbook,
       price: 10,
@@ -59,7 +61,7 @@ export default function suite() {
     await safeClient.depositNft({
       safe,
       nft,
-      collection: TESTRACT_TYPE,
+      collection: TESTRACT_OTW_TYPE,
     });
     const { transferCap } =
       await safeClient.createExclusiveTransferCapForSender({
@@ -69,13 +71,13 @@ export default function suite() {
       });
 
     const { orderbook } = await orderbookClient.createOrderbook({
-      collection: TESTRACT_TYPE,
+      collection: TESTRACT_OTW_TYPE,
       ft: SUI_TYPE_ARG,
     });
 
     await orderbookClient.createAsk({
       sellerSafe: safe,
-      collection: TESTRACT_TYPE,
+      collection: TESTRACT_OTW_TYPE,
       ft: SUI_TYPE_ARG,
       orderbook,
       transferCap,
@@ -94,14 +96,14 @@ export default function suite() {
     const { safe } = await safeClient.createSafeForSender();
 
     const { orderbook } = await orderbookClient.createOrderbook({
-      collection: TESTRACT_TYPE,
+      collection: TESTRACT_OTW_TYPE,
       ft: SUI_TYPE_ARG,
     });
 
     const someBeneficiary = "0xe71f60229c0ed838b7fe25f0ce57690b7067f199";
     await orderbookClient.createBidWithCommission({
       buyerSafe: safe,
-      collection: TESTRACT_TYPE,
+      collection: TESTRACT_OTW_TYPE,
       ft: SUI_TYPE_ARG,
       orderbook,
       price: 10,
@@ -129,7 +131,7 @@ export default function suite() {
     await safeClient.depositNft({
       safe,
       nft,
-      collection: TESTRACT_TYPE,
+      collection: TESTRACT_OTW_TYPE,
     });
     const { transferCap } =
       await safeClient.createExclusiveTransferCapForSender({
@@ -139,14 +141,14 @@ export default function suite() {
       });
 
     const { orderbook } = await orderbookClient.createOrderbook({
-      collection: TESTRACT_TYPE,
+      collection: TESTRACT_OTW_TYPE,
       ft: SUI_TYPE_ARG,
     });
 
     const someBeneficiary = "0xe71f60229c0ed838b7fe25f0ce57690b7067f199";
     await orderbookClient.createAskWithCommission({
       sellerSafe: safe,
-      collection: TESTRACT_TYPE,
+      collection: TESTRACT_OTW_TYPE,
       ft: SUI_TYPE_ARG,
       orderbook,
       transferCap,
@@ -163,6 +165,66 @@ export default function suite() {
     expect(state.asks[0].commission).toStrictEqual({
       beneficiary: someBeneficiary,
       cut: 5,
+    });
+  });
+
+  test("buy generic NFT", async () => {
+    const allNfts = await fetchGenericNfts();
+    expect(allNfts.length).toBeGreaterThan(0);
+    const nft = allNfts[0];
+
+    const { safe: sellerSafe, ownerCap: sellerOwnerCap } =
+      await safeClient.createSafeForSender();
+    await safeClient.depositGenericNft({
+      safe: sellerSafe,
+      nft,
+      collection: NFT_GENERIC_TYPE,
+    });
+    const { transferCap } =
+      await safeClient.createExclusiveTransferCapForSender({
+        safe: sellerSafe,
+        nft,
+        ownerCap: sellerOwnerCap,
+      });
+    const { orderbook } = await orderbookClient.createOrderbook({
+      collection: NFT_GENERIC_TYPE,
+      ft: SUI_TYPE_ARG,
+    });
+
+    await orderbookClient.createAsk({
+      sellerSafe,
+      collection: NFT_GENERIC_TYPE,
+      ft: SUI_TYPE_ARG,
+      orderbook,
+      transferCap,
+      price: 10,
+    });
+
+    const state = await orderbookClient.fetchOrderbook(orderbook);
+    expect(state.asks.length).toBe(1);
+    expect(state.asks[0].price).toBe(10);
+    expect(state.asks[0].owner).toBe(`0x${user}`);
+    expect(state.asks[0].transferCap.nft).toBe(nft);
+    expect(state.asks[0].transferCap.isGeneric).toBe(true);
+
+    const { safe: buyerSafe, ownerCap: buyerOwnerCap } =
+      await safeClient.createSafeForSender();
+
+    await orderbookClient.buyGenericNft({
+      buyerSafe,
+      collection: NFT_GENERIC_TYPE,
+      ft: SUI_TYPE_ARG,
+      nft,
+      orderbook,
+      price: 10,
+      sellerSafe,
+      wallet: await getGas(),
+    });
+
+    await safeClient.createTransferCapForSender({
+      safe: buyerSafe,
+      nft,
+      ownerCap: buyerOwnerCap,
     });
   });
 }

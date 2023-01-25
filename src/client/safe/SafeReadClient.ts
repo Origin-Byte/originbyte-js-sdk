@@ -24,12 +24,14 @@ export interface TransferCapState {
   isExclusivelyListed: boolean;
   nft: ObjectId;
   version: string;
+  isGeneric: boolean;
 }
 
 export function transformTransferCap({ fields }: any): TransferCapState {
   return {
     safe: fields.safe,
     isExclusivelyListed: fields.inner.fields.is_exclusive,
+    isGeneric: fields.inner.fields.is_generic,
     nft: fields.inner.fields.nft,
     version: fields.inner.fields.version,
   };

@@ -1,11 +1,13 @@
 module testract::testract {
-    use sui::object::{Self, UID};
-    use sui::transfer::{share_object, transfer};
-    use sui::tx_context::TxContext;
-
     use nft_protocol::collection;
     use nft_protocol::nft;
     use nft_protocol::transfer_allowlist;
+    use std::option;
+    use std::vector;
+    use sui::coin;
+    use sui::object::{Self, UID};
+    use sui::transfer::{share_object, transfer};
+    use sui::tx_context::{TxContext};
 
     // mint more NFTs if not enough for new tests
     const NFTS_TO_MINT: u64 = 32;
@@ -40,18 +42,27 @@ module testract::testract {
 
         let i = 0;
         while (i < NFTS_TO_MINT) {
-            transfer(nft::new<TESTRACT>(TEST_USER, ctx), TEST_USER);
+            transfer(nft::new<TESTRACT, Witness>(&Witness {}, TEST_USER, ctx), TEST_USER);
+            transfer(CapyNft { id: object::new(ctx) }, TEST_USER);
             i = i + 1;
         };
 
-        transfer(CapyNft { id: object::new(ctx) }, TEST_USER);
-        transfer(CapyNft { id: object::new(ctx) }, TEST_USER);
+        let (treasury_cap, meta) = coin::create_currency(
+            witness,
+            0,
+            vector::empty(),
+            vector::empty(),
+            vector::empty(),
+            option::none(),
+            ctx,
+        );
 
         transfer(col_cap, TEST_USER);
+        transfer(treasury_cap, TEST_USER);
         transfer(mint_cap, TEST_USER);
 
         share_object(wl);
         share_object(collection);
-
+        share_object(meta);
     }
 }
