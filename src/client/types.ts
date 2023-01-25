@@ -33,7 +33,7 @@ type ID = {
 };
 
 export interface NftCollectionRpcResponse {
-  domains: {
+  domains?: {
     type: string;
     fields: {
       id: ID;
@@ -105,25 +105,21 @@ export type TagsDomainRpcResponse = DomainRpcBase<{
 
 export type TagRpcResponse = DomainRpcBase<{}>;
 
+
+
 export type AttributionDomainRpcResponse = DomainRpcBase<{
-  creators: {
-    type: string;
+  map: {
+    type: string
     fields: {
       contents: {
         type: string;
         fields: {
           key: string;
-          value: {
-            type: string;
-            fields: {
-              share_of_royalty_bps: number;
-              who: string;
-            };
-          };
-        };
-      }[];
-    };
-  };
+          value: string;
+        }
+      }[]
+    }
+  }
 }>;
 
 export interface DefaultFeeBoxRpcResponse {
@@ -142,13 +138,17 @@ export interface DefaultFeeBoxRpcResponse {
   value: string;
 }
 
-export interface LaunchpadSlotRpcResponse {
+export interface ListingRpcResponse {
+  marketplace_id?: {
+    type: string;
+    fields: {
+      id: string;
+    }
+  };
   admin: string;
+  receiver: string;
+  inventories?: Bag;
   custom_fee: ObjectBox;
-  inventories: Bag;
-  launchpad_id: string;
-  live: boolean;
-  markets: Bag;
   proceeds: {
     fields: {
       id: ID;
@@ -160,17 +160,14 @@ export interface LaunchpadSlotRpcResponse {
       };
     };
   };
-  receiver: string;
 }
 
-export interface LaunchpadSlot extends WithPackageObjectId, WithId {
+export interface Listing extends WithPackageObjectId, WithId {
   admin: string;
-  launchpad: string;
+  marketplace?: string;
   receiver: string;
   customFeeBagId: string;
-  inventoriesBagId: string;
-  marketsBagId: string;
-  live: boolean;
+  inventoriesBagId?: string;
   qtSold: number;
 }
 
@@ -189,35 +186,35 @@ export interface WithRawResponse {
 }
 
 export interface InventoryRpcResponse {
-  queue: string[];
+  live: {
+    type: string;
+    fields: {
+      contents: {
+        type: string;
+        fields: {
+          key: string;
+          value: boolean;
+        }
+      }[];
+    }
+  };
   nfts_on_sale: string[];
 }
 
-export interface Inventory
-  extends Omit<InventoryRpcResponse, "nfts_on_sale">,
-    WithId {
+export type Inventory = WithId & {
   nftsOnSale: string[];
+  live: {
+    market: string;
+    live: boolean;
+  }[]
 }
+
 
 export interface FixedPriceMarket extends WithRawResponse, WithId {
   price: number;
 }
 
-export interface NftCertificateRpcResponse {
-  nft_id: string;
-  launchpad_id: string;
-  slot_id: string;
-}
-
-export interface NftCertificate extends WithRawResponse, WithId {
-  nftId: string;
-  owner: string;
-  packageObjectId: string;
-  launchpadId: string;
-  slotId: string;
-}
-
-export interface LaunchpadRpcResponse {
+export interface MarketplaceRpcResponse {
   admin: string;
   default_fee: {
     type: string;
@@ -231,14 +228,13 @@ export interface LaunchpadRpcResponse {
   receiver: string;
 }
 
-export interface Launchpad
+export interface Marketplace
   extends WithId,
-    WithPackageObjectId,
-    WithRawResponse {
+  WithPackageObjectId,
+  WithRawResponse {
   owner: string;
   admin: string;
   receiver: string;
-  permissioned: boolean;
   defaultFeeBoxId: string;
 }
 
@@ -272,6 +268,7 @@ export interface ArtNft extends ProtocolData, WithRawResponse, WithId {
   description?: string;
   url?: string;
   ownerAddress: string;
+  attributes: { [c: string]: string };
 }
 
 export interface CollectionDomains {
@@ -283,6 +280,7 @@ export interface CollectionDomains {
   name: string;
   description: string;
   tags: string[];
+  attributes: { [key: string]: string };
 
   royalties: {
     who: string;
@@ -296,8 +294,8 @@ export interface WithIds {
   objectIds: string[];
 }
 
-export interface GetLaunchpadSlotParams {
-  slotId: string;
+export interface GetListingParams {
+  listingId: string;
   resolveBags?: boolean;
 }
 
@@ -305,22 +303,22 @@ export interface GetInventoryParams {
   inventoryId: string;
 }
 
-export interface GetLaunchpadParams {
-  launchpadId: string;
+export interface GetMarketplaceParams {
+  marketplaceId: string;
 }
 
-export interface GetNftsParams extends WithIds {}
+export interface GetNftsParams extends WithIds { }
 
-export interface GetCollectionsParams extends WithIds {}
+export interface GetCollectionsParams extends WithIds { }
 
 export interface GetCollectionDomainsParams {
   domainsBagId: string;
 }
 
-export interface GetAuthoritiesParams extends WithIds {}
+export interface GetAuthoritiesParams extends WithIds { }
 
-export interface GetMarketsParams extends WithIds {}
-export interface GetNftCertificateParams extends WithIds {}
+export interface GetMarketsParams extends WithIds { }
+export interface GetNftCertificateParams extends WithIds { }
 
 export type DynamicFieldRpcResponse = {
   id: ID;
@@ -345,20 +343,21 @@ export type BuildMintNftParams = WithPackageObjectId & {
   url: string;
   inventoryId: string;
   attributes: { [c: string]: string };
-  // mintAuthority: string
-  // launchpadId: string
-  // tierIndex?: number
 };
 
 export type BuildBuyNftParams = WithPackageObjectId & {
-  slotId: string;
+  listing: string;
+  inventory: string;
+  market: string;
   coin: string;
-  marketId: string;
-  nftType: string;
+  nftModuleName: string;
+  nftClassName: string;
 };
 
 export interface BuildEnableSalesParams extends WithPackageObjectId {
-  slotId: string;
+  listing: string;
+  inventory: string;
+  market: string;
 }
 
 export type FetchFnParser<RpcResponse, DataModel> = (
@@ -432,32 +431,43 @@ export type BuildCreateFlatFeeParams = WithPackageObjectId & {
   rate: number;
 };
 
-export type BuildInitLaunchpadParams = WithPackageObjectId & {
+export type BuildInitMarketplaceParams = WithPackageObjectId & {
   admin: string;
   receiver: string;
-  autoApprove: boolean;
   defaultFee: string; // Flat fee address
 };
 
-export type BuildInitSlotParams = WithPackageObjectId & {
-  launchpad: string;
-  slotAdmin: string;
+export type BuildInitListingParams = WithPackageObjectId & {
+  listingAdmin: string;
   receiver: string;
 };
 
 export type BuildCreateFixedPriceMarketParams = WithPackageObjectId & {
-  slot: string;
-  isWhitelisted: boolean; // Define if the buyers need to be whitelisted
   price: number;
+  coinType?: string; // SUI by default
 };
 
-export type BuildCreateFixedPriceMarketWithInventoryParams = Omit<
-  BuildCreateFixedPriceMarketParams,
-  "isWhitelisted"
-> & {
-  inventoryId: string;
+export type BuildCreateFixedPriceMarketOnInventoryParams = BuildCreateFixedPriceMarketParams & {
+  inventory: string;
+  isWhitelisted: boolean;
 };
 
-export type BuildCreateInventoryParams = WithPackageObjectId & {
-  isWhitelisted: boolean; // Define if the buyers need to be whitelisted
+export type BuildCreateFixedPriceMarketOnListingParams = BuildCreateFixedPriceMarketOnInventoryParams & {
+  listing: string;
+}
+
+export type BuildRequestToJoinMarketplaceParams = WithPackageObjectId & {
+  marketplace: string;
+  listing: string;
+}
+
+export type BuildAcceptListingRequest = BuildRequestToJoinMarketplaceParams;
+
+export type BuildInitInventoryParams = WithPackageObjectId & {
+
+};
+
+export type BuildAddInventoryToListingParams = WithPackageObjectId & {
+  listing: string;
+  inventory: string;
 };

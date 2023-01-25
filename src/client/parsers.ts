@@ -15,8 +15,6 @@ import {
   FixedPriceMarketRpcResponse,
   MintCap,
   MintCapRPCResponse,
-  NftCertificate,
-  NftCertificateRpcResponse,
   NftCollection,
   NftCollectionRpcResponse,
   RoyaltyDomainRpcResponse,
@@ -25,12 +23,12 @@ import {
   TagsDomainRpcResponse,
   UrlDomainRpcResponse,
   TagRpcResponse,
-  Launchpad,
-  LaunchpadRpcResponse,
+  Marketplace,
+  MarketplaceRpcResponse,
   FlatFeeRfcRpcResponse,
   FlatFee,
-  LaunchpadSlot,
-  LaunchpadSlotRpcResponse,
+  Listing,
+  ListingRpcResponse,
   DynamicFieldRpcResponse,
   DynamicField,
   InventoryRpcResponse,
@@ -98,7 +96,7 @@ export const CollectionParser: SuiObjectParser<
     const packageModuleClassName = matches[3];
 
     return {
-      domainsBagId: data.domains.fields.id.id,
+      domainsBagId: data.domains?.fields.id.id,
       id: suiData.reference.objectId,
       packageObjectId,
       packageModule,
@@ -146,40 +144,12 @@ export const FixedPriceMarketParser: SuiObjectParser<
   regex: FixedPriceMarketRegex,
 };
 
-const NftCertificateRegex = /(0x[a-f0-9]{40})::slot::NftCertificate/;
-export const NftCertificateParser: SuiObjectParser<
-  NftCertificateRpcResponse,
-  NftCertificate
-> = {
-  parser: (data, suiData, _) => {
-    const matches = (suiData.data as SuiMoveObject).type.match(
-      NftCertificateRegex
-    );
-
-    if (!matches) {
-      return undefined;
-    }
-    const packageObjectId = matches[1];
-
-    return {
-      id: suiData.reference.objectId,
-      nftId: data.nft_id,
-      packageObjectId,
-      launchpadId: data.launchpad_id,
-      rawResponse: _,
-      slotId: data.slot_id,
-      owner: parseObjectOwner(suiData.owner),
-    };
-  },
-  regex: NftCertificateRegex,
-};
-
-const LaunchpadRegex = /(0x[a-f0-9]{39,40})::launchpad::Launchpad/;
-export const LaunchpadParser: SuiObjectParser<LaunchpadRpcResponse, Launchpad> =
+const MarketplaceRegex = /(0x[a-f0-9]{39,40})::marketplace::Marketplace/;
+export const MarketplaceParser: SuiObjectParser<MarketplaceRpcResponse, Marketplace> =
   {
     parser: (data, suiData, _) => {
       const matches = (suiData.data as SuiMoveObject).type.match(
-        LaunchpadRegex
+        MarketplaceRegex
       );
 
       if (!matches) {
@@ -194,11 +164,10 @@ export const LaunchpadParser: SuiObjectParser<LaunchpadRpcResponse, Launchpad> =
         owner: parseObjectOwner(suiData.owner),
         admin: data.admin,
         receiver: data.receiver,
-        permissioned: data.permissioned,
         defaultFeeBoxId: data.default_fee.fields.id.id,
       };
     },
-    regex: LaunchpadRegex,
+    regex: MarketplaceRegex,
   };
 
 const FLAT_FEE_REGEX = /(0x[a-f0-9]{39,40})::flat_fee::FlatFee/;
@@ -213,14 +182,14 @@ export const FlatFeeParser: SuiObjectParser<FlatFeeRfcRpcResponse, FlatFee> = {
   regex: FLAT_FEE_REGEX,
 };
 
-const LAUNCHPAD_SLOT_REGEX = /(0x[a-f0-9]{39,40})::slot::Slot/;
-export const LaunchpadSlotParser: SuiObjectParser<
-  LaunchpadSlotRpcResponse,
-  LaunchpadSlot
+const LISTING_REGEX = /(0x[a-f0-9]{39,40})::listing::Listing/;
+export const ListingParser: SuiObjectParser<
+  ListingRpcResponse,
+  Listing
 > = {
   parser: (data, suiData, _) => {
     const matches = (suiData.data as SuiMoveObject).type.match(
-      LAUNCHPAD_SLOT_REGEX
+      LISTING_REGEX
     );
 
     if (!matches) {
@@ -233,17 +202,15 @@ export const LaunchpadSlotParser: SuiObjectParser<
       packageObjectId,
       rawResponse: _,
       owner: parseObjectOwner(suiData.owner),
-      launchpad: data.launchpad_id,
+      marketplace: data.marketplace_id?.fields.id,
       receiver: data.receiver,
       admin: data.admin,
       customFeeBagId: data.custom_fee.fields.id.id,
-      inventoriesBagId: data.inventories.fields.id.id,
-      marketsBagId: data.markets.fields.id.id,
+      inventoriesBagId: data.inventories?.fields.id.id,
       qtSold: parseInt(data.proceeds.fields.qt_sold.fields.total, 10),
-      live: data.live,
     };
   },
-  regex: LAUNCHPAD_SLOT_REGEX,
+  regex: LISTING_REGEX,
 };
 
 const DYNAMIC_FIELD_REGEX =
@@ -269,8 +236,8 @@ export const InventoryParser: SuiObjectParser<InventoryRpcResponse, Inventory> =
     parser: (data, suiData, _) => {
       return {
         id: suiData.reference.objectId,
-        queue: data.queue,
         nftsOnSale: data.nfts_on_sale,
+        live: data.live.fields.contents.map((item) => ({ market: item.fields.key, live: item.fields.value })),
       };
     },
   };
@@ -286,8 +253,8 @@ const DISPLAY_DOMAIN_REGEX =
   /0x2::dynamic_field::Field<(0x[a-f0-9]{39,40})::utils::Marker<(0x[a-f0-9]{39,40})::display::DisplayDomain>, (0x[a-f0-9]{39,40})::display::DisplayDomain>/;
 const TAGS_DOMAIN_REGEX =
   /0x2::dynamic_field::Field<(0x[a-f0-9]{39,40})::utils::Marker<(0x[a-f0-9]{39,40})::tags::TagDomain>, (0x[a-f0-9]{39,40})::tags::TagDomain>/;
-const ATTRIBUTES_DOMAIN_REGEX =
-  /dynamic_field::Field<(0x[a-f0-9]{39,40})::utils::Marker<(0x[a-f0-9]{39,40})::attribution::AttributionDomain>, (0x[a-f0-9]{39,40})::attribution::AttributionDomain>/;
+  const ATTRIBUTES_DOMAIN_REGEX =
+  /dynamic_field::Field<(0x[a-f0-9]{39,40})::utils::Marker<(0x[a-f0-9]{39,40})::display::AttributesDomain>, (0x[a-f0-9]{39,40})::display::AttributesDomain>/;
 /* eslint-enable */
 
 const isTypeMatchRegex = (d: GetObjectDataResponse, regex: RegExp) => {
@@ -383,11 +350,8 @@ export const parseDomains = (domains: GetObjectDataResponse[]) => {
     const { data } = attributesDomain.details;
     const royalties = (
       data.fields as AttributionDomainRpcResponse
-    ).value.fields.creators.fields.contents.map((c) => ({
-      who: c.fields.value.fields.who,
-      bps: c.fields.value.fields.share_of_royalty_bps,
-    }));
-    response.royalties = royalties;
+    ).value.fields.map.fields.contents.reduce((acc, c) => ({...acc, [c.fields.key]: c.fields.value}), {});
+    response.attributes = royalties;
   }
 
   return response;

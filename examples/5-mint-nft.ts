@@ -19,7 +19,7 @@ const mintChunk = async (txs: MoveCallTransaction[]) => {
     const tx = txs[i];
     // eslint-disable-next-line no-await-in-loop
     // await delay(500 + Math.random() * 2000);
-    console.log("Mint...", Date.now(), tx.arguments[0]);
+    console.log("Mint...", Date.now(), tx.arguments[0], i);
     // eslint-disable-next-line no-await-in-loop
     const result = await signer.executeMoveCall(tx);
     console.log("result", tx.arguments[0], "EffectsCert" in result);
@@ -30,24 +30,39 @@ const mintChunk = async (txs: MoveCallTransaction[]) => {
 
 export const mintNFt = async () => {
   const txs: MoveCallTransaction[] = [];
-  for (let i = 0; i < 10000; i += 1) {
+  for (let i = 1; i <= 950; i += 1) {
     txs.push(
       NftClient.biuldMintNft({
-        name: `Test NFT ${i}`,
-        description: `Test NFT ${i} Description `,
+        name: "Game Over",
+        description: "Try Next Time",
         mintCap: MINT_CAP_ID,
         packageObjectId: PACKAGE_OBJECT_ID,
         inventoryId: INVENTORY_ID,
-        moduleName: "suitraders",
-        url: "https://images.ctfassets.net/6kz06gcm2189/27OknKy2oUNvX8rGm1fHXH/1c5dd162685656aae5cbd3a54c27102c/how-to-mint-an-nft.png",
+        moduleName: "tickets",
+        url: "ipfs://QmcUZmoDWyBB7Cra15XpSpcq628E5T3qvedB5NcbVm9yKM",
         attributes: {
-          rarity: "Common",
-          type: "NFT",
+          Status: "Loss",
         },
       })
     );
   }
-  const chunks = splitBy(txs, 10000);
+  for (let i = 1; i <= 50; i += 1) {
+    txs.push(
+      NftClient.biuldMintNft({
+        name: `Golden Ticket #${i}`,
+        description: "You have been selected",
+        mintCap: MINT_CAP_ID,
+        packageObjectId: PACKAGE_OBJECT_ID,
+        inventoryId: INVENTORY_ID,
+        moduleName: "tickets",
+        url: "ipfs://QmWD14oS1P91mr4vSzqMXmZJP5jp8BbPtmJkdYpBD9eBdJ",
+        attributes: {
+          Status: "Win",
+        },
+      })
+    );
+  }
+  const chunks = splitBy(txs.sort((a, b) => 0.5 - Math.random()), 1000);
   await Promise.all(chunks.map((chunk) => mintChunk(chunk)));
   //   const createMarketResult = await signer.executeMoveCall(transaction);
   // console.log('createMarketResult', JSON.stringify(createMarketResult));

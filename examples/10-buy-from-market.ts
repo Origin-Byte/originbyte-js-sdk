@@ -1,9 +1,10 @@
 import { NftClient } from "../src";
 import {
-  LAUNCHPAD_SLOT_ID,
+  INVENTORY_ID,
+  LISTING_ID,
   MARKET_ID,
   PACKAGE_OBJECT_ID,
-  signer,
+  signer
 } from "./common";
 
 const buyFromLaunchpad = async () => {
@@ -19,10 +20,12 @@ const buyFromLaunchpad = async () => {
 
   const buyCertificateTransaction = NftClient.buildBuyNft({
     packageObjectId: PACKAGE_OBJECT_ID,
-    nftType: "suimarines",
-    coin: "0xb5efaa9f3cf903a76ca01de4e6591c3814936f9d",
-    slotId: LAUNCHPAD_SLOT_ID,
-    marketId: MARKET_ID,
+    nftModuleName: "suimarines",
+    nftClassName: "SUIMARINES",
+    coin: "0x52045b1b3b228b1bd5647f47e4ccb6f2c274afc7",
+    listing: LISTING_ID,
+    inventory: INVENTORY_ID,
+    market: MARKET_ID,
   });
   const buyResult = await signer.executeMoveCall(buyCertificateTransaction);
   console.log("buyResult", JSON.stringify(buyResult));
