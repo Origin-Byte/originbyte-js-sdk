@@ -239,7 +239,7 @@ export class NftClient {
       ArtNftParser
     );
     const bags = await Promise.all(
-      nfts.map(async (_) => {
+      nfts.filter((_) => !!_.bagId).map(async (_) => {
         const content = await this.getBagContent(_.bagId);
         return {
           nftId: _.id,

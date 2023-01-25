@@ -248,7 +248,7 @@ export interface MintCap extends WithRawResponse, WithId {
 
 export interface ArtNftRpcResponse {
   logical_owner: string;
-  bag: Bag;
+  bag?: Bag;
 }
 
 export interface NftCollection extends ProtocolData, WithId {

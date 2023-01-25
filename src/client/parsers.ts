@@ -70,7 +70,7 @@ export const ArtNftParser: SuiObjectParser<ArtNftRpcResponse, ArtNftRaw> = {
         packageModuleClassName,
         rawResponse: _,
         logicalOwner: data.logical_owner,
-        bagId: data.bag.fields.id.id,
+        bagId: data.bag?.fields.id.id,
       };
     }
     return undefined;
