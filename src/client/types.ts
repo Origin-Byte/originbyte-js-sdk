@@ -81,46 +81,59 @@ export type Bag = {
   };
 };
 
-export type RoyaltyDomainRpcResponse = DomainRpcBase<{
+export type RoyaltyDomain = {
   aggregations: Bag;
   strategies: Bag;
-}>;
+};
 
-export type SymbolDomainRpcResponse = DomainRpcBase<{
+export type RoyaltyDomainBagRpcResponse = DomainRpcBase<RoyaltyDomain>;
+export type RoyaltyDomainRpcResponse = DomainRpcBase<RoyaltyDomain>;
+
+export type SymbolDomain = {
   symbol: string;
-}>;
+};
 
-export type UrlDomainRpcResponse = DomainRpcBase<{
+export type SymbolDomainBagRpcResponse = DomainRpcBase<SymbolDomain>;
+
+export type UrlDomain = {
   url: string;
-}>;
+};
 
-export type DisplayDomainRpcResponse = DomainRpcBase<{
+export type UrlDomainBagRpcResponse = DomainRpcBase<UrlDomain>;
+
+export type DisplayDOmain = {
   description: string;
   name: string;
-}>;
+};
 
-export type TagsDomainRpcResponse = DomainRpcBase<{
+export type DisplayDomainBagRpcResponse = DomainRpcBase<DisplayDOmain>;
+
+export type TagsDomain = {
   bag: Bag;
-}>;
+};
+
+export type TagsDomainBagRpcResponse = DomainRpcBase<TagsDomain>;
 
 export type TagRpcResponse = DomainRpcBase<{}>;
 
 
 
-export type AttributionDomainRpcResponse = DomainRpcBase<{
+export type AttributionDomain = {
   map: {
-    type: string
+    type: string;
     fields: {
       contents: {
         type: string;
         fields: {
           key: string;
           value: string;
-        }
-      }[]
-    }
-  }
-}>;
+        };
+      }[];
+    };
+  };
+};
+
+export type AttributionDomainBagRpcResponse = DomainRpcBase<AttributionDomain>;
 
 export interface DefaultFeeBoxRpcResponse {
   id: ID;
@@ -258,7 +271,7 @@ export interface NftCollection extends ProtocolData, WithId {
 
 export interface ArtNftRaw extends ProtocolData, WithRawResponse, WithId {
   logicalOwner: string;
-  bagId: string;
+  bagId?: string;
   ownerAddress: string;
 }
 

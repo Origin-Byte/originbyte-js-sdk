@@ -26,13 +26,14 @@ import {
   CollectionParser,
   FixedPriceMarketParser,
   MintCapParser,
-  parseDomains,
+  parseBagDomains,
   parseTags,
   FlatFeeParser,
   ListingParser,
   DynamicFieldParser,
   InventoryParser,
   MoveObject,
+  parseDynamicDomains,
 } from "./parsers";
 import {
   GetAuthoritiesParams,
@@ -130,6 +131,12 @@ export class NftClient {
     return this.fetchAndParseObjectsById(params.objectIds, CollectionParser);
   };
 
+  getDynamicFields = async (parentdId: string) => {
+    const objects = await this.provider.getDynamicFields(parentdId);
+    const objectIds = objects.data.map((_) => _.objectId);
+    return this.provider.getObjectBatch(objectIds);
+  }
+
   getBagContent = async (bagId: string) => {
     const bagObjects = await this.provider.getObjectsOwnedByObject(bagId);
     const objectIds = bagObjects.map((_) => _.objectId);
@@ -147,7 +154,7 @@ export class NftClient {
   getCollectionDomains = async (params: GetCollectionDomainsParams) => {
     const domains = await this.getBagContent(params.domainsBagId);
 
-    const parsedDomains = parseDomains(domains);
+    const parsedDomains = parseBagDomains(domains);
 
     if (parsedDomains.tagsBagId) {
       const t = await this.getBagContent(parsedDomains.tagsBagId);
@@ -238,12 +245,14 @@ export class NftClient {
       params.objectIds,
       ArtNftParser
     );
+
     const bags = await Promise.all(
-      nfts.filter((_) => !!_.bagId).map(async (_) => {
-        const content = await this.getBagContent(_.bagId);
+      nfts.map(async (_) => {
+        const content = _.bagId ? await this.getBagContent(_.bagId) : await this.getDynamicFields(_.id);
+
         return {
           nftId: _.id,
-          content: parseDomains(content),
+          content: _.bagId ? parseBagDomains(content): parseDynamicDomains(content),
         };
       })
     );
