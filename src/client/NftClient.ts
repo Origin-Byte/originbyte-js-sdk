@@ -217,7 +217,7 @@ export class NftClient {
 
     const listing = listings[0];
 
-    if (!params.resolveBags) {
+    if (!params.resolveBags || !listing.inventoriesBagId) {
       return listing;
     }
     const [[inventories]] = await Promise.all([

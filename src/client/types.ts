@@ -147,7 +147,7 @@ export interface ListingRpcResponse {
   };
   admin: string;
   receiver: string;
-  inventories: Bag;
+  inventories?: Bag;
   custom_fee: ObjectBox;
   proceeds: {
     fields: {
@@ -167,7 +167,7 @@ export interface Listing extends WithPackageObjectId, WithId {
   marketplace?: string;
   receiver: string;
   customFeeBagId: string;
-  inventoriesBagId: string;
+  inventoriesBagId?: string;
   qtSold: number;
 }
 

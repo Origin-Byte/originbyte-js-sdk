@@ -190,5 +190,5 @@ export const buildAddInventoryToListing = (
     params.listing,
     params.inventory,
   ],
-  gasBudget: 5000,
+  gasBudget: 50000,
 });

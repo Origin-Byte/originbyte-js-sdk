@@ -1,42 +1,16 @@
-import {
-  GetObjectDataResponse,
-  SuiTransactionResponse,
-  TransactionQuery,
-} from "@mysten/sui.js";
+import { GetObjectDataResponse, TransactionDigest } from "@mysten/sui.js";
+
 import {
   CollectionParser,
-  FixedPriceMarketParser,
-  FlatFeeParser,
-  InventoryParser,
   MarketplaceParser,
   ListingParser,
+  FixedPriceMarketParser,
   MintCapParser,
+  FlatFeeParser,
+  InventoryParser,
 } from "../src";
-import { client, PACKAGE_OBJECT_ID, provider } from "./common";
 
-const loadAllTxs = async (query: TransactionQuery) => {
-  let result: SuiTransactionResponse[] = [];
-  let cursor: string | null = null;
-  while (true) {
-    console.log("start search...");
-    // eslint-disable-next-line no-await-in-loop
-    const txIds = await provider.getTransactions(
-      query,
-      cursor,
-      null,
-      "descending"
-    );
-    // eslint-disable-next-line no-await-in-loop
-    const txs = await provider.getTransactionWithEffectsBatch(txIds.data);
-    result = [...result, ...txs];
-    if (!txIds.nextCursor) {
-      return result.sort(
-        (a, b) => (b.timestamp_ms ?? 0) - (a.timestamp_ms ?? 0)
-      );
-    }
-    cursor = txIds.nextCursor;
-  }
-};
+import { client as ORIGINBYTE_CLIENT, provider as SUI_PROVIDER } from "./common"
 
 const resolveFields = async (allObjects: GetObjectDataResponse[]) => {
   const [
@@ -48,116 +22,73 @@ const resolveFields = async (allObjects: GetObjectDataResponse[]) => {
     markets,
     inventories,
   ] = await Promise.all([
-    client.parseObjects(allObjects, CollectionParser),
-    client.parseObjects(allObjects, MarketplaceParser),
-    client.parseObjects(allObjects, ListingParser),
-    client.parseObjects(allObjects, FlatFeeParser),
-    client.parseObjects(allObjects, MintCapParser),
-    client.parseObjects(allObjects, FixedPriceMarketParser),
-    client.parseObjects(allObjects, InventoryParser),
+    ORIGINBYTE_CLIENT.parseObjects(allObjects, CollectionParser),
+    ORIGINBYTE_CLIENT.parseObjects(allObjects, MarketplaceParser),
+    ORIGINBYTE_CLIENT.parseObjects(allObjects, ListingParser),
+    ORIGINBYTE_CLIENT.parseObjects(allObjects, FlatFeeParser),
+    ORIGINBYTE_CLIENT.parseObjects(allObjects, MintCapParser),
+    ORIGINBYTE_CLIENT.parseObjects(allObjects, FixedPriceMarketParser),
+    ORIGINBYTE_CLIENT.parseObjects(allObjects, InventoryParser),
   ]);
 
   return {
-    contractId: PACKAGE_OBJECT_ID,
     collectionId: collection?.id,
     mintCapId: mintCap?.id,
     feesIds: fees.length ? fees.map((_) => _.id) : undefined,
-    launchpadIds: launchpads.length ? launchpads.map((_) => _.id) : undefined,
-    launchpadSlotIds: launchpadSlots.length
-      ? launchpadSlots.map((_) => _.id)
-      : undefined,
+    marketplaceIds: launchpads.length ? launchpads.map((_) => _.id) : undefined,
+    listingIds: launchpadSlots.length ? launchpadSlots.map((_) => _.id) : undefined,
     marketIds: markets.length ? markets.map((_) => _.id) : undefined,
-    inventories: inventories.length ? inventories.map((_) => _.id) : undefined,
+    inventoryIds: inventories.length ? inventories.map((_) => _.id) : undefined,
   };
 };
 
-const loadV2 = async () => {
-  const start = Date.now();
-  const publishTx = await loadAllTxs({ MutatedObject: PACKAGE_OBJECT_ID });
-  const publishObjectIds = publishTx
-    .map((_) => _.effects.created || [])
-    .flat()
-    .map((_) => _.reference.objectId);
-  const objectsCache = await provider.getObjectBatch(publishObjectIds);
-  objectsCache.push();
-  let cursor: string | null = null;
-  while (true) {
+export const resolveCollectionByPackage = async (packageId: string) => {
+  const publishTxIds = await SUI_PROVIDER.getTransactions({ MutatedObject: packageId }, null, 1, "ascending");
+
+  const publishTx = await SUI_PROVIDER.getTransactionWithEffectsBatch(publishTxIds.data);
+  const publishObjectIds = publishTx.map((_) => _.effects.created || []).flat().map((_) => _.reference.objectId);
+
+  const objectsCache = await SUI_PROVIDER.getObjectBatch(publishObjectIds);
+  let cursor: TransactionDigest | null | undefined;
+  while (cursor !== "") {
     // eslint-disable-next-line no-await-in-loop
-    const txIds = await provider.getTransactions(
-      { InputObject: PACKAGE_OBJECT_ID },
-      cursor,
-      100,
-      "ascending"
-    );
-    console.log("txIds", txIds.data.length, txIds.nextCursor);
+    const { data, nextCursor } = await SUI_PROVIDER.getTransactions({ InputObject: packageId });
+
+    console.log("nextCursor", data, nextCursor, cursor);
     // eslint-disable-next-line no-await-in-loop
-    const txObjects = await provider.getTransactionWithEffectsBatch(txIds.data);
+    const txObjects = await SUI_PROVIDER.getTransactionWithEffectsBatch(data);
     // eslint-disable-next-line no-await-in-loop
-    const objectsForTx = await provider.getObjectBatch(
-      txObjects
-        .flatMap((_) => _.effects.created || [])
-        .map((_) => _.reference.objectId)
+    const objectsForTx = await SUI_PROVIDER.getObjectBatch(
+      txObjects.flatMap((_) => _.effects.created || []).map((_) => _.reference.objectId)
     );
     objectsCache.push(...objectsForTx);
+    // console.log("obj cache", objectsCache);
     // eslint-disable-next-line no-await-in-loop
     const result = await resolveFields(objectsCache);
 
-    const resultHasUndefined = Object.values(result).some(
-      (_) => _ === undefined
-    );
-    console.log("Found: ", result, Date.now() - start);
-    if (!resultHasUndefined || txIds.nextCursor === null) {
-      console.log("result", Date.now() - start, result);
-      return;
+
+    const resultHasUndefined = Object.values(result).some((_) => _ === undefined);
+    if (!resultHasUndefined || nextCursor === null) {
+      console.log(
+        "CollectionResolver",
+        "Resolve result",
+        JSON.stringify(result),
+        nextCursor,
+      );
+      return result;
     }
-    cursor = txIds.nextCursor;
+    cursor = nextCursor;
   }
-};
-
-const parseProgram = async () => {
-  const start = Date.now();
-  const [txs, publishTxs] = await Promise.all([
-    await loadAllTxs({ InputObject: PACKAGE_OBJECT_ID }),
-    await loadAllTxs({ MutatedObject: PACKAGE_OBJECT_ID }),
-  ]);
-
-  const allTxs = [...txs, ...publishTxs];
-  const allCreatedObjects = allTxs
-    .map((_) => _.effects.created || [])
-    .flat()
-    .map((_) => _.reference.objectId);
-  // const chunks = splitBy(allCreatedObjects, 300);
-  // const allObjects = await Promise.all(chunks.map((_) => provider.getObjectBatch(_)));
-
-  const allObjects = await provider.getObjectBatch(allCreatedObjects);
-  console.log(
-    "Objects found: ",
-    allObjects.length,
-    allTxs.length,
-    Date.now() - start
-  );
-
-  const [[collection], launchpads, launchpadSlots, fees, [mintCap], markets] =
-    await Promise.all([
-      client.parseObjects(allObjects, CollectionParser),
-      client.parseObjects(allObjects, MarketplaceParser),
-      client.parseObjects(allObjects, ListingParser),
-      client.parseObjects(allObjects, FlatFeeParser),
-      client.parseObjects(allObjects, MintCapParser),
-      client.parseObjects(allObjects, FixedPriceMarketParser),
-    ]);
-
-  const result = {
-    packageId: PACKAGE_OBJECT_ID,
-    collectionId: collection?.id,
-    mintCapId: mintCap?.id,
-    feesIds: fees.map((_) => _.id),
-    launchpadIds: launchpads.map((_) => _.id),
-    launchpadSlotIds: launchpadSlots.map((_) => _.id),
-    marketIds: markets.map((_) => _.id),
+  return {
+    collectionId: undefined,
+    mintCapId: undefined,
+    feesIds: [],
+    marketplaceIds: [],
+    listingIds: [],
+    marketIds: [],
+    inventoryIds: [],
   };
-
-  console.log("result", result, Date.now() - start);
 };
 
-loadV2();
+
+resolveCollectionByPackage("0x2dff000aa10c6490fa589521f4b530ca0340fbcc")

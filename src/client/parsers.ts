@@ -206,7 +206,7 @@ export const ListingParser: SuiObjectParser<
       receiver: data.receiver,
       admin: data.admin,
       customFeeBagId: data.custom_fee.fields.id.id,
-      inventoriesBagId: data.inventories.fields.id.id,
+      inventoriesBagId: data.inventories?.fields.id.id,
       qtSold: parseInt(data.proceeds.fields.qt_sold.fields.total, 10),
     };
   },

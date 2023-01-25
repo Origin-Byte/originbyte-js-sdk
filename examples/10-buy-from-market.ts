@@ -22,7 +22,7 @@ const buyFromLaunchpad = async () => {
     packageObjectId: PACKAGE_OBJECT_ID,
     nftModuleName: "suimarines",
     nftClassName: "SUIMARINES",
-    coin: "0xdb9eddb2fdff7a727404e936e7254c386777d9f7",
+    coin: "0x52045b1b3b228b1bd5647f47e4ccb6f2c274afc7",
     listing: LISTING_ID,
     inventory: INVENTORY_ID,
     market: MARKET_ID,
