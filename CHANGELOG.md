@@ -17,3 +17,4 @@ Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to
 - Initial orderbook SDKs support. We support all actions and fetch state.
 - Initial safe SDKs support. We support all actions and fetch state.
 - Orderbook support for trading of generic collections.
+- Orderbook events support

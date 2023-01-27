@@ -1,4 +1,3 @@
-
 import { MoveCallTransaction } from "@mysten/sui.js";
 import {
   BuildBuyNftParams,
@@ -56,12 +55,7 @@ export const buildBuyNft = (
     `${params.packageObjectId}::${params.nftModuleName}::${params.nftClassName}`,
     SUI_TYPE,
   ],
-  arguments: [
-    params.listing,
-    params.inventory,
-    params.market,
-    params.coin,
-  ],
+  arguments: [params.listing, params.inventory, params.market, params.coin],
   gasBudget: 5000,
 });
 
@@ -83,7 +77,12 @@ export const buildCreateFixedPriceMarketOnListing = (
   module: "fixed_price",
   function: "create_market_on_listing",
   typeArguments: [params.coinType ?? SUI_TYPE],
-  arguments: [params.listing, params.inventory, params.isWhitelisted, params.price.toFixed(0)],
+  arguments: [
+    params.listing,
+    params.inventory,
+    params.isWhitelisted,
+    params.price.toFixed(0),
+  ],
   gasBudget: 5000,
 });
 
@@ -149,11 +148,7 @@ export const buildInitMarketplace = (
   module: "marketplace",
   function: "init_marketplace",
   typeArguments: [`${params.packageObjectId}::flat_fee::FlatFee`],
-  arguments: [
-    params.admin,
-    params.receiver,
-    params.defaultFee,
-  ],
+  arguments: [params.admin, params.receiver, params.defaultFee],
   gasBudget: 5000,
 });
 
@@ -186,9 +181,6 @@ export const buildAddInventoryToListing = (
   module: "listing",
   function: "add_inventory",
   typeArguments: [],
-  arguments: [
-    params.listing,
-    params.inventory,
-  ],
+  arguments: [params.listing, params.inventory],
   gasBudget: 50000,
 });

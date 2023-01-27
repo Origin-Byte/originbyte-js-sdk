@@ -145,30 +145,32 @@ export const FixedPriceMarketParser: SuiObjectParser<
 };
 
 const MarketplaceRegex = /(0x[a-f0-9]{39,40})::marketplace::Marketplace/;
-export const MarketplaceParser: SuiObjectParser<MarketplaceRpcResponse, Marketplace> =
-  {
-    parser: (data, suiData, _) => {
-      const matches = (suiData.data as SuiMoveObject).type.match(
-        MarketplaceRegex
-      );
+export const MarketplaceParser: SuiObjectParser<
+  MarketplaceRpcResponse,
+  Marketplace
+> = {
+  parser: (data, suiData, _) => {
+    const matches = (suiData.data as SuiMoveObject).type.match(
+      MarketplaceRegex
+    );
 
-      if (!matches) {
-        return undefined;
-      }
-      const packageObjectId = matches[1];
+    if (!matches) {
+      return undefined;
+    }
+    const packageObjectId = matches[1];
 
-      return {
-        id: suiData.reference.objectId,
-        packageObjectId,
-        rawResponse: _,
-        owner: parseObjectOwner(suiData.owner),
-        admin: data.admin,
-        receiver: data.receiver,
-        defaultFeeBoxId: data.default_fee.fields.id.id,
-      };
-    },
-    regex: MarketplaceRegex,
-  };
+    return {
+      id: suiData.reference.objectId,
+      packageObjectId,
+      rawResponse: _,
+      owner: parseObjectOwner(suiData.owner),
+      admin: data.admin,
+      receiver: data.receiver,
+      defaultFeeBoxId: data.default_fee.fields.id.id,
+    };
+  },
+  regex: MarketplaceRegex,
+};
 
 const FLAT_FEE_REGEX = /(0x[a-f0-9]{39,40})::flat_fee::FlatFee/;
 
@@ -183,14 +185,9 @@ export const FlatFeeParser: SuiObjectParser<FlatFeeRfcRpcResponse, FlatFee> = {
 };
 
 const LISTING_REGEX = /(0x[a-f0-9]{39,40})::listing::Listing/;
-export const ListingParser: SuiObjectParser<
-  ListingRpcResponse,
-  Listing
-> = {
+export const ListingParser: SuiObjectParser<ListingRpcResponse, Listing> = {
   parser: (data, suiData, _) => {
-    const matches = (suiData.data as SuiMoveObject).type.match(
-      LISTING_REGEX
-    );
+    const matches = (suiData.data as SuiMoveObject).type.match(LISTING_REGEX);
 
     if (!matches) {
       return undefined;
@@ -237,7 +234,10 @@ export const InventoryParser: SuiObjectParser<InventoryRpcResponse, Inventory> =
       return {
         id: suiData.reference.objectId,
         nftsOnSale: data.nfts_on_sale,
-        live: data.live.fields.contents.map((item) => ({ market: item.fields.key, live: item.fields.value })),
+        live: data.live.fields.contents.map((item) => ({
+          market: item.fields.key,
+          live: item.fields.value,
+        })),
       };
     },
   };
@@ -253,7 +253,7 @@ const DISPLAY_DOMAIN_REGEX =
   /0x2::dynamic_field::Field<(0x[a-f0-9]{39,40})::utils::Marker<(0x[a-f0-9]{39,40})::display::DisplayDomain>, (0x[a-f0-9]{39,40})::display::DisplayDomain>/;
 const TAGS_DOMAIN_REGEX =
   /0x2::dynamic_field::Field<(0x[a-f0-9]{39,40})::utils::Marker<(0x[a-f0-9]{39,40})::tags::TagDomain>, (0x[a-f0-9]{39,40})::tags::TagDomain>/;
-  const ATTRIBUTES_DOMAIN_REGEX =
+const ATTRIBUTES_DOMAIN_REGEX =
   /dynamic_field::Field<(0x[a-f0-9]{39,40})::utils::Marker<(0x[a-f0-9]{39,40})::display::AttributesDomain>, (0x[a-f0-9]{39,40})::display::AttributesDomain>/;
 /* eslint-enable */
 
@@ -350,7 +350,10 @@ export const parseDomains = (domains: GetObjectDataResponse[]) => {
     const { data } = attributesDomain.details;
     const royalties = (
       data.fields as AttributionDomainRpcResponse
-    ).value.fields.map.fields.contents.reduce((acc, c) => ({...acc, [c.fields.key]: c.fields.value}), {});
+    ).value.fields.map.fields.contents.reduce(
+      (acc, c) => ({ ...acc, [c.fields.key]: c.fields.value }),
+      {}
+    );
     response.attributes = royalties;
   }
 

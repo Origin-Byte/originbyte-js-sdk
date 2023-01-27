@@ -4,6 +4,7 @@ import {
   fetchNfts,
   getGas,
   NFT_GENERIC_TYPE,
+  NFT_PROTOCOL_ADDRESS,
   orderbookClient,
   safeClient,
   TESTRACT_OTW_TYPE,
@@ -226,5 +227,82 @@ export default function suite() {
       nft,
       ownerCap: buyerOwnerCap,
     });
+  });
+
+  test("cancel bid", async () => {
+    const { safe } = await safeClient.createSafeForSender();
+
+    const { orderbook } = await orderbookClient.createOrderbook({
+      collection: TESTRACT_OTW_TYPE,
+      ft: SUI_TYPE_ARG,
+    });
+
+    const wallet = await getGas();
+
+    await orderbookClient.createBid({
+      buyerSafe: safe,
+      collection: TESTRACT_OTW_TYPE,
+      ft: SUI_TYPE_ARG,
+      orderbook,
+      price: 10,
+      wallet,
+    });
+
+    await orderbookClient.cancelBid({
+      collection: TESTRACT_OTW_TYPE,
+      ft: SUI_TYPE_ARG,
+      orderbook,
+      price: 10,
+      wallet,
+    });
+  });
+
+  test("cancel ask", async () => {
+    const allNfts = await fetchNfts();
+    expect(allNfts.length).toBeGreaterThan(0);
+    const nft = allNfts[0];
+    const { safe, ownerCap } = await safeClient.createSafeForSender();
+    await safeClient.depositNft({
+      safe,
+      nft,
+      collection: TESTRACT_OTW_TYPE,
+    });
+    const { transferCap } =
+      await safeClient.createExclusiveTransferCapForSender({
+        safe,
+        nft,
+        ownerCap,
+      });
+
+    const { orderbook } = await orderbookClient.createOrderbook({
+      collection: TESTRACT_OTW_TYPE,
+      ft: SUI_TYPE_ARG,
+    });
+
+    await orderbookClient.createAsk({
+      sellerSafe: safe,
+      collection: TESTRACT_OTW_TYPE,
+      ft: SUI_TYPE_ARG,
+      orderbook,
+      transferCap,
+      price: 10,
+    });
+
+    await orderbookClient.cancelAsk({
+      collection: TESTRACT_OTW_TYPE,
+      ft: SUI_TYPE_ARG,
+      nft,
+      orderbook,
+      price: 10,
+    });
+  });
+
+  // this test depends on all the other tests running first
+  test("events are emitted", async () => {
+    const { events } = await orderbookClient.fetchEvents({
+      packageId: NFT_PROTOCOL_ADDRESS!,
+    });
+
+    expect(events.length).toBeGreaterThan(0);
   });
 }
