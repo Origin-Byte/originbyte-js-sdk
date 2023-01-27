@@ -1,4 +1,12 @@
-import { ObjectId, Provider, SuiAddress } from "@mysten/sui.js";
+import {
+  EventId,
+  ObjectId,
+  Provider,
+  SubscriptionId,
+  SuiAddress,
+  SuiEventEnvelope,
+} from "@mysten/sui.js";
+import { DEFAULT_ORDERBOOK_MODULE, DEFAULT_PAGINATION_LIMIT } from "../consts";
 import { ReadClient } from "../ReadClient";
 import { TransferCapState, transformTransferCap } from "../safe/SafeReadClient";
 
@@ -34,6 +42,92 @@ export interface OrderbookState {
   protectedActions: ProtectedActions;
   asks: AskState[];
   bids: BidState[];
+}
+
+export type OrderbookEvent =
+  | {
+      BidCreatedEvent: {
+        orderbook: ObjectId;
+        owner: SuiAddress;
+        price: number;
+      };
+    }
+  | {
+      AskCreatedEvent: {
+        nft: ObjectId;
+        orderbook: ObjectId;
+        owner: SuiAddress;
+        price: number;
+      };
+    }
+  | {
+      BidClosedEvent: {
+        orderbook: ObjectId;
+        owner: SuiAddress;
+        price: number;
+      };
+    }
+  | {
+      AskClosedEvent: {
+        nft: ObjectId;
+        orderbook: ObjectId;
+        owner: SuiAddress;
+        price: number;
+      };
+    };
+
+function parseOrderbookEvent({
+  txDigest,
+  event,
+}: SuiEventEnvelope): OrderbookEvent | null {
+  if (!("moveEvent" in event)) {
+    return null;
+  }
+
+  const { type, fields } = event.moveEvent;
+
+  if (type.endsWith("BidCreatedEvent")) {
+    return {
+      BidCreatedEvent: {
+        orderbook: fields.orderbook,
+        owner: fields.owner,
+        price: parseInt(fields.price, 10),
+      },
+    };
+  }
+  if (type.endsWith("BidClosedEvent")) {
+    return {
+      BidClosedEvent: {
+        orderbook: fields.orderbook,
+        owner: fields.owner,
+        price: parseInt(fields.price, 10),
+      },
+    };
+  }
+  if (type.endsWith("AskCreatedEvent")) {
+    return {
+      AskCreatedEvent: {
+        nft: fields.nft,
+        orderbook: fields.orderbook,
+        owner: fields.owner,
+        price: parseInt(fields.price, 10),
+      },
+    };
+  }
+  if (type.endsWith("AskClosedEvent")) {
+    return {
+      AskClosedEvent: {
+        nft: fields.nft,
+        orderbook: fields.orderbook,
+        owner: fields.owner,
+        price: parseInt(fields.price, 10),
+      },
+    };
+  }
+
+  // eslint-disable-next-line no-console
+  console.warn(`Unknown orderbook event in tx '${txDigest}'`);
+  return null;
 }
 
 export class OrderbookReadClient {
@@ -112,5 +206,65 @@ export class OrderbookReadClient {
       bids,
       protectedActions,
     };
+  }
+
+  public async fetchEvents(p: {
+    packageId: ObjectId;
+    module?: string;
+    cursor?: EventId;
+    limit?: number; // or DEFAULT_PAGINATION_LIMIT
+    order?: "ascending" | "descending";
+  }): Promise<{
+    events: Array<{
+      txDigest: string;
+      data: OrderbookEvent;
+    }>;
+    nextCursor: EventId | null;
+  }> {
+    const { data, nextCursor } = await this.client.provider.getEvents(
+      {
+        MoveModule: {
+          package: p.packageId,
+          module: p.module || DEFAULT_ORDERBOOK_MODULE,
+        },
+      },
+      p.cursor || null,
+      p.limit || DEFAULT_PAGINATION_LIMIT,
+      p.order || "ascending"
+    );
+
+    return {
+      events: data
+        .map((envelope) => {
+          return {
+            txDigest: envelope.txDigest,
+            data: parseOrderbookEvent(envelope),
+          };
+        })
+        .filter((e) => e.data !== null),
+      nextCursor,
+    };
+  }
+
+  public subscribeToEvents(
+    p: { packageId: ObjectId; module?: string },
+    // eslint-disable-next-line
+    cb: (event: OrderbookEvent) => void
+  ): Promise<SubscriptionId> {
+    return this.client.provider.subscribeEvent(
+      {
+        All: [
+          { Package: p.packageId },
+          { Module: p.module || DEFAULT_ORDERBOOK_MODULE },
+          { EventType: "MoveEvent" },
+        ],
+      },
+      (envelope) => {
+        const parsedEvent = parseOrderbookEvent(envelope);
+        if (parsedEvent) {
+          cb(parsedEvent);
+        }
+      }
+    );
   }
 }

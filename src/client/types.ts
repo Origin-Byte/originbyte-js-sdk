@@ -105,21 +105,19 @@ export type TagsDomainRpcResponse = DomainRpcBase<{
 
 export type TagRpcResponse = DomainRpcBase<{}>;
 
-
-
 export type AttributionDomainRpcResponse = DomainRpcBase<{
   map: {
-    type: string
+    type: string;
     fields: {
       contents: {
         type: string;
         fields: {
           key: string;
           value: string;
-        }
-      }[]
-    }
-  }
+        };
+      }[];
+    };
+  };
 }>;
 
 export interface DefaultFeeBoxRpcResponse {
@@ -143,7 +141,7 @@ export interface ListingRpcResponse {
     type: string;
     fields: {
       id: string;
-    }
+    };
   };
   admin: string;
   receiver: string;
@@ -194,9 +192,9 @@ export interface InventoryRpcResponse {
         fields: {
           key: string;
           value: boolean;
-        }
+        };
       }[];
-    }
+    };
   };
   nfts_on_sale: string[];
 }
@@ -206,9 +204,8 @@ export type Inventory = WithId & {
   live: {
     market: string;
     live: boolean;
-  }[]
-}
-
+  }[];
+};
 
 export interface FixedPriceMarket extends WithRawResponse, WithId {
   price: number;
@@ -230,8 +227,8 @@ export interface MarketplaceRpcResponse {
 
 export interface Marketplace
   extends WithId,
-  WithPackageObjectId,
-  WithRawResponse {
+    WithPackageObjectId,
+    WithRawResponse {
   owner: string;
   admin: string;
   receiver: string;
@@ -307,18 +304,18 @@ export interface GetMarketplaceParams {
   marketplaceId: string;
 }
 
-export interface GetNftsParams extends WithIds { }
+export interface GetNftsParams extends WithIds {}
 
-export interface GetCollectionsParams extends WithIds { }
+export interface GetCollectionsParams extends WithIds {}
 
 export interface GetCollectionDomainsParams {
   domainsBagId: string;
 }
 
-export interface GetAuthoritiesParams extends WithIds { }
+export interface GetAuthoritiesParams extends WithIds {}
 
-export interface GetMarketsParams extends WithIds { }
-export interface GetNftCertificateParams extends WithIds { }
+export interface GetMarketsParams extends WithIds {}
+export interface GetNftCertificateParams extends WithIds {}
 
 export type DynamicFieldRpcResponse = {
   id: ID;
@@ -447,25 +444,25 @@ export type BuildCreateFixedPriceMarketParams = WithPackageObjectId & {
   coinType?: string; // SUI by default
 };
 
-export type BuildCreateFixedPriceMarketOnInventoryParams = BuildCreateFixedPriceMarketParams & {
-  inventory: string;
-  isWhitelisted: boolean;
-};
+export type BuildCreateFixedPriceMarketOnInventoryParams =
+  BuildCreateFixedPriceMarketParams & {
+    inventory: string;
+    isWhitelisted: boolean;
+  };
 
-export type BuildCreateFixedPriceMarketOnListingParams = BuildCreateFixedPriceMarketOnInventoryParams & {
-  listing: string;
-}
+export type BuildCreateFixedPriceMarketOnListingParams =
+  BuildCreateFixedPriceMarketOnInventoryParams & {
+    listing: string;
+  };
 
 export type BuildRequestToJoinMarketplaceParams = WithPackageObjectId & {
   marketplace: string;
   listing: string;
-}
+};
 
 export type BuildAcceptListingRequest = BuildRequestToJoinMarketplaceParams;
 
-export type BuildInitInventoryParams = WithPackageObjectId & {
-
-};
+export type BuildInitInventoryParams = WithPackageObjectId & {};
 
 export type BuildAddInventoryToListingParams = WithPackageObjectId & {
   listing: string;
