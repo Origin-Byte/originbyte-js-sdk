@@ -135,7 +135,7 @@ export class NftClient {
     const objects = await this.provider.getDynamicFields(parentdId);
     const objectIds = objects.data.map((_) => _.objectId);
     return this.provider.getObjectBatch(objectIds);
-  }
+  };
 
   getBagContent = async (bagId: string) => {
     const bagObjects = await this.provider.getObjectsOwnedByObject(bagId);
@@ -248,11 +248,15 @@ export class NftClient {
 
     const bags = await Promise.all(
       nfts.map(async (_) => {
-        const content = _.bagId ? await this.getBagContent(_.bagId) : await this.getDynamicFields(_.id);
+        const content = _.bagId
+          ? await this.getBagContent(_.bagId)
+          : await this.getDynamicFields(_.id);
 
         return {
           nftId: _.id,
-          content: _.bagId ? parseBagDomains(content): parseDynamicDomains(content),
+          content: _.bagId
+            ? parseBagDomains(content)
+            : parseDynamicDomains(content),
         };
       })
     );

@@ -7,6 +7,5 @@ export * from "./orderbook/OrderbookReadClient";
 export * from "./safe/SafeReadClient";
 export * from "./safe/SafeFullClient";
 
-
-export * from "./NftClient"
-export * from "./types"
+export * from "./NftClient";
+export * from "./types";

@@ -4,7 +4,7 @@ import {
   LISTING_ID,
   MARKET_ID,
   PACKAGE_OBJECT_ID,
-  signer
+  signer,
 } from "./common";
 
 const buyFromLaunchpad = async () => {

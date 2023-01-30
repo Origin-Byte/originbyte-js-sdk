@@ -1,44 +1,44 @@
 import {
   GetObjectDataResponse,
   is,
-  SuiObject,
   SuiMoveObject,
+  SuiObject,
 } from "@mysten/sui.js";
-import { record, object, string, any, boolean } from "superstruct";
+import { any, boolean, object, record, string } from "superstruct";
 import {
   ArtNftRaw,
   ArtNftRpcResponse,
+  AttributionDomain,
   AttributionDomainBagRpcResponse,
   CollectionDomains,
+  DisplayDomain,
   DisplayDomainBagRpcResponse,
+  DynamicField,
+  DynamicFieldRpcResponse,
   FixedPriceMarket,
   FixedPriceMarketRpcResponse,
+  FlatFee,
+  FlatFeeRfcRpcResponse,
+  Inventory,
+  InventoryRpcResponse,
+  Listing,
+  ListingRpcResponse,
+  Marketplace,
+  MarketplaceRpcResponse,
   MintCap,
   MintCapRPCResponse,
   NftCollection,
   NftCollectionRpcResponse,
+  RoyaltyDomain,
   RoyaltyDomainBagRpcResponse,
   SuiObjectParser,
-  SymbolDomainBagRpcResponse,
-  TagsDomainBagRpcResponse,
-  UrlDomainBagRpcResponse,
-  TagRpcResponse,
-  Marketplace,
-  MarketplaceRpcResponse,
-  FlatFeeRfcRpcResponse,
-  FlatFee,
-  Listing,
-  ListingRpcResponse,
-  DynamicFieldRpcResponse,
-  DynamicField,
-  InventoryRpcResponse,
-  Inventory,
-  RoyaltyDomain,
   SymbolDomain,
-  UrlDomain,
-  DisplayDOmain,
+  SymbolDomainBagRpcResponse,
+  TagRpcResponse,
   TagsDomain,
-  AttributionDomain,
+  TagsDomainBagRpcResponse,
+  UrlDomain,
+  UrlDomainBagRpcResponse,
 } from "./types";
 import { parseObjectOwner } from "./utils";
 
@@ -151,8 +151,10 @@ export const FixedPriceMarketParser: SuiObjectParser<
 };
 
 const MarketplaceRegex = /(0x[a-f0-9]{39,40})::marketplace::Marketplace/;
-export const MarketplaceParser: SuiObjectParser<MarketplaceRpcResponse, Marketplace> =
-{
+export const MarketplaceParser: SuiObjectParser<
+  MarketplaceRpcResponse,
+  Marketplace
+> = {
   parser: (data, suiData, _) => {
     const matches = (suiData.data as SuiMoveObject).type.match(
       MarketplaceRegex
@@ -189,14 +191,9 @@ export const FlatFeeParser: SuiObjectParser<FlatFeeRfcRpcResponse, FlatFee> = {
 };
 
 const LISTING_REGEX = /(0x[a-f0-9]{39,40})::listing::Listing/;
-export const ListingParser: SuiObjectParser<
-  ListingRpcResponse,
-  Listing
-> = {
+export const ListingParser: SuiObjectParser<ListingRpcResponse, Listing> = {
   parser: (data, suiData, _) => {
-    const matches = (suiData.data as SuiMoveObject).type.match(
-      LISTING_REGEX
-    );
+    const matches = (suiData.data as SuiMoveObject).type.match(LISTING_REGEX);
 
     if (!matches) {
       return undefined;
@@ -237,16 +234,19 @@ export const DynamicFieldParser: SuiObjectParser<
 const INVENTORY_REGEX = /(0x[a-f0-9]{39,40})::inventory::Inventory/;
 
 export const InventoryParser: SuiObjectParser<InventoryRpcResponse, Inventory> =
-{
-  regex: INVENTORY_REGEX,
-  parser: (data, suiData, _) => {
-    return {
-      id: suiData.reference.objectId,
-      nftsOnSale: data.nfts_on_sale,
-      live: data.live.fields.contents.map((item) => ({ market: item.fields.key, live: item.fields.value })),
-    };
-  },
-};
+  {
+    regex: INVENTORY_REGEX,
+    parser: (data, suiData, _) => {
+      return {
+        id: suiData.reference.objectId,
+        nftsOnSale: data.nfts_on_sale,
+        live: data.live.fields.contents.map((item) => ({
+          market: item.fields.key,
+          live: item.fields.value,
+        })),
+      };
+    },
+  };
 
 /* eslint-disable max-len */
 const ROYALTY_DOMAIN_BAG_REGEX =
@@ -282,7 +282,9 @@ export const parseBagDomains = (domains: GetObjectDataResponse[]) => {
   const symbolDomain = domains.find((d) =>
     isTypeMatchRegex(d, SYMBOL_DOMAIN_BAG_REGEX)
   );
-  const urlDomain = domains.find((d) => isTypeMatchRegex(d, URL_DOMAIN_BAG_REGEX));
+  const urlDomain = domains.find((d) =>
+    isTypeMatchRegex(d, URL_DOMAIN_BAG_REGEX)
+  );
   const displayDomain = domains.find((d) =>
     isTypeMatchRegex(d, DISPLAY_DOMAIN_BAG_REGEX)
   );
@@ -335,7 +337,9 @@ export const parseBagDomains = (domains: GetObjectDataResponse[]) => {
     response.description = (
       data.fields as DisplayDomainBagRpcResponse
     ).value.fields.description;
-    response.name = (data.fields as DisplayDomainBagRpcResponse).value.fields.name;
+    response.name = (
+      data.fields as DisplayDomainBagRpcResponse
+    ).value.fields.name;
   }
   if (
     tagsDomain &&
@@ -356,31 +360,25 @@ export const parseBagDomains = (domains: GetObjectDataResponse[]) => {
     const { data } = attributesDomain.details;
     const royalties = (
       data.fields as AttributionDomainBagRpcResponse
-    ).value.fields.map.fields.contents.reduce((acc, c) => ({ ...acc, [c.fields.key]: c.fields.value }), {});
+    ).value.fields.map.fields.contents.reduce(
+      (acc, c) => ({ ...acc, [c.fields.key]: c.fields.value }),
+      {}
+    );
     response.attributes = royalties;
   }
 
   return response;
 };
 
-
-
 /* eslint-disable max-len */
-const ROYALTY_DOMAIN_REGEX =
-  /(0x[a-f0-9]{39,40})::royalty::RoyaltyDomain/;
-const SYMBOL_DOMAIN_REGEX =
-  /(0x[a-f0-9]{39,40})::display::SymbolDomain/;
-const URL_DOMAIN_REGEX =
-  /(0x[a-f0-9]{39,40})::display::UrlDomain/;
-const DISPLAY_DOMAIN_REGEX =
-  /(0x[a-f0-9]{39,40})::display::DisplayDomain/;
-const TAGS_DOMAIN_REGEX =
-  /(0x[a-f0-9]{39,40})::tags::TagDomain/;
+const ROYALTY_DOMAIN_REGEX = /(0x[a-f0-9]{39,40})::royalty::RoyaltyDomain/;
+const SYMBOL_DOMAIN_REGEX = /(0x[a-f0-9]{39,40})::display::SymbolDomain/;
+const URL_DOMAIN_REGEX = /(0x[a-f0-9]{39,40})::display::UrlDomain/;
+const DISPLAY_DOMAIN_REGEX = /(0x[a-f0-9]{39,40})::display::DisplayDomain/;
+const TAGS_DOMAIN_REGEX = /(0x[a-f0-9]{39,40})::tags::TagDomain/;
 const ATTRIBUTES_DOMAIN_REGEX =
   /(0x[a-f0-9]{39,40})::display::AttributesDomain/;
 /* eslint-enable */
-
-
 
 export const parseDynamicDomains = (domains: GetObjectDataResponse[]) => {
   const response: Partial<CollectionDomains> = {};
@@ -410,10 +408,10 @@ export const parseDynamicDomains = (domains: GetObjectDataResponse[]) => {
     const { data } = royaltyDomain.details;
     response.royaltyAggregationBagId = (
       data.fields as RoyaltyDomain
-    ).aggregations.fields.id.id
+    ).aggregations.fields.id.id;
     response.royaltyStrategiesBagId = (
       data.fields as RoyaltyDomain
-    ).aggregations.fields.id.id
+    ).aggregations.fields.id.id;
   }
 
   if (
@@ -422,9 +420,7 @@ export const parseDynamicDomains = (domains: GetObjectDataResponse[]) => {
     is(symbolDomain.details.data, MoveObject)
   ) {
     const { data } = symbolDomain.details;
-    response.symbol = (
-      data.fields as SymbolDomain
-    ).symbol;
+    response.symbol = (data.fields as SymbolDomain).symbol;
   }
 
   if (
@@ -441,10 +437,8 @@ export const parseDynamicDomains = (domains: GetObjectDataResponse[]) => {
     is(displayDomain.details.data, MoveObject)
   ) {
     const { data } = displayDomain.details;
-    response.description = (
-      data.fields as DisplayDOmain
-    ).description;
-    response.name = (data.fields as DisplayDOmain).name;
+    response.description = (data.fields as DisplayDomain).description;
+    response.name = (data.fields as DisplayDomain).name;
   }
   if (
     tagsDomain &&
@@ -452,9 +446,7 @@ export const parseDynamicDomains = (domains: GetObjectDataResponse[]) => {
     is(tagsDomain.details.data, MoveObject)
   ) {
     const { data } = tagsDomain.details;
-    response.tagsBagId = (
-      data.fields as TagsDomain
-    ).bag.fields.id.id;
+    response.tagsBagId = (data.fields as TagsDomain).bag.fields.id.id;
   }
 
   if (
@@ -465,7 +457,10 @@ export const parseDynamicDomains = (domains: GetObjectDataResponse[]) => {
     const { data } = attributesDomain.details;
     const royalties = (
       data.fields as AttributionDomain
-    ).map.fields.contents.reduce((acc, c) => ({ ...acc, [c.fields.key]: c.fields.value }), {});
+    ).map.fields.contents.reduce(
+      (acc, c) => ({ ...acc, [c.fields.key]: c.fields.value }),
+      {}
+    );
     response.attributes = royalties;
   }
 
