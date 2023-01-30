@@ -87,14 +87,12 @@ interface TradeIntermediaryState {
 }
 
 export function parseCommission(fields: any): AskCommissionState | undefined {
-  if (fields === null) {
-    return undefined;
-  }
-
-  return {
-    beneficiary: fields.beneficiary,
-    cut: parseInt(fields.cut, 10),
-  };
+  return fields === null
+    ? undefined
+    : {
+        beneficiary: fields.beneficiary,
+        cut: parseInt(fields.cut, 10),
+      };
 }
 
 function parseOrderbookEvent({

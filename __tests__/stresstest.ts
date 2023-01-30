@@ -15,8 +15,13 @@ import {
 
 console.warn = () => {};
 
+/**
+ * Taken from https://www.npmjs.com/package/random
+ *
+ * https://en.wikipedia.org/wiki/Normal_distribution
+ */
 const normalDistribution = function (mu: number, sigma: number) {
-  var x, y, r;
+  let x: number, y: number, r: number;
   do {
     x = Math.random() * 2 - 1;
     y = Math.random() * 2 - 1;
