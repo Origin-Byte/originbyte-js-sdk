@@ -62,7 +62,7 @@ async function createAsk(
   orderbook: ObjectId,
   safe: ObjectId,
   ownerCap: ObjectId
-): Promise<boolean> {
+) {
   const { transferCap } = await safeClient.createExclusiveTransferCapForSender({
     safe,
     ownerCap,
@@ -83,8 +83,6 @@ async function createAsk(
   if (trade) {
     tradeIntermediaries.push(trade);
   }
-
-  return true;
 }
 
 async function createBid(
