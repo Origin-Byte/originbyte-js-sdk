@@ -160,4 +160,4 @@ fi
 export NFT_PROTOCOL_ADDRESS="${nft_protocol_address}"
 export TESTRACT_ADDRESS="${testract_address}"
 
-yarn jest --detectOpenHandles --runInBand
+eval "$@"

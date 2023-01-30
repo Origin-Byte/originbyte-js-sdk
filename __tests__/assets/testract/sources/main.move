@@ -60,9 +60,52 @@ module testract::testract {
         transfer(col_cap, TEST_USER);
         transfer(treasury_cap, TEST_USER);
         transfer(mint_cap, TEST_USER);
+        transfer(wl, TEST_USER);
 
-        share_object(wl);
         share_object(collection);
         share_object(meta);
+    }
+
+    public entry fun mint_n_nfts(
+        n: u64,
+        safe: &mut nft_protocol::safe::Safe,
+        ctx: &mut TxContext,
+    ) {
+        let sender = sui::tx_context::sender(ctx);
+
+        let i = 0;
+        while (i < n) {
+            let nft = nft::new<TESTRACT, Witness>(&Witness {}, sender, ctx);
+            nft_protocol::safe::deposit_nft(nft, safe, ctx);
+
+            i = i + 1;
+        };
+    }
+
+    public entry fun create_bid(
+        price: u64,
+        safe: &mut nft_protocol::safe::Safe,
+        treasury: &mut sui::coin::TreasuryCap<TESTRACT>,
+        orderbook: &mut nft_protocol::ob::Orderbook<TESTRACT, TESTRACT>,
+        ctx: &mut TxContext,
+    ) {
+        let wallet = coin::mint(treasury, price, ctx);
+
+        nft_protocol::ob::create_bid(
+            orderbook,
+            safe,
+            price,
+            &mut wallet,
+            ctx,
+        );
+
+        coin::burn(treasury, wallet);
+    }
+
+    public entry fun collect_royalty(
+        payment: &mut nft_protocol::royalties::TradePayment<TESTRACT, TESTRACT>,
+        ctx: &mut TxContext,
+    ) {
+        nft_protocol::royalties::transfer_remaining_to_beneficiary(Witness {}, payment, ctx);
     }
 }

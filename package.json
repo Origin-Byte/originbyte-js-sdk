@@ -9,13 +9,13 @@
     "move"
   ],
   "scripts": {
-    "test": "./bin/test.sh",
-    "tsc": "tsc",
+    "test": "./bin/setup-test-env.sh yarn jest --detectOpenHandles --runInBand",
     "typecheck": "yarn tsc --project ./tsconfig-typecheck.json",
     "lint": "eslint 'src/**/*.{ts, tsx}'",
     "format": "prettier --write 'src/**/*.{ts, tsx}' 'examples/**/*.{ts, tsx}' '__tests__/**/*.{ts, tsx}'",
     "fmt": "npm run format",
-    "build": "./bin/build.sh"
+    "build": "./bin/build.sh",
+    "stress": "./bin/setup-test-env.sh ts-node __tests__/stresstest.ts"
   },
   "homepage": "https://originbyte.io/",
   "main": "dist/index.js",
