@@ -150,6 +150,7 @@ async function finishAllTrades(allowlist: ObjectId) {
     if (!transferCap) {
       throw new Error("Expected transfer cap to be present");
     }
+
     const { tradePayments } = await orderbookClient.finishTrade({
       trade,
       allowlist,
@@ -161,6 +162,7 @@ async function finishAllTrades(allowlist: ObjectId) {
     if (tradePayments.length !== 1) {
       throw new Error("Expected exactly one TradePayment object");
     }
+
     await safeClient.client.sendTxWaitForEffects({
       packageObjectId: TESTRACT_ADDRESS!,
       module: "testract",
