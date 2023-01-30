@@ -1,26 +1,50 @@
 /**
  * Keeps trading NFTs between bunch of saves.
+ *
+ * ENV variables:
+ * - RPC_ENDPOINT - RPC endpoint to use, defaults to "LOCAL"
+ * - MNEMONIC - mnemonic to use, defaults to one with pubkey of 0x2d1770323750638a27e8a2b4ad4fe54ec2b7edf0
+ * - TESTRACT_ADDRESS - address of testract package on the chain of RPC_ENDPOINT
+ * - NFT_PROTOCOL_ADDRESS - address of testract package NFT dependency on the chain of RPC_ENDPOINT
  */
 
-import { ObjectId } from "@mysten/sui.js";
-import { DEFAULT_GAS_BUDGET } from "../src/client/consts";
-import {
-  NFT_PROTOCOL_ADDRESS,
-  orderbookClient,
-  safeClient,
-  TESTRACT_ADDRESS,
-  TESTRACT_OTW_TYPE,
-  user,
-} from "./common";
-
 console.warn = () => {};
+require("dotenv").config();
+
+import { Ed25519Keypair, JsonRpcProvider, ObjectId } from "@mysten/sui.js";
+import { SafeFullClient, OrderbookFullClient } from "../src";
+
+const DEFAULT_GAS_BUDGET = 100_000;
+const TESTRACT_ADDRESS = process.env.TESTRACT_ADDRESS;
+const TESTRACT_OTW_TYPE = `${TESTRACT_ADDRESS}::testract::TESTRACT`;
+const NFT_PROTOCOL_ADDRESS = process.env.NFT_PROTOCOL_ADDRESS;
+
+// DEFAULT is: 0x2d1770323750638a27e8a2b4ad4fe54ec2b7edf0
+export const MNEMONIC =
+  process.env.MNEMONIC ||
+  "muffin tuition fit fish average true slender tower salmon artist song biology";
+export const KEYPAIR = Ed25519Keypair.deriveKeypair(MNEMONIC);
+export const safeClient = SafeFullClient.fromKeypair(
+  KEYPAIR,
+  new JsonRpcProvider(process.env.RPC_ENDPOINT || "LOCAL"),
+  {
+    packageObjectId: NFT_PROTOCOL_ADDRESS,
+  }
+);
+export const orderbookClient = OrderbookFullClient.fromKeypair(
+  KEYPAIR,
+  safeClient.client.provider,
+  {
+    packageObjectId: NFT_PROTOCOL_ADDRESS,
+  }
+);
 
 /**
  * Taken from https://www.npmjs.com/package/random
  *
  * https://en.wikipedia.org/wiki/Normal_distribution
  */
-const normalDistribution = function (mu: number, sigma: number) {
+function normalDistribution(mu: number, sigma: number) {
   let x: number, y: number, r: number;
   do {
     x = Math.random() * 2 - 1;
@@ -28,14 +52,14 @@ const normalDistribution = function (mu: number, sigma: number) {
     r = x * x + y * y;
   } while (!r || r > 1);
   return mu + sigma * y * Math.sqrt((-2 * Math.log(r)) / r);
-};
+}
 
 // Initial setup
 const SAVES_WITH_NFTS_COUNT = 5;
 const NFTS_PER_SAFE = 5;
 const SAVES_WITHOUT_NFTS_COUNT = 15;
 // After each tick, in which we trade NFTs, we sleep for this amount of time
-const SLEEP_AFTER_TICK_MS = 1000;
+const SLEEP_AFTER_TICK_MS = 0;
 // Price distributions
 const BID_DISTRIBUTION = () => Math.round(normalDistribution(510, 70));
 const ASK_DISTRIBUTION = () => Math.round(normalDistribution(520, 50));
@@ -113,7 +137,9 @@ async function getTreasuryAndAllowlist(): Promise<{
   treasury: ObjectId;
   allowlist: ObjectId;
 }> {
-  const objs = await orderbookClient.client.getObjects(user);
+  const objs = await orderbookClient.client.getObjects(
+    KEYPAIR.getPublicKey().toSuiAddress()
+  );
 
   const treasury = objs.find(
     (obj) =>
@@ -202,7 +228,9 @@ async function tick(
 
     await finishAllTrades(allowlist);
 
-    await new Promise((resolve) => setTimeout(resolve, SLEEP_AFTER_TICK_MS));
+    if (SLEEP_AFTER_TICK_MS) {
+      await new Promise((resolve) => setTimeout(resolve, SLEEP_AFTER_TICK_MS));
+    }
   }
 }
 

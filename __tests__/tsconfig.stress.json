@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    "outDir": "../dist-stress",
+    "sourceMap": false,
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "noEmitOnError": true,
+    "esModuleInterop": true,
+    "target": "es5",
+    "declaration": false
+  },
+  "include": ["stresstest.ts"]
+}
