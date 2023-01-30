@@ -18,20 +18,21 @@ const DEFAULT_GAS_BUDGET = 100_000;
 const TESTRACT_ADDRESS = process.env.TESTRACT_ADDRESS;
 const TESTRACT_OTW_TYPE = `${TESTRACT_ADDRESS}::testract::TESTRACT`;
 const NFT_PROTOCOL_ADDRESS = process.env.NFT_PROTOCOL_ADDRESS;
-
+const ENV = process.env.RPC_ENDPOINT || "LOCAL";
 // DEFAULT is: 0x2d1770323750638a27e8a2b4ad4fe54ec2b7edf0
-export const MNEMONIC =
+const MNEMONIC =
   process.env.MNEMONIC ||
   "muffin tuition fit fish average true slender tower salmon artist song biology";
-export const KEYPAIR = Ed25519Keypair.deriveKeypair(MNEMONIC);
-export const safeClient = SafeFullClient.fromKeypair(
+const KEYPAIR = Ed25519Keypair.deriveKeypair(MNEMONIC);
+console.log("Using keypair", KEYPAIR.getPublicKey().toSuiAddress());
+const safeClient = SafeFullClient.fromKeypair(
   KEYPAIR,
-  new JsonRpcProvider(process.env.RPC_ENDPOINT || "LOCAL"),
+  new JsonRpcProvider(ENV),
   {
     packageObjectId: NFT_PROTOCOL_ADDRESS,
   }
 );
-export const orderbookClient = OrderbookFullClient.fromKeypair(
+const orderbookClient = OrderbookFullClient.fromKeypair(
   KEYPAIR,
   safeClient.client.provider,
   {
@@ -68,6 +69,9 @@ const tradeIntermediaries: string[] = [];
 
 async function createSafeWithNfts() {
   const { safe, ownerCap } = await safeClient.createSafeForSender();
+  if (ENV !== "LOCAL") {
+    await new Promise((resolve) => setTimeout(resolve, 500));
+  }
 
   await safeClient.client.sendTxWaitForEffects({
     packageObjectId: TESTRACT_ADDRESS!,
@@ -75,7 +79,7 @@ async function createSafeWithNfts() {
     function: "mint_n_nfts",
     typeArguments: [],
     arguments: [String(NFTS_PER_SAFE), safe],
-    gasBudget: DEFAULT_GAS_BUDGET * 10,
+    gasBudget: DEFAULT_GAS_BUDGET * 4,
   });
 
   return { safe, ownerCap };
@@ -188,6 +192,9 @@ async function finishAllTrades(allowlist: ObjectId) {
     if (tradePayments.length !== 1) {
       throw new Error("Expected exactly one TradePayment object");
     }
+    if (ENV !== "LOCAL") {
+      await new Promise((resolve) => setTimeout(resolve, 500));
+    }
 
     await safeClient.client.sendTxWaitForEffects({
       packageObjectId: TESTRACT_ADDRESS!,
@@ -226,11 +233,11 @@ async function tick(
       await createBid(treasury, orderbook, safe);
     }
 
-    await finishAllTrades(allowlist);
-
     if (SLEEP_AFTER_TICK_MS) {
       await new Promise((resolve) => setTimeout(resolve, SLEEP_AFTER_TICK_MS));
     }
+
+    await finishAllTrades(allowlist);
   }
 }
 
@@ -240,15 +247,15 @@ async function main() {
     collection: TESTRACT_OTW_TYPE,
   });
 
-  console.log(`Creating ${SAVES_WITH_NFTS_COUNT} safes with NFTs...`);
   const saves: Array<{ safe: ObjectId; ownerCap: ObjectId }> = [];
-  for (let i = 0; i < SAVES_WITH_NFTS_COUNT; i++) {
-    saves.push(await createSafeWithNfts());
-  }
   console.log(`Creating ${SAVES_WITHOUT_NFTS_COUNT} empty safes...`);
   for (let i = 0; i < SAVES_WITHOUT_NFTS_COUNT; i++) {
     const { safe, ownerCap } = await safeClient.createSafeForSender();
     saves.push({ safe, ownerCap });
+  }
+  console.log(`Creating ${SAVES_WITH_NFTS_COUNT} safes with NFTs...`);
+  for (let i = 0; i < SAVES_WITH_NFTS_COUNT; i++) {
+    saves.push(await createSafeWithNfts());
   }
 
   await tick(orderbook, saves);

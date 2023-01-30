@@ -4,6 +4,8 @@ version = "0.1.0"
 
 [dependencies.NftProtocol]
 local = "../.tmp/nft-protocol"
+# git = "https://github.com/Origin-Byte/nft-protocol.git"
+# rev = "e897bad5edcc0410acadbe4c49e605a2b99214e4"
 
 [addresses]
 testract = "0x0"
