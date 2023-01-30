@@ -1,38 +1,44 @@
 import {
   GetObjectDataResponse,
   is,
-  SuiObject,
   SuiMoveObject,
+  SuiObject,
 } from "@mysten/sui.js";
-import { record, object, string, any, boolean } from "superstruct";
+import { any, boolean, object, record, string } from "superstruct";
 import {
   ArtNftRaw,
   ArtNftRpcResponse,
-  AttributionDomainRpcResponse,
+  AttributionDomain,
+  AttributionDomainBagRpcResponse,
   CollectionDomains,
-  DisplayDomainRpcResponse,
+  DisplayDomain,
+  DisplayDomainBagRpcResponse,
+  DynamicField,
+  DynamicFieldRpcResponse,
   FixedPriceMarket,
   FixedPriceMarketRpcResponse,
+  FlatFee,
+  FlatFeeRfcRpcResponse,
+  Inventory,
+  InventoryRpcResponse,
+  Listing,
+  ListingRpcResponse,
+  Marketplace,
+  MarketplaceRpcResponse,
   MintCap,
   MintCapRPCResponse,
   NftCollection,
   NftCollectionRpcResponse,
-  RoyaltyDomainRpcResponse,
+  RoyaltyDomain,
+  RoyaltyDomainBagRpcResponse,
   SuiObjectParser,
-  SymbolDomainRpcResponse,
-  TagsDomainRpcResponse,
-  UrlDomainRpcResponse,
+  SymbolDomain,
+  SymbolDomainBagRpcResponse,
   TagRpcResponse,
-  Marketplace,
-  MarketplaceRpcResponse,
-  FlatFeeRfcRpcResponse,
-  FlatFee,
-  Listing,
-  ListingRpcResponse,
-  DynamicFieldRpcResponse,
-  DynamicField,
-  InventoryRpcResponse,
-  Inventory,
+  TagsDomain,
+  TagsDomainBagRpcResponse,
+  UrlDomain,
+  UrlDomainBagRpcResponse,
 } from "./types";
 import { parseObjectOwner } from "./utils";
 
@@ -243,17 +249,17 @@ export const InventoryParser: SuiObjectParser<InventoryRpcResponse, Inventory> =
   };
 
 /* eslint-disable max-len */
-const ROYALTY_DOMAIN_REGEX =
+const ROYALTY_DOMAIN_BAG_REGEX =
   /0x2::dynamic_field::Field<(0x[a-f0-9]{39,40})::utils::Marker<(0x[a-f0-9]{39,40})::royalty::RoyaltyDomain>, (0x[a-f0-9]{39,40})::royalty::RoyaltyDomain>/;
-const SYMBOL_DOMAIN_REGEX =
+const SYMBOL_DOMAIN_BAG_REGEX =
   /0x2::dynamic_field::Field<(0x[a-f0-9]{39,40})::utils::Marker<(0x[a-f0-9]{39,40})::display::SymbolDomain>, (0x[a-f0-9]{39,40})::display::SymbolDomain>/;
-const URL_DOMAIN_REGEX =
+const URL_DOMAIN_BAG_REGEX =
   /0x2::dynamic_field::Field<(0x[a-f0-9]{39,40})::utils::Marker<(0x[a-f0-9]{39,40})::display::UrlDomain>, (0x[a-f0-9]{39,40})::display::UrlDomain>/;
-const DISPLAY_DOMAIN_REGEX =
+const DISPLAY_DOMAIN_BAG_REGEX =
   /0x2::dynamic_field::Field<(0x[a-f0-9]{39,40})::utils::Marker<(0x[a-f0-9]{39,40})::display::DisplayDomain>, (0x[a-f0-9]{39,40})::display::DisplayDomain>/;
-const TAGS_DOMAIN_REGEX =
+const TAGS_DOMAIN_BAG_REGEX =
   /0x2::dynamic_field::Field<(0x[a-f0-9]{39,40})::utils::Marker<(0x[a-f0-9]{39,40})::tags::TagDomain>, (0x[a-f0-9]{39,40})::tags::TagDomain>/;
-const ATTRIBUTES_DOMAIN_REGEX =
+const ATTRIBUTES_DOMAIN_BAG_REGEX =
   /dynamic_field::Field<(0x[a-f0-9]{39,40})::utils::Marker<(0x[a-f0-9]{39,40})::display::AttributesDomain>, (0x[a-f0-9]{39,40})::display::AttributesDomain>/;
 /* eslint-enable */
 
@@ -268,7 +274,113 @@ const isTypeMatchRegex = (d: GetObjectDataResponse, regex: RegExp) => {
   return false;
 };
 
-export const parseDomains = (domains: GetObjectDataResponse[]) => {
+export const parseBagDomains = (domains: GetObjectDataResponse[]) => {
+  const response: Partial<CollectionDomains> = {};
+  const royaltyDomain = domains.find((d) =>
+    isTypeMatchRegex(d, ROYALTY_DOMAIN_BAG_REGEX)
+  );
+  const symbolDomain = domains.find((d) =>
+    isTypeMatchRegex(d, SYMBOL_DOMAIN_BAG_REGEX)
+  );
+  const urlDomain = domains.find((d) =>
+    isTypeMatchRegex(d, URL_DOMAIN_BAG_REGEX)
+  );
+  const displayDomain = domains.find((d) =>
+    isTypeMatchRegex(d, DISPLAY_DOMAIN_BAG_REGEX)
+  );
+  const tagsDomain = domains.find((d) =>
+    isTypeMatchRegex(d, TAGS_DOMAIN_BAG_REGEX)
+  );
+  const attributesDomain = domains.find((d) =>
+    isTypeMatchRegex(d, ATTRIBUTES_DOMAIN_BAG_REGEX)
+  );
+
+  if (
+    royaltyDomain &&
+    is(royaltyDomain.details, SuiObject) &&
+    is(royaltyDomain.details.data, MoveObject)
+  ) {
+    const { data } = royaltyDomain.details;
+    response.royaltyAggregationBagId = (
+      data.fields as RoyaltyDomainBagRpcResponse
+    ).value.fields.aggregations.fields.id.id;
+    response.royaltyStrategiesBagId = (
+      data.fields as RoyaltyDomainBagRpcResponse
+    ).value.fields.strategies.fields.id.id;
+  }
+
+  if (
+    symbolDomain &&
+    is(symbolDomain.details, SuiObject) &&
+    is(symbolDomain.details.data, MoveObject)
+  ) {
+    const { data } = symbolDomain.details;
+    response.symbol = (
+      data.fields as SymbolDomainBagRpcResponse
+    ).value.fields.symbol;
+  }
+
+  if (
+    urlDomain &&
+    is(urlDomain.details, SuiObject) &&
+    is(urlDomain.details.data, MoveObject)
+  ) {
+    const { data } = urlDomain.details;
+    response.url = (data.fields as UrlDomainBagRpcResponse).value.fields.url;
+  }
+  if (
+    displayDomain &&
+    is(displayDomain.details, SuiObject) &&
+    is(displayDomain.details.data, MoveObject)
+  ) {
+    const { data } = displayDomain.details;
+    response.description = (
+      data.fields as DisplayDomainBagRpcResponse
+    ).value.fields.description;
+    response.name = (
+      data.fields as DisplayDomainBagRpcResponse
+    ).value.fields.name;
+  }
+  if (
+    tagsDomain &&
+    is(tagsDomain.details, SuiObject) &&
+    is(tagsDomain.details.data, MoveObject)
+  ) {
+    const { data } = tagsDomain.details;
+    response.tagsBagId = (
+      data.fields as TagsDomainBagRpcResponse
+    ).value.fields.bag.fields.id.id;
+  }
+
+  if (
+    attributesDomain &&
+    is(attributesDomain.details, SuiObject) &&
+    is(attributesDomain.details.data, MoveObject)
+  ) {
+    const { data } = attributesDomain.details;
+    const royalties = (
+      data.fields as AttributionDomainBagRpcResponse
+    ).value.fields.map.fields.contents.reduce(
+      (acc, c) => ({ ...acc, [c.fields.key]: c.fields.value }),
+      {}
+    );
+    response.attributes = royalties;
+  }
+
+  return response;
+};
+
+/* eslint-disable max-len */
+const ROYALTY_DOMAIN_REGEX = /(0x[a-f0-9]{39,40})::royalty::RoyaltyDomain/;
+const SYMBOL_DOMAIN_REGEX = /(0x[a-f0-9]{39,40})::display::SymbolDomain/;
+const URL_DOMAIN_REGEX = /(0x[a-f0-9]{39,40})::display::UrlDomain/;
+const DISPLAY_DOMAIN_REGEX = /(0x[a-f0-9]{39,40})::display::DisplayDomain/;
+const TAGS_DOMAIN_REGEX = /(0x[a-f0-9]{39,40})::tags::TagDomain/;
+const ATTRIBUTES_DOMAIN_REGEX =
+  /(0x[a-f0-9]{39,40})::display::AttributesDomain/;
+/* eslint-enable */
+
+export const parseDynamicDomains = (domains: GetObjectDataResponse[]) => {
   const response: Partial<CollectionDomains> = {};
   const royaltyDomain = domains.find((d) =>
     isTypeMatchRegex(d, ROYALTY_DOMAIN_REGEX)
@@ -277,6 +389,7 @@ export const parseDomains = (domains: GetObjectDataResponse[]) => {
     isTypeMatchRegex(d, SYMBOL_DOMAIN_REGEX)
   );
   const urlDomain = domains.find((d) => isTypeMatchRegex(d, URL_DOMAIN_REGEX));
+
   const displayDomain = domains.find((d) =>
     isTypeMatchRegex(d, DISPLAY_DOMAIN_REGEX)
   );
@@ -294,11 +407,11 @@ export const parseDomains = (domains: GetObjectDataResponse[]) => {
   ) {
     const { data } = royaltyDomain.details;
     response.royaltyAggregationBagId = (
-      data.fields as RoyaltyDomainRpcResponse
-    ).value.fields.aggregations.fields.id.id;
+      data.fields as RoyaltyDomain
+    ).aggregations.fields.id.id;
     response.royaltyStrategiesBagId = (
-      data.fields as RoyaltyDomainRpcResponse
-    ).value.fields.strategies.fields.id.id;
+      data.fields as RoyaltyDomain
+    ).aggregations.fields.id.id;
   }
 
   if (
@@ -307,9 +420,7 @@ export const parseDomains = (domains: GetObjectDataResponse[]) => {
     is(symbolDomain.details.data, MoveObject)
   ) {
     const { data } = symbolDomain.details;
-    response.symbol = (
-      data.fields as SymbolDomainRpcResponse
-    ).value.fields.symbol;
+    response.symbol = (data.fields as SymbolDomain).symbol;
   }
 
   if (
@@ -318,7 +429,7 @@ export const parseDomains = (domains: GetObjectDataResponse[]) => {
     is(urlDomain.details.data, MoveObject)
   ) {
     const { data } = urlDomain.details;
-    response.url = (data.fields as UrlDomainRpcResponse).value.fields.url;
+    response.url = (data.fields as UrlDomain).url;
   }
   if (
     displayDomain &&
@@ -326,10 +437,8 @@ export const parseDomains = (domains: GetObjectDataResponse[]) => {
     is(displayDomain.details.data, MoveObject)
   ) {
     const { data } = displayDomain.details;
-    response.description = (
-      data.fields as DisplayDomainRpcResponse
-    ).value.fields.description;
-    response.name = (data.fields as DisplayDomainRpcResponse).value.fields.name;
+    response.description = (data.fields as DisplayDomain).description;
+    response.name = (data.fields as DisplayDomain).name;
   }
   if (
     tagsDomain &&
@@ -337,9 +446,7 @@ export const parseDomains = (domains: GetObjectDataResponse[]) => {
     is(tagsDomain.details.data, MoveObject)
   ) {
     const { data } = tagsDomain.details;
-    response.tagsBagId = (
-      data.fields as TagsDomainRpcResponse
-    ).value.fields.bag.fields.id.id;
+    response.tagsBagId = (data.fields as TagsDomain).bag.fields.id.id;
   }
 
   if (
@@ -349,8 +456,8 @@ export const parseDomains = (domains: GetObjectDataResponse[]) => {
   ) {
     const { data } = attributesDomain.details;
     const royalties = (
-      data.fields as AttributionDomainRpcResponse
-    ).value.fields.map.fields.contents.reduce(
+      data.fields as AttributionDomain
+    ).map.fields.contents.reduce(
       (acc, c) => ({ ...acc, [c.fields.key]: c.fields.value }),
       {}
     );

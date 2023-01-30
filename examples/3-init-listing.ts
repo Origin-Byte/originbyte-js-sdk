@@ -9,10 +9,7 @@ export const initListing = async () => {
     receiver: `0x${pubKey}`, // launchpad receiver
   });
   const initListingResult = await signer.executeMoveCall(transaction);
-  console.log(
-    "initListingResult",
-    JSON.stringify(initListingResult)
-  );
+  console.log("initListingResult", JSON.stringify(initListingResult));
 };
 
 initListing();
