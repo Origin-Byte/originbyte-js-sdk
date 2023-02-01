@@ -2,7 +2,7 @@
 
 set -e
 
-# OPT: skip operations that've already been ran (e.g. fetching deps)
+# set SKIP_DEPS env to skip fetching dependencies and deploying nft-protocol
 
 export $(cat "__tests__/.env.test" | xargs)
 
@@ -70,64 +70,67 @@ function deploy_package {
         jq -r '.effects.created[] | select( .owner == "Immutable" ) | .reference.objectId'
 }
 
-echo "Fetching nft-protocol dependency"
-rm -rf "${test_assets_tmp_dir}/nft-protocol"
-git clone --quiet --depth 1 "git@github.com:Origin-Byte/nft-protocol.git" "${nft_protocol_dir}"
-cd "${nft_protocol_dir}"
-git fetch --quiet --depth 1 origin "${NFT_PROTOCOL_REV}"
-git checkout --quiet "${NFT_PROTOCOL_REV}"
-originmate_rev=$(
-    toml get "${nft_protocol_dir}/Move.toml" dependencies.Originmate.rev |
-        tr -d '"'
-)
+# if env "SKIP_DEPS" is not set, fetch dependencies
+if [ -z "${SKIP_DEPS}" ]; then
+    echo "Fetching nft-protocol dependency"
+    rm -rf "${test_assets_tmp_dir}/nft-protocol"
+    git clone --quiet --depth 1 "git@github.com:Origin-Byte/nft-protocol.git" "${nft_protocol_dir}"
+    cd "${nft_protocol_dir}"
+    git fetch --quiet --depth 1 origin "${NFT_PROTOCOL_REV}"
+    git checkout --quiet "${NFT_PROTOCOL_REV}"
+    originmate_rev=$(
+        toml get "${nft_protocol_dir}/Move.toml" dependencies.Originmate.rev |
+            tr -d '"'
+    )
 
-echo "Fetching originmate dependency (rev ${originmate_rev})"
-rm -rf "${test_assets_tmp_dir}/originmate"
-git clone --quiet --depth 1 "git@github.com:Origin-Byte/originmate.git" "${originmate_dir}"
-cd "${originmate_dir}"
-git fetch --quiet --depth 1 origin "${originmate_rev}"
-git checkout --quiet "${originmate_rev}"
+    echo "Fetching originmate dependency (rev ${originmate_rev})"
+    rm -rf "${test_assets_tmp_dir}/originmate"
+    git clone --quiet --depth 1 "git@github.com:Origin-Byte/originmate.git" "${originmate_dir}"
+    cd "${originmate_dir}"
+    git fetch --quiet --depth 1 origin "${originmate_rev}"
+    git checkout --quiet "${originmate_rev}"
 
-cd "${root}"
+    cd "${root}"
 
-echo
-echo "Deploying originmate to local validator"
-# is publishable only of the addr is 0x0
-sed -i -r 's/originmate = "0x(.+)/originmate = "0x0"/' \
-    "${originmate_dir}/Move.toml"
-originmate_address=$(deploy_package "${originmate_dir}")
-if [ -z "${originmate_address}" ]; then
-    echo "Failed to deploy originmate to local validator"
-    exit 1
+    echo
+    echo "Deploying originmate to local validator"
+    # is publishable only of the addr is 0x0
+    sed -i -r 's/originmate = "0x(.+)/originmate = "0x0"/' \
+        "${originmate_dir}/Move.toml"
+    originmate_address=$(deploy_package "${originmate_dir}")
+    if [ -z "${originmate_address}" ]; then
+        echo "Failed to deploy originmate to local validator"
+        exit 1
+    fi
+
+    echo "Using originmate address '${originmate_address}'"
+    # in originmate manifest so that nft-protocol can use it as a dep
+    sed -i -r "s/originmate = \"0x0\"/originmate = \"${originmate_address}\"/" \
+        "${originmate_dir}/Move.toml"
+    # in nft-protocol manifest so that it can be published (otherwise missing dep)
+    sed -i -r 's/nft_protocol = "0x(.+)/nft_protocol = "0x0"/' \
+        "${nft_protocol_dir}/Move.toml"
+    # nft-protocol will point to local copy of originmate instead of the git one
+    # piping directly to tee doesn't work (perhaps there are two streams)
+    new_manifest=$(
+        toml set "${nft_protocol_dir}/Move.toml" \
+            dependencies.Originmate \
+            "REPLACE"
+    )
+    echo "${new_manifest/\"REPLACE\"/\{ local = \"../originmate\" \}}" |
+        tee "${nft_protocol_dir}/Move.toml" >/dev/null
+    # is publishable only of the addr is 0x0
+    sed -i -r 's/nft_protocol = "0x(.+)/nft_protocol = "0x0"/' \
+        "${nft_protocol_dir}/Move.toml"
+
+    echo
+    echo "Deploying nft-protocol to local validator"
+    nft_protocol_address=$(deploy_package "${nft_protocol_dir}")
+    echo "Using nft-profocol address '${nft_protocol_address}'"
+    # in nft_protocol manifest so that testract can use it as a dep
+    sed -i -r "s/nft_protocol = \"0x0\"/nft_protocol = \"${nft_protocol_address}\"/" \
+        "${nft_protocol_dir}/Move.toml"
 fi
-
-echo "Using originmate address '${originmate_address}'"
-# in originmate manifest so that nft-protocol can use it as a dep
-sed -i -r "s/originmate = \"0x0\"/originmate = \"${originmate_address}\"/" \
-    "${originmate_dir}/Move.toml"
-# in nft-protocol manifest so that it can be published (otherwise missing dep)
-sed -i -r 's/nft_protocol = "0x(.+)/nft_protocol = "0x0"/' \
-    "${nft_protocol_dir}/Move.toml"
-# nft-protocol will point to local copy of originmate instead of the git one
-# piping directly to tee doesn't work (perhaps there are two streams)
-new_manifest=$(
-    toml set "${nft_protocol_dir}/Move.toml" \
-        dependencies.Originmate \
-        "REPLACE"
-)
-echo "${new_manifest/\"REPLACE\"/\{ local = \"../originmate\" \}}" |
-    tee "${nft_protocol_dir}/Move.toml" >/dev/null
-# is publishable only of the addr is 0x0
-sed -i -r 's/nft_protocol = "0x(.+)/nft_protocol = "0x0"/' \
-    "${nft_protocol_dir}/Move.toml"
-
-echo
-echo "Deploying nft-protocol to local validator"
-nft_protocol_address=$(deploy_package "${nft_protocol_dir}")
-echo "Using nft-profocol address '${nft_protocol_address}'"
-# in nft_protocol manifest so that testract can use it as a dep
-sed -i -r "s/nft_protocol = \"0x0\"/nft_protocol = \"${nft_protocol_address}\"/" \
-    "${nft_protocol_dir}/Move.toml"
 
 echo
 echo "Deploying testract to local validator"
@@ -150,14 +153,16 @@ if [ "${coin_obj_count}" -eq 0 ]; then
         )
         $sui_bin client --client.config "${test_validator_config}" \
             pay_all_sui \
-            --gas-budget 30000 \
+            --gas-budget 100000 \
             --input-coins "${coin_id}" \
             --recipient "${test_addr}" 1>/dev/null
     done
-
 fi
 
-export NFT_PROTOCOL_ADDRESS="${nft_protocol_address}"
+export NFT_PROTOCOL_ADDRESS=$(
+    toml get "${nft_protocol_dir}/Move.toml" addresses.nft_protocol |
+        tr -d '"'
+)
 export TESTRACT_ADDRESS="${testract_address}"
 
 eval "$@"

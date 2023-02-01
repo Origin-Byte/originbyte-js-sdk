@@ -60,6 +60,7 @@ export type OrderbookEvent =
         orderbook: ObjectId;
         owner: SuiAddress;
         price: number;
+        safe: ObjectId;
       };
     }
   | {
@@ -130,6 +131,7 @@ function parseOrderbookEvent({
         orderbook: fields.orderbook,
         owner: fields.owner,
         price: parseInt(fields.price, 10),
+        safe: fields.safe,
       },
     };
   }

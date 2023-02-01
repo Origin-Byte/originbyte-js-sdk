@@ -147,28 +147,35 @@ async function getTreasuryAndAllowlist(): Promise<{
 
   const treasury = objs.find(
     (obj) =>
-      obj.type ===
-      `0x2::coin::TreasuryCap<${TESTRACT_ADDRESS}::testract::TESTRACT>`
+      obj.type.includes("TreasuryCap") && obj.type.includes(TESTRACT_ADDRESS!)
   )?.objectId;
   if (!treasury) {
+    console.log("TESTRACT_ADDRESS", TESTRACT_ADDRESS);
     objs
       .filter((obj) => obj.type.includes("TreasuryCap"))
       .forEach((obj) => console.log(obj.type));
     throw new Error("Treasury not found");
   }
 
-  const allowlist = objs.find(
-    (obj) =>
-      obj.type === `${NFT_PROTOCOL_ADDRESS}::transfer_allowlist::Allowlist`
-  )?.objectId;
-  if (!allowlist) {
-    objs
-      .filter((obj) => obj.type.includes("Allowlist"))
-      .forEach((obj) => console.log(obj.type));
-    throw new Error("Allowlist not found");
+  const allowlists = objs
+    .filter(
+      (obj) =>
+        obj.type === `${NFT_PROTOCOL_ADDRESS}::transfer_allowlist::Allowlist`
+    )
+    .map((o) => o.objectId);
+
+  while (allowlists.length !== 0) {
+    const allowlist = allowlists.pop()!;
+    const { data } = (await orderbookClient.client.getObject(allowlist)) as any;
+    const hasTestract = data.fields.collections.fields.contents.some(
+      ({ fields }: any) => fields.name.startsWith(TESTRACT_ADDRESS?.slice(2))
+    );
+    if (hasTestract) {
+      return { treasury, allowlist };
+    }
   }
 
-  return { treasury, allowlist };
+  throw new Error("Allowlist not found");
 }
 
 async function finishAllTrades(allowlist: ObjectId) {
