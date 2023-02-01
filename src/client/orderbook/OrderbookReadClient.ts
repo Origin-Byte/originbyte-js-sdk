@@ -18,14 +18,16 @@ export interface ProtectedActions {
   createBid: boolean;
 }
 
+export interface AskCommissionState {
+  beneficiary: SuiAddress;
+  cut: number;
+}
+
 export interface AskState {
   owner: SuiAddress;
   price: number;
   transferCap: TransferCapState;
-  commission?: {
-    beneficiary: SuiAddress;
-    cut: number;
-  };
+  commission?: AskCommissionState;
 }
 
 export interface BidState {
@@ -58,6 +60,7 @@ export type OrderbookEvent =
         orderbook: ObjectId;
         owner: SuiAddress;
         price: number;
+        safe: ObjectId;
       };
     }
   | {
@@ -75,6 +78,23 @@ export type OrderbookEvent =
         price: number;
       };
     };
+
+interface TradeIntermediaryState {
+  paid: number;
+  buyer: SuiAddress;
+  buyerSafe: ObjectId;
+  commission?: AskCommissionState;
+  transferCap?: TransferCapState;
+}
+
+export function parseCommission(fields: any): AskCommissionState | undefined {
+  return fields === null
+    ? undefined
+    : {
+        beneficiary: fields.beneficiary,
+        cut: parseInt(fields.cut, 10),
+      };
+}
 
 function parseOrderbookEvent({
   txDigest,
@@ -111,6 +131,7 @@ function parseOrderbookEvent({
         orderbook: fields.orderbook,
         owner: fields.owner,
         price: parseInt(fields.price, 10),
+        safe: fields.safe,
       },
     };
   }
@@ -144,7 +165,14 @@ export class OrderbookReadClient {
     return new OrderbookReadClient(ReadClient.fromRpcUrl(url));
   }
 
-  public async fetchOrderbook(orderbookId: ObjectId): Promise<OrderbookState> {
+  /**
+   * If sorted, then asks are sorted by price in ascending order and bids are
+   * sorted by price in descending order.
+   */
+  public async fetchOrderbook(
+    orderbookId: ObjectId,
+    sort: boolean = false
+  ): Promise<OrderbookState> {
     const details = await this.client.getObject(orderbookId);
 
     if (typeof details !== "object" || !("data" in details)) {
@@ -201,10 +229,36 @@ export class OrderbookReadClient {
       );
     });
 
+    if (sort) {
+      asks.sort((a, b) => a.price - b.price);
+      bids.sort((a, b) => b.offer - a.offer);
+    }
+
     return {
       asks,
       bids,
       protectedActions,
+    };
+  }
+
+  public async fetchTradeIntermediary(
+    trade: ObjectId
+  ): Promise<TradeIntermediaryState> {
+    const details = await this.client.getObject(trade);
+
+    if (typeof details !== "object" || !("data" in details)) {
+      throw new Error("Cannot fetch trade intermediary details");
+    }
+
+    const { fields } = details.data as any;
+    return {
+      buyer: fields.buyer,
+      buyerSafe: fields.buyer_safe,
+      paid: parseInt(fields.paid, 10),
+      commission: parseCommission(fields.commission),
+      transferCap: fields.transfer_cap
+        ? transformTransferCap(fields.transfer_cap)
+        : undefined,
     };
   }
 

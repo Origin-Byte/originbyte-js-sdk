@@ -1,6 +1,13 @@
-import { Ed25519Keypair, ObjectId, Provider, SuiAddress } from "@mysten/sui.js";
+import {
+  Ed25519Keypair,
+  ObjectId,
+  Provider,
+  SuiAddress,
+  TransactionEffects,
+} from "@mysten/sui.js";
 import { FullClient } from "../FullClient";
 import { GlobalParams } from "../types";
+import { parseObjectOwner } from "../utils";
 import { OrderbookReadClient } from "./OrderbookReadClient";
 import {
   buyGenericNftTx,
@@ -128,7 +135,7 @@ export class OrderbookFullClient extends OrderbookReadClient {
     price: number;
     sellerSafe: ObjectId;
     wallet: ObjectId;
-  }) {
+  }): Promise<{ tradePayments: ObjectId[]; effects: TransactionEffects }> {
     const effects = await this.client.sendTxWaitForEffects(
       buyNftTx({
         ...this.opts,
@@ -136,9 +143,12 @@ export class OrderbookFullClient extends OrderbookReadClient {
       })
     );
 
+    const tradePayments = effects.created
+      .filter((obj) => parseObjectOwner(obj.owner) === "shared")
+      .map((obj) => obj.reference.objectId);
+
     return {
-      // undefined if trade not executed instantly
-      trade: effects.created?.find(Boolean)?.reference.objectId,
+      tradePayments,
       effects,
     };
   }
@@ -202,13 +212,19 @@ export class OrderbookFullClient extends OrderbookReadClient {
     ft: string;
     sellerSafe: ObjectId;
     trade: ObjectId;
-  }) {
-    return this.client.sendTxWaitForEffects(
+  }): Promise<{ tradePayments: ObjectId[]; effects: TransactionEffects }> {
+    const effects = await this.client.sendTxWaitForEffects(
       finishTradeTx({
         ...this.opts,
         ...p,
       })
     );
+
+    const tradePayments = effects.created
+      .filter((obj) => parseObjectOwner(obj.owner) === "shared")
+      .map((obj) => obj.reference.objectId);
+
+    return { tradePayments, effects };
   }
 
   public async finishTradeOfGenericNft(p: {
