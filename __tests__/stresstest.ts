@@ -14,6 +14,12 @@ require("dotenv").config();
 import { Ed25519Keypair, JsonRpcProvider, ObjectId } from "@mysten/sui.js";
 import { SafeFullClient, OrderbookFullClient } from "../src";
 
+// Initial setup
+const SAVES_WITH_NFTS_COUNT = 5;
+const NFTS_PER_SAFE = 5;
+const SAVES_WITHOUT_NFTS_COUNT = 15;
+// After each tick, in which we trade NFTs, we sleep for this amount of time
+const SLEEP_AFTER_TICK_MS = 0;
 const DEFAULT_GAS_BUDGET = 100_000;
 const TESTRACT_ADDRESS = process.env.TESTRACT_ADDRESS;
 const TESTRACT_OTW_TYPE = `${TESTRACT_ADDRESS}::testract::TESTRACT`;
@@ -55,12 +61,6 @@ function normalDistribution(mu: number, sigma: number) {
   return mu + sigma * y * Math.sqrt((-2 * Math.log(r)) / r);
 }
 
-// Initial setup
-const SAVES_WITH_NFTS_COUNT = 5;
-const NFTS_PER_SAFE = 5;
-const SAVES_WITHOUT_NFTS_COUNT = 15;
-// After each tick, in which we trade NFTs, we sleep for this amount of time
-const SLEEP_AFTER_TICK_MS = 0;
 // Price distributions
 const BID_DISTRIBUTION = () => Math.round(normalDistribution(510, 70));
 const ASK_DISTRIBUTION = () => Math.round(normalDistribution(520, 50));
@@ -147,7 +147,9 @@ async function getTreasuryAndAllowlist(): Promise<{
 
   const treasury = objs.find(
     (obj) =>
-      obj.type.includes("TreasuryCap") && obj.type.includes(TESTRACT_ADDRESS!)
+      obj.type.includes("TreasuryCap") &&
+      // https://github.com/MystenLabs/sui/issues/8017
+      obj.type.includes(TESTRACT_ADDRESS!.replace("0x0", "0x"))
   )?.objectId;
   if (!treasury) {
     console.log("TESTRACT_ADDRESS", TESTRACT_ADDRESS);

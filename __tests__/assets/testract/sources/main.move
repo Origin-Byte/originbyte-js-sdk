@@ -1,13 +1,20 @@
 module testract::testract {
-    use nft_protocol::collection;
-    use nft_protocol::nft;
-    use nft_protocol::transfer_allowlist;
     use std::option;
     use std::vector;
+    use std::string;
+
     use sui::coin;
     use sui::object::{Self, UID};
     use sui::transfer::{share_object, transfer};
-    use sui::tx_context::{TxContext};
+    use sui::tx_context::{Self, TxContext};
+
+    use nft_protocol::collection::{Self, Collection, MintCap};
+    use nft_protocol::creators;
+    use nft_protocol::display;
+    use nft_protocol::nft;
+    use nft_protocol::royalty;
+    use nft_protocol::tags;
+    use nft_protocol::transfer_allowlist;
 
     // mint more NFTs if not enough for new tests
     const NFTS_TO_MINT: u64 = 32;
@@ -28,6 +35,8 @@ module testract::testract {
             &witness,
             ctx,
         );
+
+        add_domains(&mut collection, &mut mint_cap, ctx);
 
         let col_cap = transfer_allowlist::create_collection_cap<TESTRACT, Witness>(
             &Witness {}, ctx,
@@ -107,5 +116,47 @@ module testract::testract {
         ctx: &mut TxContext,
     ) {
         nft_protocol::royalties::transfer_remaining_to_beneficiary(Witness {}, payment, ctx);
+    }
+
+    fun add_domains(
+        collection: &mut Collection<TESTRACT>,
+        mint_cap: &mut MintCap<TESTRACT>,
+        ctx: &mut TxContext,
+    ) {
+        collection::add_domain(
+            collection,
+            mint_cap,
+            creators::from_address(tx_context::sender(ctx), ctx)
+        );
+
+        display::add_collection_display_domain(
+            collection,
+            mint_cap,
+            string::utf8(b"Suimarines"),
+            string::utf8(b"A unique NFT collection of Suimarines on Sui"),
+            ctx,
+        );
+
+        display::add_collection_url_domain(
+            collection,
+            mint_cap,
+            sui::url::new_unsafe_from_bytes(b"https://originbyte.io/"),
+            ctx,
+        );
+
+        display::add_collection_symbol_domain(
+            collection,
+            mint_cap,
+            string::utf8(b"SUIM"),
+            ctx,
+        );
+
+        let royalty = royalty::from_address(tx_context::sender(ctx), ctx);
+        royalty::add_proportional_royalty(&mut royalty, 100);
+        royalty::add_royalty_domain(collection, mint_cap, royalty);
+
+        let tags = tags::empty(ctx);
+        tags::add_tag(&mut tags, tags::art());
+        tags::add_collection_tag_domain(collection, mint_cap, tags);
     }
 }
