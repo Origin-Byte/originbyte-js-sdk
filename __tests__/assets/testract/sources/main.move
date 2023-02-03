@@ -85,6 +85,16 @@ module testract::testract {
         let i = 0;
         while (i < n) {
             let nft = nft::new<TESTRACT, Witness>(&Witness {}, sender, ctx);
+            display::add_display_domain(
+                &mut nft,
+                if (i % 2 == 0) {
+                    string::utf8(b"Even Testract")
+                } else {
+                    string::utf8(b"Odd Testract")
+                },
+                string::utf8(b"Dummy trading NFT"),
+                ctx,
+            );
             nft_protocol::safe::deposit_nft(nft, safe, ctx);
 
             i = i + 1;
@@ -152,7 +162,7 @@ module testract::testract {
         );
 
         let royalty = royalty::from_address(tx_context::sender(ctx), ctx);
-        royalty::add_proportional_royalty(&mut royalty, 100);
+        royalty::add_proportional_royalty(&mut royalty, 125); // 1.25%
         royalty::add_royalty_domain(collection, mint_cap, royalty);
 
         let tags = tags::empty(ctx);
