@@ -10,7 +10,10 @@ import {
   InventoryParser,
 } from "../src";
 
-import { client as ORIGINBYTE_CLIENT, provider as SUI_PROVIDER } from "./common"
+import {
+  client as ORIGINBYTE_CLIENT,
+  provider as SUI_PROVIDER,
+} from "./common";
 
 const resolveFields = async (allObjects: GetObjectDataResponse[]) => {
   const [
@@ -36,44 +39,61 @@ const resolveFields = async (allObjects: GetObjectDataResponse[]) => {
     mintCapId: mintCap?.id,
     feesIds: fees.length ? fees.map((_) => _.id) : undefined,
     marketplaceIds: launchpads.length ? launchpads.map((_) => _.id) : undefined,
-    listingIds: launchpadSlots.length ? launchpadSlots.map((_) => _.id) : undefined,
+    listingIds: launchpadSlots.length
+      ? launchpadSlots.map((_) => _.id)
+      : undefined,
     marketIds: markets.length ? markets.map((_) => _.id) : undefined,
     inventoryIds: inventories.length ? inventories.map((_) => _.id) : undefined,
   };
 };
 
 export const resolveCollectionByPackage = async (packageId: string) => {
-  const publishTxIds = await SUI_PROVIDER.getTransactions({ MutatedObject: packageId }, null, 1, "ascending");
+  const publishTxIds = await SUI_PROVIDER.getTransactions(
+    { MutatedObject: packageId },
+    null,
+    1,
+    "ascending"
+  );
 
-  const publishTx = await SUI_PROVIDER.getTransactionWithEffectsBatch(publishTxIds.data);
-  const publishObjectIds = publishTx.map((_) => _.effects.created || []).flat().map((_) => _.reference.objectId);
+  const publishTx = await SUI_PROVIDER.getTransactionWithEffectsBatch(
+    publishTxIds.data
+  );
+  const publishObjectIds = publishTx
+    .map((_) => _.effects.created || [])
+    .flat()
+    .map((_) => _.reference.objectId);
 
   const objectsCache = await SUI_PROVIDER.getObjectBatch(publishObjectIds);
   let cursor: TransactionDigest | null | undefined;
   while (cursor !== "") {
     // eslint-disable-next-line no-await-in-loop
-    const { data, nextCursor } = await SUI_PROVIDER.getTransactions({ InputObject: packageId });
+    const { data, nextCursor } = await SUI_PROVIDER.getTransactions({
+      InputObject: packageId,
+    });
 
     console.log("nextCursor", data, nextCursor, cursor);
     // eslint-disable-next-line no-await-in-loop
     const txObjects = await SUI_PROVIDER.getTransactionWithEffectsBatch(data);
     // eslint-disable-next-line no-await-in-loop
     const objectsForTx = await SUI_PROVIDER.getObjectBatch(
-      txObjects.flatMap((_) => _.effects.created || []).map((_) => _.reference.objectId)
+      txObjects
+        .flatMap((_) => _.effects.created || [])
+        .map((_) => _.reference.objectId)
     );
     objectsCache.push(...objectsForTx);
     // console.log("obj cache", objectsCache);
     // eslint-disable-next-line no-await-in-loop
     const result = await resolveFields(objectsCache);
 
-
-    const resultHasUndefined = Object.values(result).some((_) => _ === undefined);
+    const resultHasUndefined = Object.values(result).some(
+      (_) => _ === undefined
+    );
     if (!resultHasUndefined || nextCursor === null) {
       console.log(
         "CollectionResolver",
         "Resolve result",
         JSON.stringify(result),
-        nextCursor,
+        nextCursor
       );
       return result;
     }
@@ -90,5 +110,4 @@ export const resolveCollectionByPackage = async (packageId: string) => {
   };
 };
 
-
-resolveCollectionByPackage("0x2dff000aa10c6490fa589521f4b530ca0340fbcc")
+resolveCollectionByPackage("0x2dff000aa10c6490fa589521f4b530ca0340fbcc");

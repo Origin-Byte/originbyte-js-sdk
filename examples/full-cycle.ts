@@ -17,7 +17,6 @@ import {
   NftClient,
 } from "../src";
 
-
 /**
  * All steps needed for a full cycle of NFT creation.
  * Pre-requisites: publish the contract

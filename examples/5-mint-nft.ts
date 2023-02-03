@@ -62,7 +62,10 @@ export const mintNFt = async () => {
       })
     );
   }
-  const chunks = splitBy(txs.sort((a, b) => 0.5 - Math.random()), 1000);
+  const chunks = splitBy(
+    txs.sort((a, b) => 0.5 - Math.random()),
+    1000
+  );
   await Promise.all(chunks.map((chunk) => mintChunk(chunk)));
   //   const createMarketResult = await signer.executeMoveCall(transaction);
   // console.log('createMarketResult', JSON.stringify(createMarketResult));

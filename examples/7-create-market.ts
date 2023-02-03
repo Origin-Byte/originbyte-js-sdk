@@ -1,10 +1,5 @@
 import { NftClient } from "../src";
-import {
-  INVENTORY_ID,
-  LISTING_ID,
-  PACKAGE_OBJECT_ID,
-  signer,
-} from "./common";
+import { INVENTORY_ID, LISTING_ID, PACKAGE_OBJECT_ID, signer } from "./common";
 
 export const createMarket = async () => {
   const transaction = NftClient.buildCreateFixedPriceMarketOnListing({
