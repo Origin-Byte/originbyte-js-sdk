@@ -3,7 +3,7 @@ import { NftClient } from "../src";
 
 // export const mnemonic = 'muffin tuition fit fish average true slender tower salmon artist song biology';
 export const mnemonic =
-  "window exercise virtual sunset crawl deliver shiver public wrist breeze shuffle must mandate panther piece comfort obvious link outer emotion collect sauce drift butter";
+  "mesh unable bounce brain hybrid decline convince letter smooth skull banana devote dragon physical cream city invest yellow injury duck moon purpose clean bid";
 
 /**
  * Created Objects:
@@ -13,19 +13,19 @@ export const mnemonic =
   - ID:  , Owner: Shared
  */
 // Step 0 - Publish
-export const PACKAGE_OBJECT_ID = "0xe64cb3268f5e24d5242a7614b5dd0f882b50389f"; // Change to your deployed contract
-export const COLLECTION_ID = "0x726ee27f9b062b7553ef2131c4ca2b58ecf7368d"; // Change to your deployed contract
-export const MINT_CAP_ID = "0xc1eff96e6f69a1e9525a5bf663449171fbf8a7ab"; // Change to your deployed contract
+export const PACKAGE_OBJECT_ID = "0xc606fe6ad47ea1836da83b023db1d27d0f211eb0"; // Change to your deployed contract
+export const COLLECTION_ID = "0x5f518ed2a960d6eedee7e603cdf646775aa3fccb"; // Change to your deployed contract
+export const MINT_CAP_ID = "0x0c6bd9c633e19a63056e52fdc23f9d45527cb836"; // Change to your deployed contract
 // Step 1 - create Flat fee
-export const FEE_OBJECT_ID = "0x0e66bd30bad5240d5b9f76d20ad0146d821d1241"; // Change to your deployed contract
+export const FEE_OBJECT_ID = "0x17a8c37941c913ff5e44a6cb18ddfaabc1472c77"; // Change to your deployed contract
 // Step 2 - Init marketplace
-export const MARKETPLACE_ID = "0x4f35db43f787d36b2ee50f57997969bd517e22aa"; // Change to your deployed contract
+export const MARKETPLACE_ID = "0x818ba76817ec8ff4e3594e56f1dda2447593873e"; // Change to your deployed contract
 // Step 3 - Init Listing
-export const LISTING_ID = "0x7e9153388302b20d128eaebb5c5eac458c0831e7"; // Change to your deployed contract
+export const LISTING_ID = "0x3e7db1c4f96a3b6993f0772c2a4788c287587820"; // Change to your deployed contract
 // Step 4 - Create Inventory
-export const INVENTORY_ID = "0x528b9613086fc1e4e223ec63ef4296d5ba0eda47"; // Change to your deployed contract
+export const WAREHOUSE_ID = "0x002face93266ed5ddcff63530be78aa1f4a8c764"; // Change to your deployed contract
 // Step 5 - Create Market
-export const MARKET_ID = "0xecfa62e938a37921ebb39c686cd1b3a7bb114fa8"; // Change to your deployed contract
+export const VENUE_ID = "0x8092725013d0febb721757d165be05b345d2b387"; // Change to your deployed contract
 
 export function normalizeMnemonics(mnemonics: string): string {
   return mnemonics

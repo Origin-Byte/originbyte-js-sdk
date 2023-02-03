@@ -19,8 +19,8 @@ import {
   FixedPriceMarketRpcResponse,
   FlatFee,
   FlatFeeRfcRpcResponse,
-  Inventory,
-  InventoryRpcResponse,
+  Warehouse,
+  WarehouseRpcResponse,
   Listing,
   ListingRpcResponse,
   Marketplace,
@@ -39,6 +39,8 @@ import {
   TagsDomainBagRpcResponse,
   UrlDomain,
   UrlDomainBagRpcResponse,
+  Venue,
+  VenueRpcResponse,
 } from "./types";
 import { parseObjectOwner } from "./utils";
 
@@ -132,8 +134,8 @@ export const MintCapParser: SuiObjectParser<MintCapRPCResponse, MintCap> = {
 };
 
 // eslint-disable-next-line max-len
-export const FixedPriceMarketRegex =
-  /(0x[a-f0-9]{40})::fixed_price::FixedPriceMarket/;
+export const FixedPriceMarketRegex = /0x2::dynamic_field::Field<0x[a-f0-9]{39,40}::utils::Marker<0x[a-f0-9]{39,40}::fixed_price::FixedPriceMarket<0x2::sui::SUI>>, 0x[a-f0-9]{39,40}::fixed_price::FixedPriceMarket<0x2::sui::SUI>>/;
+
 
 export const FixedPriceMarketParser: SuiObjectParser<
   FixedPriceMarketRpcResponse,
@@ -143,11 +145,29 @@ export const FixedPriceMarketParser: SuiObjectParser<
     return {
       id: suiData.reference.objectId,
       rawResponse: _,
-      price: data.price,
+      price: data.value.fields.price,
+      inventoryId: data.value.fields.inventory_id,
+    };
+   },
+  regex: FixedPriceMarketRegex,
+}
+
+// eslint-disable-next-line max-len
+export const VenueRegex =
+  /(0x[a-f0-9]{40})::venue::Venue/;
+
+export const VenueParser: SuiObjectParser<
+  VenueRpcResponse,
+  Venue
+> = {
+  parser: (data, suiData, _) => {
+    return {
+      id: suiData.reference.objectId,
+      rawResponse: _,
     };
   },
 
-  regex: FixedPriceMarketRegex,
+  regex: VenueRegex,
 };
 
 const MarketplaceRegex = /(0x[a-f0-9]{39,40})::marketplace::Marketplace/;
@@ -209,7 +229,7 @@ export const ListingParser: SuiObjectParser<ListingRpcResponse, Listing> = {
       receiver: data.receiver,
       admin: data.admin,
       customFeeBagId: data.custom_fee.fields.id.id,
-      inventoriesBagId: data.inventories?.fields.id.id,
+      warehousesBagId: data.warehouses?.fields.id.id,
       qtSold: parseInt(data.proceeds.fields.qt_sold.fields.total, 10),
     };
   },
@@ -231,22 +251,18 @@ export const DynamicFieldParser: SuiObjectParser<
   },
 };
 
-const INVENTORY_REGEX = /(0x[a-f0-9]{39,40})::inventory::Inventory/;
+const WAREHOUSE_REGEX = /(0x[a-f0-9]{39,40})::warehouse::Warehouse/;
 
-export const InventoryParser: SuiObjectParser<InventoryRpcResponse, Inventory> =
-  {
-    regex: INVENTORY_REGEX,
-    parser: (data, suiData, _) => {
-      return {
-        id: suiData.reference.objectId,
-        nftsOnSale: data.nfts_on_sale,
-        live: data.live.fields.contents.map((item) => ({
-          market: item.fields.key,
-          live: item.fields.value,
-        })),
-      };
-    },
-  };
+export const WarehouseParser: SuiObjectParser<WarehouseRpcResponse, Warehouse> =
+{
+  regex: WAREHOUSE_REGEX,
+  parser: (data, suiData, _) => {
+    return {
+      id: suiData.reference.objectId,
+      nfts: data.nfts,
+    };
+  },
+};
 
 /* eslint-disable max-len */
 const ROYALTY_DOMAIN_BAG_REGEX =

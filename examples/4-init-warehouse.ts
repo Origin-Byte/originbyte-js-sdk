@@ -2,11 +2,11 @@ import { NftClient } from "../src";
 import { LISTING_ID, PACKAGE_OBJECT_ID, signer } from "./common";
 
 export const initInventory = async () => {
-  const transaction = NftClient.buildInitInventory({
+  const transaction = NftClient.buildInitWarehouse({
     packageObjectId: PACKAGE_OBJECT_ID,
   });
-  const initInventoryResult = await signer.executeMoveCall(transaction);
-  console.log("initInventoryResult", JSON.stringify(initInventoryResult));
+  const initWarehouseResult = await signer.executeMoveCall(transaction);
+  console.log("initWarehouseResult", JSON.stringify(initWarehouseResult));
 };
 
 initInventory();

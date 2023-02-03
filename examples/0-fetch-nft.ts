@@ -1,10 +1,10 @@
-import { client, LISTING_ID } from "./common";
+import { client, LISTING_ID, VENUE_ID } from "./common";
 
 const fetchNft = async () => {
-  const nfts = await client.getNftsById({
-    objectIds: ["0xcd7ff5ca80768aba14ceea48285e350c0ce224e4"],
+  const nfts = await client.getVenuesByParams({
+    objectIds: [VENUE_ID],
   });
-  console.log("nfts", JSON.stringify(nfts, null, 2));
+  console.log("venues", JSON.stringify(nfts, null, 2));
 };
 
 fetchNft();

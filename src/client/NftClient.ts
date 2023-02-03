@@ -5,50 +5,51 @@ import {
   JsonRpcProvider,
 } from "@mysten/sui.js";
 import {
-  buildBuyNft,
-  biuldMintNft,
-  buildEnableSales,
-  buildCreateFlatFee,
-  buildCreateFixedPriceMarketOnInventory,
-  buildInitMarketplace,
-  buildInitListing,
-  buildInitFixedPriceMarket,
-  buildInitInventoryTx,
-  buildCreateFixedPriceMarketOnListing,
-  buildRequestToJoinMarketplace,
-  buildAcceptListingRequest,
-  buildAddInventoryToListing,
+  buildBuyNftTx,
+  biuldMintNftTx,
+  buildEnableSalesTx,
+  buildCreateFlatFeeTx,
+  buildInitMarketplaceTx,
+  buildInitListingTx,
+  buildInitFixedPriceMarketTx,
+  buildInitWarehouseTx,
+  buildInitVenueTx,
+  buildRequestToJoinMarketplaceTx,
+  buildAcceptListingRequestTx,
+  buildAddWarehouseToListingTx,
 } from "./txBuilders";
 import { toMap } from "../utils";
 import {
   MarketplaceParser,
   ArtNftParser,
   CollectionParser,
-  FixedPriceMarketParser,
+  VenueParser,
   MintCapParser,
   parseBagDomains,
   parseTags,
   FlatFeeParser,
   ListingParser,
   DynamicFieldParser,
-  InventoryParser,
+  WarehouseParser,
   MoveObject,
   parseDynamicDomains,
+  FixedPriceMarketParser,
 } from "./parsers";
 import {
-  GetAuthoritiesParams,
+  GetMintCapsParams,
   GetCollectionsParams,
   GetNftsParams,
   SuiObjectParser,
   MintCap,
   NftCollection,
-  GetMarketsParams,
+  GetVenuesParams,
   GetMarketplaceParams,
   GetCollectionDomainsParams,
   DefaultFeeBoxRpcResponse,
-  GetInventoryParams,
+  GetWarehouseParams,
   GetListingParams,
   ArtNft,
+  VenueWithMarket,
 } from "./types";
 import { isObjectExists } from "./utils";
 import { TESTNET_URL } from "./consts";
@@ -116,15 +117,31 @@ export class NftClient {
     return this.fetchAndParseObjectsById(objectIds, parser);
   };
 
-  getMintCapsById = async (params: GetAuthoritiesParams) => {
+  getMintCapsById = async (params: GetMintCapsParams) => {
     return this.fetchAndParseObjectsById(params.objectIds, MintCapParser);
   };
 
-  getMarketsByParams = async (params: GetMarketsParams) => {
-    return this.fetchAndParseObjectsById(
+  getVenuesByParams = async (params: GetVenuesParams) => {
+    const venues = await this.fetchAndParseObjectsById(
       params.objectIds,
-      FixedPriceMarketParser
+      VenueParser
     );
+
+    const venueWithMarket = await Promise.all(
+      venues.map(async (venue) => {
+        const marketResponse = await this.getDynamicFields(venue.id)
+        const parsed = await this.parseObjects(marketResponse, FixedPriceMarketParser);
+        if (parsed.length) {
+          return {
+            ...venue,
+            market: parsed[0]
+          } as VenueWithMarket
+        }
+        return undefined;
+      })
+    );
+
+    return venueWithMarket.filter((_): _ is VenueWithMarket => !!_);
   };
 
   getCollectionsById = async (params: GetCollectionsParams) => {
@@ -224,11 +241,11 @@ export class NftClient {
 
     const listing = listings[0];
 
-    if (!params.resolveBags || !listing.inventoriesBagId) {
+    if (!params.resolveBags || !listing.warehousesBagId) {
       return listing;
     }
     const [[inventories]] = await Promise.all([
-      this.getAndParseBagContent(listing.inventoriesBagId, DynamicFieldParser),
+      this.getAndParseBagContent(listing.warehousesBagId, DynamicFieldParser),
     ]);
     return {
       ...listing,
@@ -236,8 +253,8 @@ export class NftClient {
     };
   };
 
-  getInventoriesById = async (params: GetInventoryParams) => {
-    return this.fetchAndParseObjectsById([params.inventoryId], InventoryParser);
+  getInventoriesById = async (params: GetWarehouseParams) => {
+    return this.fetchAndParseObjectsById([params.warehouseId], WarehouseParser);
   };
 
   getNftsById = async (params: GetNftsParams): Promise<ArtNft[]> => {
@@ -288,33 +305,29 @@ export class NftClient {
     return this.getNftsById({ objectIds });
   };
 
-  static biuldMintNft = biuldMintNft;
+  static biuldMintNft = biuldMintNftTx;
 
-  static buildBuyNft = buildBuyNft;
+  static buildBuyNft = buildBuyNftTx;
 
-  static buildEnableSales = buildEnableSales;
+  static buildEnableSales = buildEnableSalesTx;
 
-  static buildCreateFlatFee = buildCreateFlatFee;
+  static buildCreateFlatFee = buildCreateFlatFeeTx;
 
-  static buildCreateFixedPriceMarketOnInventory =
-    buildCreateFixedPriceMarketOnInventory;
+  static buildInitVenue = buildInitVenueTx;
 
-  static buildCreateFixedPriceMarketOnListing =
-    buildCreateFixedPriceMarketOnListing;
+  static buildInitFixedPriceMarket = buildInitFixedPriceMarketTx;
 
-  static buildInitFixedPriceMarket = buildInitFixedPriceMarket;
+  static buildInitMarketplace = buildInitMarketplaceTx;
 
-  static buildInitMarketplace = buildInitMarketplace;
+  static buildInitWarehouse = buildInitWarehouseTx;
 
-  static buildInitInventory = buildInitInventoryTx;
+  static buildInitListing = buildInitListingTx;
 
-  static buildInitListing = buildInitListing;
+  static buildRequestToJoinMarketplace = buildRequestToJoinMarketplaceTx;
 
-  static buildRequestToJoinMarketplace = buildRequestToJoinMarketplace;
+  static buildAcceptListingRequest = buildAcceptListingRequestTx;
 
-  static buildAcceptListingRequest = buildAcceptListingRequest;
-
-  static buildAddInventoryToListing = buildAddInventoryToListing;
+  static buildAddWarehouseToListing = buildAddWarehouseToListingTx;
 
   private mergeAuthoritiesWithCollections = (
     collections: NftCollection[],

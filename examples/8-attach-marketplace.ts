@@ -1,6 +1,5 @@
 import { NftClient } from "../src";
 import {
-  INVENTORY_ID,
   LISTING_ID,
   MARKETPLACE_ID,
   PACKAGE_OBJECT_ID,
