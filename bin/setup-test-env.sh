@@ -159,28 +159,6 @@ echo "Deploying testract to local validator"
 testract_address=$(deploy_package "${test_assets_dir}/testract")
 echo "Testract deployed under address '${testract_address}'"
 
-coin_obj_count=$(
-    $sui_bin client --client.config "${test_validator_config}" objects "${test_addr}" --json |
-        jq 'map( select( .type | contains("Coin") ) ) | length'
-)
-# transfer some coins to test user if they don't have any
-if [ "${coin_obj_count}" -eq 0 ]; then
-    echo "Transfering SUI to test user"
-
-    # one for gas, one for SUI wallet
-    for _i in {1..2}; do
-        coin_id=$(
-            $sui_bin client --client.config "${test_validator_config}" gas --json |
-                jq -r '.[0].id.id'
-        )
-        $sui_bin client --client.config "${test_validator_config}" \
-            pay_all_sui \
-            --gas-budget 100000 \
-            --input-coins "${coin_id}" \
-            --recipient "${test_addr}" 1>/dev/null
-    done
-fi
-
 export NFT_PROTOCOL_ADDRESS=$(
     toml get "${nft_protocol_dir}/Move.toml" addresses.nft_protocol |
         tr -d '"'
