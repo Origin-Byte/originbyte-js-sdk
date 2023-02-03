@@ -14,6 +14,14 @@ require("dotenv").config();
 import { Ed25519Keypair, JsonRpcProvider, ObjectId } from "@mysten/sui.js";
 import { SafeFullClient, OrderbookFullClient } from "../src";
 
+// Initial setup
+const SAVES_WITH_NFTS_COUNT = 5;
+const NFTS_PER_SAFE = 5;
+const SAVES_WITHOUT_NFTS_COUNT = 15;
+// After each tick, in which we trade NFTs, we sleep for this amount of time
+const SLEEP_AFTER_TICK_MS = 0;
+const MAX_CONSEQUENT_ERRORS_COUNT = 3;
+const SLEEP_AFTER_FIRST_ERROR_MS = 1000;
 const DEFAULT_GAS_BUDGET = 100_000;
 const TESTRACT_ADDRESS = process.env.TESTRACT_ADDRESS;
 const TESTRACT_OTW_TYPE = `${TESTRACT_ADDRESS}::testract::TESTRACT`;
@@ -55,12 +63,6 @@ function normalDistribution(mu: number, sigma: number) {
   return mu + sigma * y * Math.sqrt((-2 * Math.log(r)) / r);
 }
 
-// Initial setup
-const SAVES_WITH_NFTS_COUNT = 5;
-const NFTS_PER_SAFE = 5;
-const SAVES_WITHOUT_NFTS_COUNT = 15;
-// After each tick, in which we trade NFTs, we sleep for this amount of time
-const SLEEP_AFTER_TICK_MS = 0;
 // Price distributions
 const BID_DISTRIBUTION = () => Math.round(normalDistribution(510, 70));
 const ASK_DISTRIBUTION = () => Math.round(normalDistribution(520, 50));
@@ -98,7 +100,6 @@ async function createAsk(
   });
 
   const price = ASK_DISTRIBUTION();
-  console.log("Creating ask for", price);
   const { trade } = await orderbookClient.createAsk({
     collection: TESTRACT_OTW_TYPE,
     ft: TESTRACT_OTW_TYPE,
@@ -119,7 +120,6 @@ async function createBid(
   safe: ObjectId
 ) {
   const price = BID_DISTRIBUTION();
-  console.log("Creating bid for", price);
   const { created } = await orderbookClient.client.sendTxWaitForEffects({
     packageObjectId: TESTRACT_ADDRESS!,
     module: "testract",
@@ -141,13 +141,17 @@ async function getTreasuryAndAllowlist(): Promise<{
   treasury: ObjectId;
   allowlist: ObjectId;
 }> {
+  console.log("Getting treasury and allowlist...");
+
   const objs = await orderbookClient.client.getObjects(
     KEYPAIR.getPublicKey().toSuiAddress()
   );
 
   const treasury = objs.find(
     (obj) =>
-      obj.type.includes("TreasuryCap") && obj.type.includes(TESTRACT_ADDRESS!)
+      obj.type.includes("TreasuryCap") &&
+      // https://github.com/MystenLabs/sui/issues/8017
+      obj.type.includes(TESTRACT_ADDRESS!.replace("0x0", "0x"))
   )?.objectId;
   if (!treasury) {
     console.log("TESTRACT_ADDRESS", TESTRACT_ADDRESS);
@@ -160,7 +164,12 @@ async function getTreasuryAndAllowlist(): Promise<{
   const allowlists = objs
     .filter(
       (obj) =>
-        obj.type === `${NFT_PROTOCOL_ADDRESS}::transfer_allowlist::Allowlist`
+        // https://github.com/MystenLabs/sui/issues/8017
+        obj.type ===
+        `${NFT_PROTOCOL_ADDRESS!.replace(
+          "0x0",
+          "0x"
+        )}::transfer_allowlist::Allowlist`
     )
     .map((o) => o.objectId);
 
@@ -181,7 +190,6 @@ async function getTreasuryAndAllowlist(): Promise<{
 async function finishAllTrades(allowlist: ObjectId) {
   while (tradeIntermediaries.length !== 0) {
     const trade = tradeIntermediaries.pop()!;
-    console.log("Finishing trade...");
     const { transferCap, buyerSafe } =
       await orderbookClient.fetchTradeIntermediary(trade);
     if (!transferCap) {
@@ -216,36 +224,67 @@ async function finishAllTrades(allowlist: ObjectId) {
 
 async function tick(
   orderbook: ObjectId,
+  treasury: ObjectId,
+  allowlist: ObjectId,
+  saves: Array<{ safe: ObjectId; ownerCap: ObjectId }>
+) {
+  const safeIndex = Math.floor(Math.random() * saves.length);
+  const { safe, ownerCap } = saves[safeIndex];
+
+  const { nfts } = await safeClient.fetchSafe(safe);
+  const nftToList = nfts.find((nft) => nft.transferCapsCount === 0);
+
+  // we don't want to execute a trade where both seller and buyer is the same
+  // safe
+  const { asks, bids } = await orderbookClient.fetchOrderbook(
+    orderbook,
+    true // sort
+  );
+
+  if (nftToList && !(bids.length > 0 && bids[0].safe === safe)) {
+    await createAsk(nftToList.id, orderbook, safe, ownerCap);
+  } else if (!(asks.length > 0 && asks[0].transferCap.safe === safe)) {
+    await createBid(treasury, orderbook, safe);
+  }
+
+  if (SLEEP_AFTER_TICK_MS) {
+    await new Promise((resolve) => setTimeout(resolve, SLEEP_AFTER_TICK_MS));
+  }
+
+  await finishAllTrades(allowlist);
+}
+
+async function start(
+  orderbook: ObjectId,
   saves: Array<{ safe: ObjectId; ownerCap: ObjectId }>
 ) {
   const { treasury, allowlist } = await getTreasuryAndAllowlist();
 
+  console.log("Trading begins...");
+
+  let consequentErrors = 0;
   while (true) {
-    const safeIndex = Math.floor(Math.random() * saves.length);
-    const { safe, ownerCap } = saves[safeIndex];
+    try {
+      await tick(orderbook, treasury, allowlist, saves);
 
-    const { nfts } = await safeClient.fetchSafe(safe);
-    const nftToList = nfts.find((nft) => nft.transferCapsCount === 0);
+      consequentErrors = 0;
+    } catch (error) {
+      console.error(error);
+      consequentErrors += 1;
 
-    // we don't want to execute a trade where both seller and buyer is the same
-    // safe
-    const { asks, bids } = await orderbookClient.fetchOrderbook(
-      orderbook,
-      true // sort
-    );
+      if (consequentErrors > MAX_CONSEQUENT_ERRORS_COUNT) {
+        break;
+      }
 
-    if (nftToList && !(bids.length > 0 && bids[0].safe === safe)) {
-      await createAsk(nftToList.id, orderbook, safe, ownerCap);
-    } else if (!(asks.length > 0 && asks[0].transferCap.safe === safe)) {
-      await createBid(treasury, orderbook, safe);
+      await new Promise((resolve) =>
+        setTimeout(resolve, SLEEP_AFTER_FIRST_ERROR_MS * consequentErrors)
+      );
     }
-
-    if (SLEEP_AFTER_TICK_MS) {
-      await new Promise((resolve) => setTimeout(resolve, SLEEP_AFTER_TICK_MS));
-    }
-
-    await finishAllTrades(allowlist);
   }
+
+  console.log();
+  console.log();
+  console.error("Terminated due to too many errors");
 }
 
 async function main() {
@@ -265,7 +304,7 @@ async function main() {
     saves.push(await createSafeWithNfts());
   }
 
-  await tick(orderbook, saves);
+  await start(orderbook, saves);
 }
 
 main();
