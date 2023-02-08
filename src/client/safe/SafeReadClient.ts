@@ -1,4 +1,4 @@
-import { ObjectId, Provider, SuiAddress } from "@mysten/sui.js";
+import { ObjectId, Provider, SuiAddress, TransactionEffects } from "@mysten/sui.js";
 import {
   DEFAULT_GAS_BUDGET,
   DEFAULT_PACKAGE_ID,
@@ -6,6 +6,7 @@ import {
 } from "../consts";
 import { ReadClient } from "../ReadClient";
 import { GlobalParams } from "../types";
+import { parseObjectOwner } from "../utils";
 
 export interface SafeState {
   id: ObjectId;
@@ -35,6 +36,30 @@ export function transformTransferCap({ fields }: any): TransferCapState {
     nft: fields.inner.fields.nft,
     version: fields.inner.fields.version,
   };
+}
+
+export function parseCreateSafeForSenderTxData(effects: TransactionEffects) {
+  const [object1, object2] = effects.created;
+
+  let safe;
+  let ownerCap;
+
+  // two objects are created, one is the safe which is a shared object,
+  // the other is the owner cap which is owned by the sender
+  if (parseObjectOwner(object1.owner) === "shared") {
+    safe = object1.reference.objectId;
+    ownerCap = object2.reference.objectId;
+  } else {
+    safe = object2.reference.objectId;
+    ownerCap = object1.reference.objectId;
+  }
+
+  return { safe, ownerCap };
+}
+
+export function parseTransferCapForSenderTxData(effects: TransactionEffects) {
+  // there's always exactly one object created in this tx
+  return { transferCap: effects.created[0].reference.objectId };
 }
 
 export class SafeReadClient {
