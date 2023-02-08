@@ -89,6 +89,10 @@ export class SafeFullClient extends SafeReadClient {
       })
     );
 
+    return SafeFullClient.parseExclusiveTransferCapForSenderTxData(effects)
+  }
+
+  public static parseExclusiveTransferCapForSenderTxData(effects: TransactionEffects) {
     // there's always exactly one object created in this tx
     return { transferCap: effects.created[0].reference.objectId, effects };
   }
@@ -102,6 +106,10 @@ export class SafeFullClient extends SafeReadClient {
       createSafeForSenderTx(this.opts)
     );
 
+    return SafeFullClient.parseCreateSafeForSenderTxData(effects)
+  }
+
+  public static parseCreateSafeForSenderTxData(effects: TransactionEffects) {
     const [object1, object2] = effects.created;
 
     let safe;
