@@ -6,8 +6,11 @@ import {
 } from "@mysten/sui.js";
 import { FullClient } from "../FullClient";
 import { GlobalParams } from "../types";
-import { parseObjectOwner } from "../utils";
-import { SafeReadClient } from "./SafeReadClient";
+import {
+  parseCreateSafeForSenderTxData,
+  parseTransferCapForSenderTxData,
+  SafeReadClient,
+} from "./SafeReadClient";
 import {
   burnTransferCapTx,
   createExclusiveTransferCapForSenderTx,
@@ -89,12 +92,9 @@ export class SafeFullClient extends SafeReadClient {
       })
     );
 
-    return SafeFullClient.parseExclusiveTransferCapForSenderTxData(effects)
-  }
+    const { transferCap } = parseTransferCapForSenderTxData(effects)
 
-  public static parseExclusiveTransferCapForSenderTxData(effects: TransactionEffects) {
-    // there's always exactly one object created in this tx
-    return { transferCap: effects.created[0].reference.objectId, effects };
+    return { effects, transferCap }
   }
 
   public async createSafeForSender(): Promise<{
@@ -106,26 +106,9 @@ export class SafeFullClient extends SafeReadClient {
       createSafeForSenderTx(this.opts)
     );
 
-    return SafeFullClient.parseCreateSafeForSenderTxData(effects)
-  }
+    const { safe, ownerCap } = parseCreateSafeForSenderTxData(effects)
 
-  public static parseCreateSafeForSenderTxData(effects: TransactionEffects) {
-    const [object1, object2] = effects.created;
-
-    let safe;
-    let ownerCap;
-
-    // two objects are created, one is the safe which is a shared object,
-    // the other is the owner cap which is owned by the sender
-    if (parseObjectOwner(object1.owner) === "shared") {
-      safe = object1.reference.objectId;
-      ownerCap = object2.reference.objectId;
-    } else {
-      safe = object2.reference.objectId;
-      ownerCap = object1.reference.objectId;
-    }
-
-    return { safe, ownerCap, effects };
+    return { effects, safe, ownerCap }
   }
 
   public async createTransferCapForSender(p: {
