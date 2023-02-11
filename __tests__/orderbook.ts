@@ -7,14 +7,14 @@ import {
   NFT_PROTOCOL_ADDRESS,
   orderbookClient,
   safeClient,
-  TESTRACT_OTW_TYPE,
+  TESTRACT_C_TYPE,
   user,
 } from "./common";
 
 export default function suite() {
   test("create orderbook", async () => {
     const { orderbook } = await orderbookClient.createOrderbook({
-      collection: TESTRACT_OTW_TYPE,
+      collection: TESTRACT_C_TYPE,
       ft: SUI_TYPE_ARG,
     });
     const state = await orderbookClient.fetchOrderbook(orderbook);
@@ -33,13 +33,13 @@ export default function suite() {
     const { safe } = await safeClient.createSafeForSender();
 
     const { orderbook } = await orderbookClient.createOrderbook({
-      collection: TESTRACT_OTW_TYPE,
+      collection: TESTRACT_C_TYPE,
       ft: SUI_TYPE_ARG,
     });
 
     await orderbookClient.createBid({
       buyerSafe: safe,
-      collection: TESTRACT_OTW_TYPE,
+      collection: TESTRACT_C_TYPE,
       ft: SUI_TYPE_ARG,
       orderbook,
       price: 10,
@@ -62,7 +62,7 @@ export default function suite() {
     await safeClient.depositNft({
       safe,
       nft,
-      collection: TESTRACT_OTW_TYPE,
+      collection: TESTRACT_C_TYPE,
     });
     const { transferCap } =
       await safeClient.createExclusiveTransferCapForSender({
@@ -72,13 +72,13 @@ export default function suite() {
       });
 
     const { orderbook } = await orderbookClient.createOrderbook({
-      collection: TESTRACT_OTW_TYPE,
+      collection: TESTRACT_C_TYPE,
       ft: SUI_TYPE_ARG,
     });
 
     await orderbookClient.createAsk({
       sellerSafe: safe,
-      collection: TESTRACT_OTW_TYPE,
+      collection: TESTRACT_C_TYPE,
       ft: SUI_TYPE_ARG,
       orderbook,
       transferCap,
@@ -97,14 +97,14 @@ export default function suite() {
     const { safe } = await safeClient.createSafeForSender();
 
     const { orderbook } = await orderbookClient.createOrderbook({
-      collection: TESTRACT_OTW_TYPE,
+      collection: TESTRACT_C_TYPE,
       ft: SUI_TYPE_ARG,
     });
 
     const someBeneficiary = "0xe71f60229c0ed838b7fe25f0ce57690b7067f199";
     await orderbookClient.createBidWithCommission({
       buyerSafe: safe,
-      collection: TESTRACT_OTW_TYPE,
+      collection: TESTRACT_C_TYPE,
       ft: SUI_TYPE_ARG,
       orderbook,
       price: 10,
@@ -132,7 +132,7 @@ export default function suite() {
     await safeClient.depositNft({
       safe,
       nft,
-      collection: TESTRACT_OTW_TYPE,
+      collection: TESTRACT_C_TYPE,
     });
     const { transferCap } =
       await safeClient.createExclusiveTransferCapForSender({
@@ -142,14 +142,14 @@ export default function suite() {
       });
 
     const { orderbook } = await orderbookClient.createOrderbook({
-      collection: TESTRACT_OTW_TYPE,
+      collection: TESTRACT_C_TYPE,
       ft: SUI_TYPE_ARG,
     });
 
     const someBeneficiary = "0xe71f60229c0ed838b7fe25f0ce57690b7067f199";
     await orderbookClient.createAskWithCommission({
       sellerSafe: safe,
-      collection: TESTRACT_OTW_TYPE,
+      collection: TESTRACT_C_TYPE,
       ft: SUI_TYPE_ARG,
       orderbook,
       transferCap,
@@ -233,7 +233,7 @@ export default function suite() {
     const { safe } = await safeClient.createSafeForSender();
 
     const { orderbook } = await orderbookClient.createOrderbook({
-      collection: TESTRACT_OTW_TYPE,
+      collection: TESTRACT_C_TYPE,
       ft: SUI_TYPE_ARG,
     });
 
@@ -241,7 +241,7 @@ export default function suite() {
 
     await orderbookClient.createBid({
       buyerSafe: safe,
-      collection: TESTRACT_OTW_TYPE,
+      collection: TESTRACT_C_TYPE,
       ft: SUI_TYPE_ARG,
       orderbook,
       price: 10,
@@ -249,7 +249,7 @@ export default function suite() {
     });
 
     await orderbookClient.cancelBid({
-      collection: TESTRACT_OTW_TYPE,
+      collection: TESTRACT_C_TYPE,
       ft: SUI_TYPE_ARG,
       orderbook,
       price: 10,
@@ -265,7 +265,7 @@ export default function suite() {
     await safeClient.depositNft({
       safe,
       nft,
-      collection: TESTRACT_OTW_TYPE,
+      collection: TESTRACT_C_TYPE,
     });
     const { transferCap } =
       await safeClient.createExclusiveTransferCapForSender({
@@ -275,13 +275,13 @@ export default function suite() {
       });
 
     const { orderbook } = await orderbookClient.createOrderbook({
-      collection: TESTRACT_OTW_TYPE,
+      collection: TESTRACT_C_TYPE,
       ft: SUI_TYPE_ARG,
     });
 
     await orderbookClient.createAsk({
       sellerSafe: safe,
-      collection: TESTRACT_OTW_TYPE,
+      collection: TESTRACT_C_TYPE,
       ft: SUI_TYPE_ARG,
       orderbook,
       transferCap,
@@ -289,7 +289,7 @@ export default function suite() {
     });
 
     await orderbookClient.cancelAsk({
-      collection: TESTRACT_OTW_TYPE,
+      collection: TESTRACT_C_TYPE,
       ft: SUI_TYPE_ARG,
       nft,
       orderbook,

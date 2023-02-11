@@ -53,6 +53,7 @@ function deploy_package {
 
     publish_output=$($sui_bin client --client.config "${test_validator_config}" \
         publish \
+        --skip-dependency-verification \
         --gas-budget 30000 \
         --json \
         "${package_dir}")
