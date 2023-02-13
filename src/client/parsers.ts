@@ -133,7 +133,7 @@ export const MintCapParser: SuiObjectParser<MintCapRPCResponse, MintCap> = {
 
 // eslint-disable-next-line max-len
 export const FixedPriceMarketRegex =
-  /(0x[a-f0-9]{40})::fixed_price::FixedPriceMarket/;
+  /(0x[a-f0-9]{39,40})::fixed_price::FixedPriceMarket/;
 
 export const FixedPriceMarketParser: SuiObjectParser<
   FixedPriceMarketRpcResponse,
