@@ -3,9 +3,10 @@ import { OrderbookFullClient, SafeFullClient } from "../src";
 
 export const TESTRACT_ADDRESS = process.env.TESTRACT_ADDRESS;
 export const TESTRACT_OTW_TYPE = `${TESTRACT_ADDRESS}::testract::TESTRACT`;
+export const TESTRACT_C_TYPE = `${TESTRACT_ADDRESS}::testract::CTESTRACT`;
 export const NFT_GENERIC_TYPE = `${TESTRACT_ADDRESS}::testract::CapyNft`;
 export const NFT_PROTOCOL_ADDRESS = process.env.NFT_PROTOCOL_ADDRESS;
-export const NFT_TYPE = `${NFT_PROTOCOL_ADDRESS}::nft::Nft<${TESTRACT_OTW_TYPE}>`;
+export const NFT_TYPE = `${NFT_PROTOCOL_ADDRESS}::nft::Nft<${TESTRACT_C_TYPE}>`;
 
 const provider = new JsonRpcProvider("LOCAL");
 // base64: 9Cc3IMAhroBmj32QTZ7LhjNL2vOhKmcnGYRHiCyTJLk=
