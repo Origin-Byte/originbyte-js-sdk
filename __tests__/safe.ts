@@ -1,5 +1,5 @@
 import {
-  TESTRACT_OTW_TYPE,
+  TESTRACT_C_TYPE,
   NFT_GENERIC_TYPE,
   safeClient,
   user,
@@ -55,16 +55,16 @@ export default function suite() {
     await safeClient.enableDepositsOfCollection({
       safe,
       ownerCap,
-      collection: TESTRACT_OTW_TYPE,
+      collection: TESTRACT_C_TYPE,
     });
     const stateTwo = await safeClient.fetchSafe(safe);
     expect(stateTwo.collectionsWithEnabledDeposits.length).toBe(1);
-    expect(stateTwo.collectionsWithEnabledDeposits[0]).toBe(TESTRACT_OTW_TYPE);
+    expect(stateTwo.collectionsWithEnabledDeposits[0]).toBe(TESTRACT_C_TYPE);
 
     await safeClient.disableDepositsOfCollection({
       safe,
       ownerCap,
-      collection: TESTRACT_OTW_TYPE,
+      collection: TESTRACT_C_TYPE,
     });
     const stateThree = await safeClient.fetchSafe(safe);
     expect(stateThree.collectionsWithEnabledDeposits.length).toBe(0);
@@ -80,13 +80,13 @@ export default function suite() {
       safe,
       ownerCap,
       nft: nfts[0],
-      collection: TESTRACT_OTW_TYPE,
+      collection: TESTRACT_C_TYPE,
     });
     for (const nft of nfts.slice(1)) {
       await safeClient.depositNft({
         safe,
         nft,
-        collection: TESTRACT_OTW_TYPE,
+        collection: TESTRACT_C_TYPE,
       });
     }
 
@@ -143,7 +143,7 @@ export default function suite() {
     await safeClient.depositNft({
       safe,
       nft,
-      collection: TESTRACT_OTW_TYPE,
+      collection: TESTRACT_C_TYPE,
     });
 
     const { transferCap } = await safeClient.createTransferCapForSender({
@@ -187,7 +187,7 @@ export default function suite() {
     await safeClient.depositNft({
       safe,
       nft,
-      collection: TESTRACT_OTW_TYPE,
+      collection: TESTRACT_C_TYPE,
     });
 
     const { transferCap } =

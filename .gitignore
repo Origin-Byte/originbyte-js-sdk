@@ -8,3 +8,5 @@ coverage
 sui.log.*
 examples/nft-uploader/
 wget-log
+dist-stress
+package-lock.json

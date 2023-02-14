@@ -13,19 +13,21 @@ export const mnemonic =
   - ID:  , Owner: Shared
  */
 // Step 0 - Publish
-export const PACKAGE_OBJECT_ID = "0xc606fe6ad47ea1836da83b023db1d27d0f211eb0"; // Change to your deployed contract
-export const COLLECTION_ID = "0x5f518ed2a960d6eedee7e603cdf646775aa3fccb"; // Change to your deployed contract
-export const MINT_CAP_ID = "0x0c6bd9c633e19a63056e52fdc23f9d45527cb836"; // Change to your deployed contract
+export const PACKAGE_OBJECT_ID = "0x3913738ab2041542ccc261f2041fe1c0b13e4541"; // Change to your deployed contract
+export const COLLECTION_ID = "0x91a794209e133711968dbc644021992381bd622f"; // Change to your deployed contract
+export const MINT_CAP_ID = "0xab8e0d450a555a166018c875f783a067ab8f64d9"; // Change to your deployed contract
 // Step 1 - create Flat fee
-export const FEE_OBJECT_ID = "0x17a8c37941c913ff5e44a6cb18ddfaabc1472c77"; // Change to your deployed contract
+export const FEE_OBJECT_ID = "0x6f9206693dfd97d6b60b9ba2a74de081ebd0805f"; // Change to your deployed contract
 // Step 2 - Init marketplace
-export const MARKETPLACE_ID = "0x818ba76817ec8ff4e3594e56f1dda2447593873e"; // Change to your deployed contract
+export const MARKETPLACE_ID = "0x090d95aa8807b6b03d251cec2a712d1cc72a4568"; // Change to your deployed contract
 // Step 3 - Init Listing
-export const LISTING_ID = "0x3e7db1c4f96a3b6993f0772c2a4788c287587820"; // Change to your deployed contract
-// Step 4 - Create Inventory
-export const WAREHOUSE_ID = "0x002face93266ed5ddcff63530be78aa1f4a8c764"; // Change to your deployed contract
-// Step 5 - Create Market
-export const VENUE_ID = "0x8092725013d0febb721757d165be05b345d2b387"; // Change to your deployed contract
+export const LISTING_ID = "0xe517e4bb4bdde43cac0791df4f737f65d3c40db8"; // Change to your deployed contract
+// Step 4 - Create Warehouse
+export const WAREHOUSE_ID = "0xa3f7cfc3124b7e65de6a0f9444b5299f2691f0ab"; // Change to your deployed contract
+// Step 5 - Add inventory to listing
+export const INVENTORY_ID = "0x7ce6951e79e21f156b031204f6e871195d1d539a"; // Change to your deployed contract
+// Step 6 - Create Market
+export const VENUE_ID = "0x58ec0c2f48efaedeed4d62feb2f9adffab701521"; // Change to your deployed contract
 
 export function normalizeMnemonics(mnemonics: string): string {
   return mnemonics

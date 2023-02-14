@@ -1,6 +1,6 @@
 {
   "name": "@originbyte/js-sdk",
-  "version": "0.18.10",
+  "version": "0.20.3",
   "keywords": [
     "originbyte",
     "sdk",
@@ -9,13 +9,15 @@
     "move"
   ],
   "scripts": {
-    "test": "./bin/test.sh",
-    "tsc": "tsc",
-    "typecheck": "yarn tsc --project ./tsconfig-typecheck.json",
-    "lint": "eslint 'src/**/*.{ts, tsx}'",
-    "format": "prettier --write 'src/**/*.{ts, tsx}' 'examples/**/*.{ts, tsx}' '__tests__/**/*.{ts, tsx}'",
+    "build": "./bin/build.sh",
     "fmt": "npm run format",
-    "build": "./bin/build.sh"
+    "format": "prettier --write 'src/**/*.{ts, tsx}' 'examples/**/*.{ts, tsx}' '__tests__/**/*.{ts, tsx}'",
+    "lint": "eslint 'src/**/*.{ts, tsx}'",
+    "stress-build": "tsc --project ./__tests__/tsconfig.stress.json",
+    "stress-local": "./bin/setup-test-env.sh ts-node __tests__/stresstest.ts",
+    "test": "./bin/setup-test-env.sh yarn jest --detectOpenHandles --runInBand",
+    "tsc": "tsc",
+    "typecheck": "yarn tsc --project ./tsconfig-typecheck.json"
   },
   "homepage": "https://originbyte.io/",
   "main": "dist/index.js",
@@ -35,6 +37,7 @@
     "@types/node": "^16.11.6",
     "@typescript-eslint/eslint-plugin": "^5.38.1",
     "@typescript-eslint/parser": "^5.38.1",
+    "dotenv": "^16.0.3",
     "eslint": "^7.32.0",
     "eslint-config-airbnb": "^18.1.0",
     "eslint-config-airbnb-base": "^15.0.0",
@@ -54,7 +57,7 @@
     "typescript-eslint-parser": "^22.0.0"
   },
   "dependencies": {
-    "@mysten/sui.js": "^0.24.0",
+    "@mysten/sui.js": "^0.26.1",
     "superstruct": "^1.0.3"
   }
 }
