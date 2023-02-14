@@ -263,6 +263,8 @@ export interface MintCap extends WithRawResponse, WithId {
 
 export interface ArtNftRpcResponse {
   logical_owner: string;
+  name?: string;
+  url?: string;
   bag?: Bag;
 }
 
@@ -275,6 +277,8 @@ export interface ArtNftRaw extends ProtocolData, WithRawResponse, WithId {
   logicalOwner: string;
   bagId?: string;
   ownerAddress: string;
+  name?: string;
+  url?: string;
 }
 
 export interface ArtNft extends ProtocolData, WithRawResponse, WithId {
@@ -322,7 +326,9 @@ export interface GetMarketplaceParams {
   marketplaceId: string;
 }
 
-export interface GetNftsParams extends WithIds { }
+export interface GetNftsParams extends WithIds {
+  resolveBags?: boolean;
+ }
 
 export interface GetCollectionsParams extends WithIds { }
 
