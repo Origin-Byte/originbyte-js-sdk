@@ -258,12 +258,13 @@ export class NftClient {
   };
 
   getNftsById = async (params: GetNftsParams): Promise<ArtNft[]> => {
+    const { resolveBags = true } = params;
     const nfts = await this.fetchAndParseObjectsById(
       params.objectIds,
       ArtNftParser
     );
 
-    const bags = await Promise.all(
+    const bags = resolveBags ? await Promise.all(
       nfts.map(async (_) => {
         const content = _.bagId
           ? await this.getBagContent(_.bagId)
@@ -276,7 +277,7 @@ export class NftClient {
             : parseDynamicDomains(content),
         };
       })
-    );
+    ) : [];
     const bagsByNftId = toMap(bags, (_) => _.nftId);
 
     return nfts.map((nft) => {
