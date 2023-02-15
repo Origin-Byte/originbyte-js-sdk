@@ -54,6 +54,16 @@ export class OrderbookFullClient extends OrderbookReadClient {
 
   static createAskWithCommissionTx = createAskWithCommissionTx;
 
+  static listNftTx = listNftTx;
+
+  static depositAndlistNftTx = depositAndlistNftTx;
+
+  static createSafeAndDepositAndListNftTx = createSafeAndDepositAndListNftTx;
+
+  static depositAndListNftWithCommissionTx = depositAndListNftWithCommissionTx;
+
+  static createSafeAndDepositAndListNftWithCommissionTx = createSafeAndDepositAndListNftWithCommissionTx;
+
   static buyNftTx = buyNftTx;
 
   static buyGenericNftTx = buyGenericNftTx;
