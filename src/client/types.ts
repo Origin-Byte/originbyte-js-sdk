@@ -47,8 +47,27 @@ export interface MintCapRPCResponse {
   collection_id: string;
 }
 
+export type VenueRpcResponse = {
+  is_live: boolean;
+  is_whitelisted: boolean;
+}
+
 export interface FixedPriceMarketRpcResponse {
-  price: number;
+  id: ID;
+  name: {
+    type: string;
+    fields: {
+      dummy_field: boolean;
+    }
+  }
+  value: {
+    type: string;
+    fields: {
+      id: ID;
+      inventory_id: string;
+      price: string;
+    }
+  }
 }
 
 export interface DomainRpcBase<T> {
@@ -158,8 +177,6 @@ export interface ListingRpcResponse {
   };
   admin: string;
   receiver: string;
-  inventories?: Bag;
-  custom_fee: ObjectBox;
   proceeds: {
     fields: {
       id: ID;
@@ -171,6 +188,10 @@ export interface ListingRpcResponse {
       };
     };
   };
+  venues: ObjectBox;
+  inventories: ObjectBox;
+  custom_fee: ObjectBox;
+
 }
 
 export interface Listing extends WithPackageObjectId, WithId {
@@ -196,32 +217,50 @@ export interface WithRawResponse {
   rawResponse: GetObjectDataResponse;
 }
 
-export interface InventoryRpcResponse {
-  live: {
-    type: string;
-    fields: {
-      contents: {
-        type: string;
-        fields: {
-          key: string;
-          value: boolean;
-        };
-      }[];
-    };
-  };
-  nfts_on_sale: string[];
+export type WarehouseRpcResponse = {
 }
 
-export type Inventory = WithId & {
-  nftsOnSale: string[];
-  live: {
-    market: string;
-    live: boolean;
-  }[];
+export type Warehouse = WithId & {
+};
+
+export type InventoryRpcResponse = {
+  allowlist: {}
+}
+
+
+export type Inventory = WithId & {}
+
+
+export type InventoryDofRpcResponse = {
+  id: ID
+  name: {
+    type: string;
+    fields: {
+      dummy_field: boolean;
+    };
+  }
+  value: {
+    type: string;
+    fields: {
+      id: ID;
+      nfts: string[];
+    }
+
+  }
+}
+
+export type InventoryContent = WithId & {
+  nfts: string[];
+}
+
+export type Venue = WithRawResponse & WithId & {
+  isLive: boolean;
+  isWhitelisted: boolean;
 };
 
 export interface FixedPriceMarket extends WithRawResponse, WithId {
-  price: number;
+  price: string;
+  inventoryId: string;
 }
 
 export interface MarketplaceRpcResponse {
@@ -240,8 +279,8 @@ export interface MarketplaceRpcResponse {
 
 export interface Marketplace
   extends WithId,
-    WithPackageObjectId,
-    WithRawResponse {
+  WithPackageObjectId,
+  WithRawResponse {
   owner: string;
   admin: string;
   receiver: string;
@@ -258,6 +297,8 @@ export interface MintCap extends WithRawResponse, WithId {
 
 export interface ArtNftRpcResponse {
   logical_owner: string;
+  name?: string;
+  url?: string;
   bag?: Bag;
 }
 
@@ -270,6 +311,8 @@ export interface ArtNftRaw extends ProtocolData, WithRawResponse, WithId {
   logicalOwner: string;
   bagId?: string;
   ownerAddress: string;
+  name?: string;
+  url?: string;
 }
 
 export interface ArtNft extends ProtocolData, WithRawResponse, WithId {
@@ -309,6 +352,10 @@ export interface GetListingParams {
   resolveBags?: boolean;
 }
 
+export interface GetWarehouseParams {
+  warehouseId: string;
+}
+
 export interface GetInventoryParams {
   inventoryId: string;
 }
@@ -317,18 +364,19 @@ export interface GetMarketplaceParams {
   marketplaceId: string;
 }
 
-export interface GetNftsParams extends WithIds {}
+export interface GetNftsParams extends WithIds {
+  resolveBags?: boolean;
+}
 
-export interface GetCollectionsParams extends WithIds {}
+export interface GetCollectionsParams extends WithIds { }
 
 export interface GetCollectionDomainsParams {
   domainsBagId: string;
 }
 
-export interface GetAuthoritiesParams extends WithIds {}
+export interface GetMintCapsParams extends WithIds { }
 
-export interface GetMarketsParams extends WithIds {}
-export interface GetNftCertificateParams extends WithIds {}
+export interface GetVenuesParams extends WithIds { }
 
 export type DynamicFieldRpcResponse = {
   id: ID;
@@ -351,23 +399,25 @@ export type BuildMintNftParams = WithPackageObjectId & {
   moduleName: string;
   mintCap: string;
   url: string;
-  inventoryId: string;
+  warehouseId: string;
   attributes: { [c: string]: string };
 };
 
-export type BuildBuyNftParams = WithPackageObjectId & {
-  listing: string;
-  inventory: string;
-  market: string;
-  coin: string;
+export type NftModuleParams = {
   nftModuleName: string;
   nftClassName: string;
+}
+
+export type BuildBuyNftParams = WithPackageObjectId & NftModuleParams & {
+  listing: string;
+  venue: string;
+  coin: string;
+
 };
 
 export interface BuildEnableSalesParams extends WithPackageObjectId {
   listing: string;
-  inventory: string;
-  market: string;
+  venue: string;
 }
 
 export type FetchFnParser<RpcResponse, DataModel> = (
@@ -459,18 +509,13 @@ export type BuildInitListingParams = WithPackageObjectId & {
 export type BuildCreateFixedPriceMarketParams = WithPackageObjectId & {
   price: number;
   coinType?: string; // SUI by default
+  inventory: string;
 };
 
-export type BuildCreateFixedPriceMarketOnInventoryParams =
-  BuildCreateFixedPriceMarketParams & {
-    inventory: string;
-    isWhitelisted: boolean;
-  };
-
-export type BuildCreateFixedPriceMarketOnListingParams =
-  BuildCreateFixedPriceMarketOnInventoryParams & {
-    listing: string;
-  };
+export type BuildInitVenueParams = BuildCreateFixedPriceMarketParams & NftModuleParams & {
+  listing: string;
+  isWhitelisted: boolean;
+};
 
 export type BuildRequestToJoinMarketplaceParams = WithPackageObjectId & {
   marketplace: string;
@@ -479,9 +524,14 @@ export type BuildRequestToJoinMarketplaceParams = WithPackageObjectId & {
 
 export type BuildAcceptListingRequest = BuildRequestToJoinMarketplaceParams;
 
-export type BuildInitInventoryParams = WithPackageObjectId & {};
+export type BuildInitWarehouseParams = WithPackageObjectId & NftModuleParams & {};
 
-export type BuildAddInventoryToListingParams = WithPackageObjectId & {
+export type BuildAddWarehouseToListingParams = WithPackageObjectId & NftModuleParams & {
   listing: string;
-  inventory: string;
+  warehouse: string;
+  collection: string;
 };
+
+export type VenueWithMarket = Venue & {
+  market: FixedPriceMarket;
+}

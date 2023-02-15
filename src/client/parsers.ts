@@ -8,7 +8,6 @@ import { any, boolean, object, record, string } from "superstruct";
 import {
   ArtNftRaw,
   ArtNftRpcResponse,
-  AttributionDomain,
   AttributionDomainBagRpcResponse,
   CollectionDomains,
   DisplayDomain,
@@ -19,8 +18,8 @@ import {
   FixedPriceMarketRpcResponse,
   FlatFee,
   FlatFeeRfcRpcResponse,
-  Inventory,
-  InventoryRpcResponse,
+  Warehouse,
+  WarehouseRpcResponse,
   Listing,
   ListingRpcResponse,
   Marketplace,
@@ -39,6 +38,12 @@ import {
   TagsDomainBagRpcResponse,
   UrlDomain,
   UrlDomainBagRpcResponse,
+  Venue,
+  VenueRpcResponse,
+  InventoryRpcResponse,
+  Inventory,
+  InventoryDofRpcResponse,
+  InventoryContent,
 } from "./types";
 import { parseObjectOwner } from "./utils";
 
@@ -77,6 +82,8 @@ export const ArtNftParser: SuiObjectParser<ArtNftRpcResponse, ArtNftRaw> = {
         rawResponse: _,
         logicalOwner: data.logical_owner,
         bagId: data.bag?.fields.id.id,
+        url: data.url,
+        name: data.name,
       };
     }
     return undefined;
@@ -132,8 +139,8 @@ export const MintCapParser: SuiObjectParser<MintCapRPCResponse, MintCap> = {
 };
 
 // eslint-disable-next-line max-len
-export const FixedPriceMarketRegex =
-  /(0x[a-f0-9]{39,40})::fixed_price::FixedPriceMarket/;
+export const FixedPriceMarketRegex = /0x2::dynamic_field::Field<0x[a-f0-9]{39,40}::utils::Marker<0x[a-f0-9]{39,40}::fixed_price::FixedPriceMarket<0x2::sui::SUI>>, 0x[a-f0-9]{39,40}::fixed_price::FixedPriceMarket<0x2::sui::SUI>>/;
+
 
 export const FixedPriceMarketParser: SuiObjectParser<
   FixedPriceMarketRpcResponse,
@@ -143,11 +150,31 @@ export const FixedPriceMarketParser: SuiObjectParser<
     return {
       id: suiData.reference.objectId,
       rawResponse: _,
-      price: data.price,
+      price: data.value.fields.price,
+      inventoryId: data.value.fields.inventory_id,
+    };
+   },
+  regex: FixedPriceMarketRegex,
+}
+
+// eslint-disable-next-line max-len
+export const VenueRegex =
+  /(0x[a-f0-9]{40})::venue::Venue/;
+
+export const VenueParser: SuiObjectParser<
+  VenueRpcResponse,
+  Venue
+> = {
+  parser: (data, suiData, _) => {
+    return {
+      id: suiData.reference.objectId,
+      rawResponse: _,
+      isLive: data.is_live,
+      isWhitelisted: data.is_whitelisted,
     };
   },
 
-  regex: FixedPriceMarketRegex,
+  regex: VenueRegex,
 };
 
 const MarketplaceRegex = /(0x[a-f0-9]{39,40})::marketplace::Marketplace/;
@@ -231,22 +258,44 @@ export const DynamicFieldParser: SuiObjectParser<
   },
 };
 
+const WAREHOUSE_REGEX = /(0x[a-f0-9]{39,40})::warehouse::Warehouse/;
+
+export const WarehouseParser: SuiObjectParser<WarehouseRpcResponse, Warehouse> =
+{
+  regex: WAREHOUSE_REGEX,
+  parser: (data, suiData, _) => {
+    return {
+      id: suiData.reference.objectId,
+    };
+  },
+};
+
 const INVENTORY_REGEX = /(0x[a-f0-9]{39,40})::inventory::Inventory/;
 
 export const InventoryParser: SuiObjectParser<InventoryRpcResponse, Inventory> =
-  {
-    regex: INVENTORY_REGEX,
-    parser: (data, suiData, _) => {
-      return {
-        id: suiData.reference.objectId,
-        nftsOnSale: data.nfts_on_sale,
-        live: data.live.fields.contents.map((item) => ({
-          market: item.fields.key,
-          live: item.fields.value,
-        })),
-      };
-    },
-  };
+{
+  regex: INVENTORY_REGEX,
+  parser: (data, suiData, _) => {
+    return {
+      id: suiData.reference.objectId,
+    };
+  },
+};
+
+// eslint-disable-next-line max-len
+const INVENTORY_DOF_REGEX = /0x2::dynamic_field::Field<(0x[a-f0-9]{39,40})::utils::Marker<(0x[a-f0-9]{39,40})::warehouse::Warehouse<(0x[a-f0-9]{39,40})::[a-zA-Z_]{1,}::[a-zA-Z_]{1,}>>, (0x[a-f0-9]{39,40})::warehouse::Warehouse<(0x[a-f0-9]{39,40})::[a-zA-Z_]{1,}::[a-zA-Z_]{1,}>>/
+
+export const InventoryDofParser: SuiObjectParser<InventoryDofRpcResponse, InventoryContent> =
+{
+  regex: INVENTORY_DOF_REGEX,
+  parser: (data, suiData, _) => {
+    return {
+      nfts: data.value.fields.nfts,
+      id: suiData.reference.objectId,
+    };
+  },
+};
+
 
 /* eslint-disable max-len */
 const ROYALTY_DOMAIN_BAG_REGEX =
@@ -456,8 +505,8 @@ export const parseDynamicDomains = (domains: GetObjectDataResponse[]) => {
   ) {
     const { data } = attributesDomain.details;
     const royalties = (
-      data.fields as AttributionDomain
-    ).map.fields.contents.reduce(
+      data.fields as AttributionDomainBagRpcResponse
+    ).value.fields.map.fields.contents.reduce(
       (acc, c) => ({ ...acc, [c.fields.key]: c.fields.value }),
       {}
     );

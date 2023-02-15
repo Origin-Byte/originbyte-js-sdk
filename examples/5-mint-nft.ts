@@ -1,6 +1,6 @@
 import { MoveCallTransaction } from "@mysten/sui.js";
 import { NftClient } from "../src";
-import { INVENTORY_ID, MINT_CAP_ID, PACKAGE_OBJECT_ID, signer } from "./common";
+import { MINT_CAP_ID, PACKAGE_OBJECT_ID, signer, WAREHOUSE_ID } from "./common";
 
 export const splitBy = <T>(list: T[], chunkSize: number): T[][] => {
   const result: T[][] = [];
@@ -37,8 +37,8 @@ export const mintNFt = async () => {
         description: "Try Next Time",
         mintCap: MINT_CAP_ID,
         packageObjectId: PACKAGE_OBJECT_ID,
-        inventoryId: INVENTORY_ID,
-        moduleName: "tickets",
+        warehouseId: WAREHOUSE_ID,
+        moduleName: "suimarines",
         url: "ipfs://QmcUZmoDWyBB7Cra15XpSpcq628E5T3qvedB5NcbVm9yKM",
         attributes: {
           Status: "Loss",
@@ -53,8 +53,8 @@ export const mintNFt = async () => {
         description: "You have been selected",
         mintCap: MINT_CAP_ID,
         packageObjectId: PACKAGE_OBJECT_ID,
-        inventoryId: INVENTORY_ID,
-        moduleName: "tickets",
+        warehouseId: WAREHOUSE_ID,
+        moduleName: "suimarines",
         url: "ipfs://QmWD14oS1P91mr4vSzqMXmZJP5jp8BbPtmJkdYpBD9eBdJ",
         attributes: {
           Status: "Win",

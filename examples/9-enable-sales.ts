@@ -1,18 +1,15 @@
 import { NftClient } from "../src";
 import {
-  INVENTORY_ID,
-  LISTING_ID,
-  MARKET_ID,
-  PACKAGE_OBJECT_ID,
+  LISTING_ID, PACKAGE_OBJECT_ID,
   signer,
+  VENUE_ID
 } from "./common";
 
 const enableSales = async () => {
   const mintNftTransaction = NftClient.buildEnableSales({
     packageObjectId: PACKAGE_OBJECT_ID,
     listing: LISTING_ID,
-    inventory: INVENTORY_ID,
-    market: MARKET_ID,
+    venue: VENUE_ID,
   });
 
   const enableSalesResult = await signer.executeMoveCall(mintNftTransaction);

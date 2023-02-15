@@ -1,22 +1,22 @@
 import { MoveCallTransaction } from "@mysten/sui.js";
 import {
   BuildBuyNftParams,
-  BuildCreateFixedPriceMarketOnInventoryParams,
-  BuildInitInventoryParams,
+  BuildInitWarehouseParams,
   BuildCreateFlatFeeParams,
   BuildEnableSalesParams,
   BuildInitMarketplaceParams,
   BuildInitListingParams,
   BuildMintNftParams,
   BuildCreateFixedPriceMarketParams,
-  BuildCreateFixedPriceMarketOnListingParams,
+  BuildInitVenueParams,
   BuildRequestToJoinMarketplaceParams,
   BuildAcceptListingRequest,
-  BuildAddInventoryToListingParams,
+  BuildAddWarehouseToListingParams,
 } from "./types";
 
 const SUI_TYPE = "0x2::sui::SUI";
-export const biuldMintNft = (
+
+export const biuldMintNftTx = (
   params: BuildMintNftParams
 ): MoveCallTransaction => {
   const keys: string[] = [];
@@ -39,13 +39,13 @@ export const biuldMintNft = (
       keys,
       values,
       params.mintCap,
-      params.inventoryId,
+      params.warehouseId,
     ],
     gasBudget: 10000,
   };
 };
 
-export const buildBuyNft = (
+export const buildBuyNftTx = (
   params: BuildBuyNftParams
 ): MoveCallTransaction => ({
   packageObjectId: params.packageObjectId,
@@ -55,28 +55,21 @@ export const buildBuyNft = (
     `${params.packageObjectId}::${params.nftModuleName}::${params.nftClassName}`,
     SUI_TYPE,
   ],
-  arguments: [params.listing, params.inventory, params.market, params.coin],
+  arguments: [params.listing, params.venue, params.coin],
   gasBudget: 5000,
 });
 
-export const buildCreateFixedPriceMarketOnInventory = (
-  params: BuildCreateFixedPriceMarketOnInventoryParams
-): MoveCallTransaction => ({
-  packageObjectId: params.packageObjectId,
-  module: "fixed_price",
-  function: "create_market_on_inventory",
-  typeArguments: [params.coinType ?? SUI_TYPE],
-  arguments: [params.inventory, params.isWhitelisted, params.price.toFixed(0)],
-  gasBudget: 5000,
-});
 
-export const buildCreateFixedPriceMarketOnListing = (
-  params: BuildCreateFixedPriceMarketOnListingParams
+export const buildInitVenueTx = (
+  params: BuildInitVenueParams
 ): MoveCallTransaction => ({
   packageObjectId: params.packageObjectId,
   module: "fixed_price",
-  function: "create_market_on_listing",
-  typeArguments: [params.coinType ?? SUI_TYPE],
+  function: "init_venue",
+  typeArguments: [
+    `${params.packageObjectId}::${params.nftModuleName}::${params.nftClassName}`,
+    params.coinType ?? SUI_TYPE
+  ],
   arguments: [
     params.listing,
     params.inventory,
@@ -86,7 +79,7 @@ export const buildCreateFixedPriceMarketOnListing = (
   gasBudget: 5000,
 });
 
-export const buildRequestToJoinMarketplace = (
+export const buildRequestToJoinMarketplaceTx = (
   params: BuildRequestToJoinMarketplaceParams
 ): MoveCallTransaction => ({
   packageObjectId: params.packageObjectId,
@@ -97,7 +90,7 @@ export const buildRequestToJoinMarketplace = (
   gasBudget: 5000,
 });
 
-export const buildAcceptListingRequest = (
+export const buildAcceptListingRequestTx = (
   params: BuildAcceptListingRequest
 ): MoveCallTransaction => ({
   packageObjectId: params.packageObjectId,
@@ -108,29 +101,29 @@ export const buildAcceptListingRequest = (
   gasBudget: 5000,
 });
 
-export const buildInitFixedPriceMarket = (
+export const buildInitFixedPriceMarketTx = (
   params: BuildCreateFixedPriceMarketParams
 ): MoveCallTransaction => ({
   packageObjectId: params.packageObjectId,
   module: "fixed_price",
   function: "init_market",
   typeArguments: [params.coinType ?? SUI_TYPE],
-  arguments: [params.price.toFixed(0)],
+  arguments: [params.inventory, params.price.toFixed(0)],
   gasBudget: 5000,
 });
 
-export const buildEnableSales = (
+export const buildEnableSalesTx = (
   params: BuildEnableSalesParams
 ): MoveCallTransaction => ({
   packageObjectId: params.packageObjectId,
   module: "listing",
   function: "sale_on",
   typeArguments: [],
-  arguments: [params.listing, params.inventory, params.market],
+  arguments: [params.listing, params.venue],
   gasBudget: 5000,
 });
 
-export const buildCreateFlatFee = (
+export const buildCreateFlatFeeTx = (
   params: BuildCreateFlatFeeParams
 ): MoveCallTransaction => ({
   packageObjectId: params.packageObjectId,
@@ -141,7 +134,7 @@ export const buildCreateFlatFee = (
   gasBudget: 5000,
 });
 
-export const buildInitMarketplace = (
+export const buildInitMarketplaceTx = (
   params: BuildInitMarketplaceParams
 ): MoveCallTransaction => ({
   packageObjectId: params.packageObjectId,
@@ -152,7 +145,7 @@ export const buildInitMarketplace = (
   gasBudget: 5000,
 });
 
-export const buildInitListing = (
+export const buildInitListingTx = (
   params: BuildInitListingParams
 ): MoveCallTransaction => ({
   packageObjectId: params.packageObjectId,
@@ -163,24 +156,28 @@ export const buildInitListing = (
   gasBudget: 5000,
 });
 
-export const buildInitInventoryTx = (
-  params: BuildInitInventoryParams
+export const buildInitWarehouseTx = (
+  params: BuildInitWarehouseParams
 ): MoveCallTransaction => ({
   packageObjectId: params.packageObjectId,
-  module: "inventory",
-  function: "init_inventory",
-  typeArguments: [],
+  module: "warehouse",
+  function: "init_warehouse",
+  typeArguments: [
+    `${params.packageObjectId}::${params.nftModuleName}::${params.nftClassName}`,
+  ],
   arguments: [],
   gasBudget: 5000,
 });
 
-export const buildAddInventoryToListing = (
-  params: BuildAddInventoryToListingParams
+export const buildAddWarehouseToListingTx = (
+  params: BuildAddWarehouseToListingParams
 ): MoveCallTransaction => ({
   packageObjectId: params.packageObjectId,
   module: "listing",
-  function: "add_inventory",
-  typeArguments: [],
-  arguments: [params.listing, params.inventory],
+  function: "add_warehouse",
+  typeArguments: [
+    `${params.packageObjectId}::${params.nftModuleName}::${params.nftClassName}`,
+  ],
+  arguments: [params.listing, params.collection, params.warehouse],
   gasBudget: 50000,
 });
