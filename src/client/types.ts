@@ -397,6 +397,10 @@ export interface NftParam {
   nft: ObjectId;
 }
 
+export interface NftTypeParam {
+  nftType: string
+}
+
 export interface TransferCapParam {
   transferCap: ObjectId;
 }

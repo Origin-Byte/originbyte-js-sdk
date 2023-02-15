@@ -21,6 +21,11 @@ import {
   createOrderbookTx,
   finishTradeOfGenericNftTx,
   finishTradeTx,
+  listNftTx,
+  depositAndlistNftTx,
+  createSafeAndDepositAndListNftTx,
+  depositAndListNftWithCommissionTx,
+  createSafeAndDepositAndListNftWithCommissionTx,
 } from "./txBuilder";
 
 export class OrderbookFullClient extends OrderbookReadClient {
@@ -113,6 +118,125 @@ export class OrderbookFullClient extends OrderbookReadClient {
   }) {
     const effects = await this.client.sendTxWaitForEffects(
       createAskWithCommissionTx({
+        ...this.opts,
+        ...p,
+      })
+    );
+
+    return {
+      // undefined if trade not executed instantly
+      trade: effects.created?.find(Boolean)?.reference.objectId,
+      effects,
+    };
+  }
+
+  public async listNft(p: {
+    collection: string;
+    ft: string;
+    orderbook: ObjectId;
+    price: number;
+    nft: ObjectId
+    sellerSafe: ObjectId;
+    ownerCap: ObjectId;
+  }) {
+    const effects = await this.client.sendTxWaitForEffects(
+      listNftTx({
+        ...this.opts,
+        ...p,
+      })
+    );
+
+    return {
+      // undefined if trade not executed instantly
+      trade: effects.created?.find(Boolean)?.reference.objectId,
+      effects,
+    };
+  }
+
+  public async depositAndListNft(p: {
+    collection: string;
+    ft: string;
+    nftType: string
+    orderbook: ObjectId;
+    price: number;
+    nft: ObjectId
+    sellerSafe: ObjectId;
+    ownerCap: ObjectId;
+  }) {
+    const effects = await this.client.sendTxWaitForEffects(
+      depositAndlistNftTx({
+        ...this.opts,
+        ...p,
+      })
+    );
+
+    return {
+      // undefined if trade not executed instantly
+      trade: effects.created?.find(Boolean)?.reference.objectId,
+      effects,
+    };
+  }
+
+  public async depositAndListNftWithCommission(p: {
+    beneficiary: SuiAddress;
+    commission: number;
+    collection: string;
+    ft: string;
+    nftType: string
+    orderbook: ObjectId;
+    price: number;
+    nft: ObjectId
+    sellerSafe: ObjectId;
+    ownerCap: ObjectId;
+  }) {
+    const effects = await this.client.sendTxWaitForEffects(
+      depositAndListNftWithCommissionTx({
+        ...this.opts,
+        ...p,
+      })
+    );
+
+    return {
+      // undefined if trade not executed instantly
+      trade: effects.created?.find(Boolean)?.reference.objectId,
+      effects,
+    };
+  }
+
+  public async createSafeAndDepositAndListNft(p: {
+    collection: string;
+    ft: string;
+    nftType: string
+    orderbook: ObjectId;
+    price: number;
+    nft: ObjectId
+  }) {
+    const effects = await this.client.sendTxWaitForEffects(
+      createSafeAndDepositAndListNftTx({
+        ...this.opts,
+        ...p,
+      })
+    );
+
+    return {
+      // undefined if trade not executed instantly
+      trade: effects.created?.find(Boolean)?.reference.objectId,
+      effects,
+    };
+  }
+
+  public async createSafeAndDepositAndListNftWithCommission(p: {
+    beneficiary: SuiAddress;
+    commission: number;
+    collection: string;
+    ft: string;
+    nftType: string
+    orderbook: ObjectId;
+    price: number;
+    nft: ObjectId
+  }) {
+    const effects = await this.client.sendTxWaitForEffects(
+      createSafeAndDepositAndListNftWithCommissionTx({
         ...this.opts,
         ...p,
       })
