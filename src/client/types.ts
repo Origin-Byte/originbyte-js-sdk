@@ -48,7 +48,8 @@ export interface MintCapRPCResponse {
 }
 
 export type VenueRpcResponse = {
-
+  is_live: boolean;
+  is_whitelisted: boolean;
 }
 
 export interface FixedPriceMarketRpcResponse {
@@ -176,8 +177,6 @@ export interface ListingRpcResponse {
   };
   admin: string;
   receiver: string;
-  warehouses?: Bag;
-  custom_fee: ObjectBox;
   proceeds: {
     fields: {
       id: ID;
@@ -189,6 +188,10 @@ export interface ListingRpcResponse {
       };
     };
   };
+  venues: ObjectBox;
+  inventories: ObjectBox;
+  custom_fee: ObjectBox;
+
 }
 
 export interface Listing extends WithPackageObjectId, WithId {
@@ -196,7 +199,7 @@ export interface Listing extends WithPackageObjectId, WithId {
   marketplace?: string;
   receiver: string;
   customFeeBagId: string;
-  warehousesBagId?: string;
+  inventoriesBagId?: string;
   qtSold: number;
 }
 
@@ -214,15 +217,46 @@ export interface WithRawResponse {
   rawResponse: GetObjectDataResponse;
 }
 
-export interface WarehouseRpcResponse {
-  nfts: string[];
+export type WarehouseRpcResponse = {
 }
 
 export type Warehouse = WithId & {
-  nfts: string[];
 };
 
-export type Venue = WithRawResponse & WithId;
+export type InventoryRpcResponse = {
+  allowlist: {}
+}
+
+
+export type Inventory = WithId & {}
+
+
+export type InventoryDofRpcResponse = {
+  id: ID
+  name: {
+    type: string;
+    fields: {
+      dummy_field: boolean;
+    };
+  }
+  value: {
+    type: string;
+    fields: {
+      id: ID;
+      nfts: string[];
+    }
+
+  }
+}
+
+export type InventoryContent = WithId & {
+  nfts: string[];
+}
+
+export type Venue = WithRawResponse & WithId & {
+  isLive: boolean;
+  isWhitelisted: boolean;
+};
 
 export interface FixedPriceMarket extends WithRawResponse, WithId {
   price: string;
@@ -322,13 +356,17 @@ export interface GetWarehouseParams {
   warehouseId: string;
 }
 
+export interface GetInventoryParams {
+  inventoryId: string;
+}
+
 export interface GetMarketplaceParams {
   marketplaceId: string;
 }
 
 export interface GetNftsParams extends WithIds {
   resolveBags?: boolean;
- }
+}
 
 export interface GetCollectionsParams extends WithIds { }
 

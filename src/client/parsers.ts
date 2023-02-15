@@ -8,7 +8,6 @@ import { any, boolean, object, record, string } from "superstruct";
 import {
   ArtNftRaw,
   ArtNftRpcResponse,
-  AttributionDomain,
   AttributionDomainBagRpcResponse,
   CollectionDomains,
   DisplayDomain,
@@ -41,6 +40,10 @@ import {
   UrlDomainBagRpcResponse,
   Venue,
   VenueRpcResponse,
+  InventoryRpcResponse,
+  Inventory,
+  InventoryDofRpcResponse,
+  InventoryContent,
 } from "./types";
 import { parseObjectOwner } from "./utils";
 
@@ -166,6 +169,8 @@ export const VenueParser: SuiObjectParser<
     return {
       id: suiData.reference.objectId,
       rawResponse: _,
+      isLive: data.is_live,
+      isWhitelisted: data.is_whitelisted,
     };
   },
 
@@ -231,7 +236,7 @@ export const ListingParser: SuiObjectParser<ListingRpcResponse, Listing> = {
       receiver: data.receiver,
       admin: data.admin,
       customFeeBagId: data.custom_fee.fields.id.id,
-      warehousesBagId: data.warehouses?.fields.id.id,
+      inventoriesBagId: data.inventories?.fields.id.id,
       qtSold: parseInt(data.proceeds.fields.qt_sold.fields.total, 10),
     };
   },
@@ -261,10 +266,36 @@ export const WarehouseParser: SuiObjectParser<WarehouseRpcResponse, Warehouse> =
   parser: (data, suiData, _) => {
     return {
       id: suiData.reference.objectId,
-      nfts: data.nfts,
     };
   },
 };
+
+const INVENTORY_REGEX = /(0x[a-f0-9]{39,40})::inventory::Inventory/;
+
+export const InventoryParser: SuiObjectParser<InventoryRpcResponse, Inventory> =
+{
+  regex: INVENTORY_REGEX,
+  parser: (data, suiData, _) => {
+    return {
+      id: suiData.reference.objectId,
+    };
+  },
+};
+
+// eslint-disable-next-line max-len
+const INVENTORY_DOF_REGEX = /0x2::dynamic_field::Field<(0x[a-f0-9]{39,40})::utils::Marker<(0x[a-f0-9]{39,40})::warehouse::Warehouse<(0x[a-f0-9]{39,40})::[a-zA-Z_]{1,}::[a-zA-Z_]{1,}>>, (0x[a-f0-9]{39,40})::warehouse::Warehouse<(0x[a-f0-9]{39,40})::[a-zA-Z_]{1,}::[a-zA-Z_]{1,}>>/
+
+export const InventoryDofParser: SuiObjectParser<InventoryDofRpcResponse, InventoryContent> =
+{
+  regex: INVENTORY_DOF_REGEX,
+  parser: (data, suiData, _) => {
+    return {
+      nfts: data.value.fields.nfts,
+      id: suiData.reference.objectId,
+    };
+  },
+};
+
 
 /* eslint-disable max-len */
 const ROYALTY_DOMAIN_BAG_REGEX =
@@ -474,8 +505,8 @@ export const parseDynamicDomains = (domains: GetObjectDataResponse[]) => {
   ) {
     const { data } = attributesDomain.details;
     const royalties = (
-      data.fields as AttributionDomain
-    ).map.fields.contents.reduce(
+      data.fields as AttributionDomainBagRpcResponse
+    ).value.fields.map.fields.contents.reduce(
       (acc, c) => ({ ...acc, [c.fields.key]: c.fields.value }),
       {}
     );

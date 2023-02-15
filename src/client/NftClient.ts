@@ -29,11 +29,12 @@ import {
   parseTags,
   FlatFeeParser,
   ListingParser,
-  DynamicFieldParser,
   WarehouseParser,
   MoveObject,
   parseDynamicDomains,
   FixedPriceMarketParser,
+  InventoryParser,
+  InventoryDofParser,
 } from "./parsers";
 import {
   GetMintCapsParams,
@@ -50,6 +51,7 @@ import {
   GetListingParams,
   ArtNft,
   VenueWithMarket,
+  GetInventoryParams,
 } from "./types";
 import { isObjectExists } from "./utils";
 import { TESTNET_URL } from "./consts";
@@ -241,20 +243,31 @@ export class NftClient {
 
     const listing = listings[0];
 
-    if (!params.resolveBags || !listing.warehousesBagId) {
+    if (!params.resolveBags || !listing.inventoriesBagId) {
       return listing;
     }
-    const [[inventories]] = await Promise.all([
-      this.getAndParseBagContent(listing.warehousesBagId, DynamicFieldParser),
+    const [[inventory]] = await Promise.all([
+      this.getAndParseBagContent(listing.inventoriesBagId, InventoryParser),
     ]);
     return {
       ...listing,
-      inventoriesId: inventories?.value,
+      inventoryId: inventory?.id,
     };
   };
 
-  getInventoriesById = async (params: GetWarehouseParams) => {
+  getWarehousesById = async (params: GetWarehouseParams) => {
     return this.fetchAndParseObjectsById([params.warehouseId], WarehouseParser);
+  };
+
+  getInventoryById = async (params: GetInventoryParams) => {
+    const [inventory] = await this.fetchAndParseObjectsById([params.inventoryId], InventoryParser);
+    const fields = await this.getDynamicFields(params.inventoryId);
+    const [parsedFields] = await this.parseObjects(fields, InventoryDofParser);
+
+    return {
+      id: inventory.id,
+      nfts: parsedFields.nfts,
+    }
   };
 
   getNftsById = async (params: GetNftsParams): Promise<ArtNft[]> => {
@@ -284,10 +297,10 @@ export class NftClient {
       const fields = bagsByNftId.get(nft.id);
       return {
         logicalOwner: nft.logicalOwner,
-        name: fields?.content.name,
-        description: fields?.content.description,
-        url: fields?.content.url,
-        attributes: fields?.content.attributes,
+        name: fields?.content.name ?? nft.name,
+        description: fields?.content.description ?? "",
+        url: fields?.content.url ?? nft.url,
+        attributes: fields?.content.attributes ?? {},
         packageModule: nft.packageModule,
         packageObjectId: nft.packageObjectId,
         packageModuleClassName: nft.packageModuleClassName,
