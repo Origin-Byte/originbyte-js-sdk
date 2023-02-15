@@ -180,6 +180,28 @@ export const buyNftTx = (
   );
 };
 
+export const createSafeAndBuyNftTx = (
+  p: OrderbookParams &
+    NftParam &
+    DebitParams &
+    SellerSafeParam &
+    AllowlistParam
+) => {
+  return txObj(
+    "create_safe_and_buy_nft",
+    p,
+    [
+      p.orderbook,
+      p.nft,
+      String(p.price),
+      p.wallet,
+      p.sellerSafe,
+      p.allowlist,
+    ],
+    [p.collection, p.ft]
+  );
+};
+
 export const buyGenericNftTx = (
   p: OrderbookParams & NftParam & DebitParams & SellerSafeParam & BuyerSafeParam
 ) => {

@@ -26,6 +26,7 @@ import {
   createSafeAndDepositAndListNftTx,
   depositAndListNftWithCommissionTx,
   createSafeAndDepositAndListNftWithCommissionTx,
+  createSafeAndBuyNftTx,
 } from "./txBuilder";
 
 export class OrderbookFullClient extends OrderbookReadClient {
@@ -65,6 +66,8 @@ export class OrderbookFullClient extends OrderbookReadClient {
   static createSafeAndDepositAndListNftWithCommissionTx = createSafeAndDepositAndListNftWithCommissionTx;
 
   static buyNftTx = buyNftTx;
+
+  static createSafeAndBuyNftTx = createSafeAndBuyNftTx;
 
   static buyGenericNftTx = buyGenericNftTx;
 
@@ -272,6 +275,33 @@ export class OrderbookFullClient extends OrderbookReadClient {
   }): Promise<{ tradePayments: ObjectId[]; effects: TransactionEffects }> {
     const effects = await this.client.sendTxWaitForEffects(
       buyNftTx({
+        ...this.opts,
+        ...p,
+      })
+    );
+
+    const tradePayments = effects.created
+      .filter((obj) => parseObjectOwner(obj.owner) === "shared")
+      .map((obj) => obj.reference.objectId);
+
+    return {
+      tradePayments,
+      effects,
+    };
+  }
+
+  public async createSafeAndBuyNft(p: {
+    allowlist: ObjectId;
+    collection: string;
+    ft: string;
+    nft: ObjectId;
+    orderbook: ObjectId;
+    price: number;
+    sellerSafe: ObjectId;
+    wallet: ObjectId;
+  }): Promise<{ tradePayments: ObjectId[]; effects: TransactionEffects }> {
+    const effects = await this.client.sendTxWaitForEffects(
+      createSafeAndBuyNftTx({
         ...this.opts,
         ...p,
       })
