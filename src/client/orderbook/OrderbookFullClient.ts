@@ -67,7 +67,7 @@ export class OrderbookFullClient extends OrderbookReadClient {
 
   static buyNftTx = buyNftTx;
 
-  static createSafeAndBuyNftTx = createSafeAndBuyNftTx
+  static createSafeAndBuyNftTx = createSafeAndBuyNftTx;
 
   static buyGenericNftTx = buyGenericNftTx;
 
