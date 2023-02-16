@@ -472,6 +472,14 @@ export interface PriceParam {
   price: number;
 }
 
+export interface OldPriceParam {
+  oldPrice: number;
+}
+
+export interface NewPriceParam {
+  newPrice: number;
+}
+
 export interface WalletParam {
   wallet: ObjectId;
 }
