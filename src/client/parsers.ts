@@ -10,7 +10,6 @@ import {
   ArtNftRpcResponse,
   AttributionDomainBagRpcResponse,
   CollectionDomains,
-  DisplayDomain,
   DisplayDomainBagRpcResponse,
   DynamicField,
   DynamicFieldRpcResponse,
