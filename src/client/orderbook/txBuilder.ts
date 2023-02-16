@@ -20,6 +20,8 @@ import {
   WalletParam,
   AuthParam,
   NftTypeParam,
+  OldPriceParam,
+  NewPriceParam,
 } from "../types";
 
 function txObj(
@@ -218,6 +220,24 @@ export const cancelAskTx = (p: OrderbookParams & NftParam & PriceParam) => {
     "cancel_ask",
     p,
     [p.orderbook, String(p.price), p.nft],
+    [p.collection, p.ft]
+  );
+};
+
+export const cancelAskAndDiscardTransferCapTx = (p: OrderbookParams & NftParam & PriceParam & SellerSafeParam) => {
+  return txObj(
+    "cancel_ask_and_discard_transfer_cap",
+    p,
+    [p.orderbook, String(p.price), p.nft, p.sellerSafe],
+    [p.collection, p.ft]
+  );
+};
+
+export const editAskTx = (p: OrderbookParams & NftParam & OldPriceParam & NewPriceParam & SellerSafeParam) => {
+  return txObj(
+    "edit_ask",
+    p,
+    [p.orderbook, String(p.oldPrice), p.nft, String(p.newPrice), p.sellerSafe],
     [p.collection, p.ft]
   );
 };
