@@ -67,12 +67,17 @@ export class NftClient {
     address: string,
     parser: SuiObjectParser<RpcResponse, DataModel>
   ): Promise<string[]> => {
-    const objectsForWallet = await this.provider.getObjectsOwnedByAddress(
+    const objectsForWallet = await this.provider.getDynamicFields(
       address
     );
-    return objectsForWallet
-      .filter((_) => _.type.match(parser.regex))
-      .map((_) => _.objectId);
+
+    let ids: string[] = [];
+    if (Array.isArray(objectsForWallet)) {
+      ids = objectsForWallet.filter((_) => _.type.match(parser.regex)).map(({ objectId }) => objectId);
+    } else {
+      ids = objectsForWallet.data.filter((_) => _.type.match(parser.regex)).map(({ objectId }) => objectId);
+    }
+    return ids;
   };
 
   parseObjects = async <RpcResponse, DataModel>(
@@ -157,8 +162,13 @@ export class NftClient {
   };
 
   getBagContent = async (bagId: string) => {
-    const bagObjects = await this.provider.getObjectsOwnedByObject(bagId);
-    const objectIds = bagObjects.map((_) => _.objectId);
+    const bagObjects = await this.provider.getDynamicFields(bagId);
+    let objectIds: string[];
+    if (Array.isArray(bagObjects)) {
+      objectIds = bagObjects.map(({ objectId }) => objectId);
+    } else {
+      objectIds = bagObjects.data.map(({ objectId }) => objectId);
+    }
     return this.provider.getObjectBatch(objectIds);
   };
 

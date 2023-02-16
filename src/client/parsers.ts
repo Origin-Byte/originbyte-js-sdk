@@ -153,7 +153,7 @@ export const FixedPriceMarketParser: SuiObjectParser<
       price: data.value.fields.price,
       inventoryId: data.value.fields.inventory_id,
     };
-   },
+  },
   regex: FixedPriceMarketRegex,
 }
 
@@ -430,6 +430,7 @@ const ATTRIBUTES_DOMAIN_REGEX =
 /* eslint-enable */
 
 export const parseDynamicDomains = (domains: GetObjectDataResponse[]) => {
+
   const response: Partial<CollectionDomains> = {};
   const royaltyDomain = domains.find((d) =>
     isTypeMatchRegex(d, ROYALTY_DOMAIN_REGEX)
@@ -480,14 +481,15 @@ export const parseDynamicDomains = (domains: GetObjectDataResponse[]) => {
     const { data } = urlDomain.details;
     response.url = (data.fields as UrlDomain).url;
   }
+
   if (
     displayDomain &&
     is(displayDomain.details, SuiObject) &&
     is(displayDomain.details.data, MoveObject)
   ) {
     const { data } = displayDomain.details;
-    response.description = (data.fields as DisplayDomain).description;
-    response.name = (data.fields as DisplayDomain).name;
+    response.description = (data.fields as DisplayDomainBagRpcResponse).value.fields.description;
+    response.name = (data.fields as DisplayDomainBagRpcResponse).value.fields.name;
   }
   if (
     tagsDomain &&
