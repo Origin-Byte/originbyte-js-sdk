@@ -27,6 +27,8 @@ import {
   depositAndListNftWithCommissionTx,
   createSafeAndDepositAndListNftWithCommissionTx,
   createSafeAndBuyNftTx,
+  cancelAskAndDiscardTransferCapTx,
+  editAskTx,
 } from "./txBuilder";
 
 export class OrderbookFullClient extends OrderbookReadClient {
@@ -72,6 +74,10 @@ export class OrderbookFullClient extends OrderbookReadClient {
   static buyGenericNftTx = buyGenericNftTx;
 
   static cancelAskTx = cancelAskTx;
+
+  static cancelAskAndDiscardTransferCapTx = cancelAskAndDiscardTransferCapTx;
+
+  static editAskTx = editAskTx;
 
   static finishTradeTx = finishTradeTx;
 
@@ -348,6 +354,39 @@ export class OrderbookFullClient extends OrderbookReadClient {
   }) {
     return this.client.sendTxWaitForEffects(
       cancelAskTx({
+        ...this.opts,
+        ...p,
+      })
+    );
+  }
+
+  public async cancelAskAndDiscardTransferCap(p: {
+    collection: string;
+    ft: string;
+    nft: ObjectId;
+    orderbook: ObjectId;
+    price: number;
+    sellerSafe: ObjectId;
+  }) {
+    return this.client.sendTxWaitForEffects(
+      cancelAskAndDiscardTransferCapTx({
+        ...this.opts,
+        ...p,
+      })
+    );
+  }
+
+  public async editAsk(p: {
+    collection: string;
+    ft: string;
+    nft: ObjectId;
+    orderbook: ObjectId;
+    oldPrice: number;
+    newPrice: number;
+    sellerSafe: ObjectId;
+  }) {
+    return this.client.sendTxWaitForEffects(
+      editAskTx({
         ...this.opts,
         ...p,
       })
