@@ -67,17 +67,11 @@ export class NftClient {
     address: string,
     parser: SuiObjectParser<RpcResponse, DataModel>
   ): Promise<string[]> => {
-    const objectsForWallet = await this.provider.getDynamicFields(
+    const objectsForWallet = await this.provider.getObjectsOwnedByAddress(
       address
     );
 
-    let ids: string[] = [];
-    if (Array.isArray(objectsForWallet)) {
-      ids = objectsForWallet.filter((_) => _.type.match(parser.regex)).map(({ objectId }) => objectId);
-    } else {
-      ids = objectsForWallet.data.filter((_) => _.type.match(parser.regex)).map(({ objectId }) => objectId);
-    }
-    return ids;
+    return objectsForWallet.filter((_) => _.type.match(parser.regex)).map(({ objectId }) => objectId);
   };
 
   parseObjects = async <RpcResponse, DataModel>(
@@ -326,6 +320,7 @@ export class NftClient {
       address,
       ArtNftParser
     );
+    console.log("objectIds", objectIds);
     return this.getNftsById({ objectIds });
   };
 
