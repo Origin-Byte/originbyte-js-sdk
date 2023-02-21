@@ -320,7 +320,6 @@ export class NftClient {
       address,
       ArtNftParser
     );
-    console.log("objectIds", objectIds);
     return this.getNftsById({ objectIds });
   };
 

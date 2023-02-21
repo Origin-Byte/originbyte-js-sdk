@@ -56,7 +56,7 @@ export const buildBuyNftTx = (
     SUI_TYPE,
   ],
   arguments: [params.listing, params.venue, params.coin],
-  gasBudget: 5000,
+  gasBudget: params.gasBudget ?? 5000,
 });
 
 
