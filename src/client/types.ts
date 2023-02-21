@@ -408,11 +408,10 @@ export type NftModuleParams = {
   nftClassName: string;
 }
 
-export type BuildBuyNftParams = WithPackageObjectId & NftModuleParams & {
+export type BuildBuyNftParams = GlobalParams & NftModuleParams & {
   listing: string;
   venue: string;
   coin: string;
-
 };
 
 export interface BuildEnableSalesParams extends WithPackageObjectId {
