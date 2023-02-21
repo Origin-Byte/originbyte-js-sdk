@@ -93,7 +93,7 @@ export class SafeReadClient {
     return this.opts.gasBudget ?? DEFAULT_GAS_BUDGET;
   }
 
-  public async fetchOwnerCaps(
+  public async fetchOwnerCapsIds(
     user: SuiAddress,
     p: Partial<GlobalParams> = {}
   ): Promise<ObjectId[]> {
@@ -102,6 +102,13 @@ export class SafeReadClient {
     }::OwnerCap`;
     const objs = await this.client.getObjects(user);
     return objs.filter((o) => o.type === ownerCapType).map((o) => o.objectId);
+  }
+
+  public async fetchAllOwnerCapsByUser(user: SuiAddress) {
+    const allObjects = await this.client.getObjects(user);
+    const ownerCapObjects = allObjects.filter((obj) => obj.type.endsWith("::OwnerCap"));
+
+    return ownerCapObjects
   }
 
   public async fetchOwnerCapSafeId(ownerCap: ObjectId): Promise<ObjectId> {
