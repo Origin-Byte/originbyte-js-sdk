@@ -4,12 +4,12 @@ set -e
 
 # set SKIP_DEPS env to skip fetching dependencies and deploying nft-protocol
 
-export $(cat "__tests__/.env.test" | xargs)
+source __tests__/.env.test.sh
 
 # current dir
 root="$(pwd)"
 # defined by mnemonic in test consts
-test_addr="2d1770323750638a27e8a2b4ad4fe54ec2b7edf0"
+test_addr="ddcdd8e07b59852f58ba8db8daff1b585d2fca23"
 # path to test assets
 test_assets_dir="${root}/__tests__/assets"
 test_assets_tmp_dir="${test_assets_dir}/.tmp"
@@ -150,7 +150,7 @@ if [ -z "${SKIP_DEPS}" ]; then
                 pay_all_sui \
                 --gas-budget 100000 \
                 --input-coins "${coin_id}" \
-                --recipient "${test_addr}" 1>/dev/null
+                --recipient "0x${test_addr}" 1>/dev/null
         done
     fi
 fi

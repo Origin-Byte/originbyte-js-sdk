@@ -137,8 +137,8 @@ export const MintCapParser: SuiObjectParser<MintCapRPCResponse, MintCap> = {
     /0x[a-f0-9]{39,40}::collection::MintCap<0x[a-f0-9]{39,40}::[a-zA-Z_]{1,}::[a-zA-Z_]{1,}>/,
 };
 
-// eslint-disable-next-line max-len
 export const FixedPriceMarketRegex =
+  // eslint-disable-next-line max-len
   /0x2::dynamic_field::Field<0x[a-f0-9]{39,40}::utils::Marker<0x[a-f0-9]{39,40}::fixed_price::FixedPriceMarket<0x2::sui::SUI>>, 0x[a-f0-9]{39,40}::fixed_price::FixedPriceMarket<0x2::sui::SUI>>/;
 
 export const FixedPriceMarketParser: SuiObjectParser<
@@ -203,7 +203,7 @@ export const MarketplaceParser: SuiObjectParser<
 const FLAT_FEE_REGEX = /(0x[a-f0-9]{39,40})::flat_fee::FlatFee/;
 
 export const FlatFeeParser: SuiObjectParser<FlatFeeRfcRpcResponse, FlatFee> = {
-  parser: (data, suiData, _) => {
+  parser: (data) => {
     return {
       id: data.id.id,
       rateBps: data.rate_bps,
@@ -246,7 +246,7 @@ export const DynamicFieldParser: SuiObjectParser<
   DynamicField
 > = {
   regex: DYNAMIC_FIELD_REGEX,
-  parser: (data, suiData, _) => {
+  parser: (data) => {
     return {
       value: data.value,
     };
@@ -258,7 +258,7 @@ const WAREHOUSE_REGEX = /(0x[a-f0-9]{39,40})::warehouse::Warehouse/;
 export const WarehouseParser: SuiObjectParser<WarehouseRpcResponse, Warehouse> =
   {
     regex: WAREHOUSE_REGEX,
-    parser: (data, suiData, _) => {
+    parser: (data, suiData) => {
       return {
         id: suiData.reference.objectId,
       };
@@ -270,15 +270,15 @@ const INVENTORY_REGEX = /(0x[a-f0-9]{39,40})::inventory::Inventory/;
 export const InventoryParser: SuiObjectParser<InventoryRpcResponse, Inventory> =
   {
     regex: INVENTORY_REGEX,
-    parser: (data, suiData, _) => {
+    parser: (_data, suiData) => {
       return {
         id: suiData.reference.objectId,
       };
     },
   };
 
-// eslint-disable-next-line max-len
 const INVENTORY_DOF_REGEX =
+  // eslint-disable-next-line max-len
   /0x2::dynamic_field::Field<(0x[a-f0-9]{39,40})::utils::Marker<(0x[a-f0-9]{39,40})::warehouse::Warehouse<(0x[a-f0-9]{39,40})::[a-zA-Z_]{1,}::[a-zA-Z_]{1,}>>, (0x[a-f0-9]{39,40})::warehouse::Warehouse<(0x[a-f0-9]{39,40})::[a-zA-Z_]{1,}::[a-zA-Z_]{1,}>>/;
 
 export const InventoryDofParser: SuiObjectParser<
@@ -286,7 +286,7 @@ export const InventoryDofParser: SuiObjectParser<
   InventoryContent
 > = {
   regex: INVENTORY_DOF_REGEX,
-  parser: (data, suiData, _) => {
+  parser: (data, suiData) => {
     return {
       nfts: data.value.fields.nfts,
       id: suiData.reference.objectId,

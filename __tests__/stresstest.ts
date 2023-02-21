@@ -3,7 +3,7 @@
  *
  * ENV variables:
  * - RPC_ENDPOINT - RPC endpoint to use, defaults to "LOCAL"
- * - MNEMONIC - mnemonic to use, defaults to one with pubkey of 0x2d1770323750638a27e8a2b4ad4fe54ec2b7edf0
+ * - MNEMONIC - mnemonic to use, defaults to one with pubkey of 0xddcdd8e07b59852f58ba8db8daff1b585d2fca23
  * - TESTRACT_ADDRESS - address of testract package on the chain of RPC_ENDPOINT
  * - NFT_PROTOCOL_ADDRESS - address of testract package NFT dependency on the chain of RPC_ENDPOINT
  */
@@ -25,10 +25,10 @@ const SLEEP_AFTER_FIRST_ERROR_MS = 1000;
 const DEFAULT_GAS_BUDGET = 100_000;
 const TESTRACT_ADDRESS = process.env.TESTRACT_ADDRESS;
 const TESTRACT_OTW_TYPE = `${TESTRACT_ADDRESS}::testract::TESTRACT`;
-const TESTRACT_C_TYPE = `${TESTRACT_ADDRESS}::testract::CTESTRACT`;
+const TESTRACT_C_TYPE = TESTRACT_OTW_TYPE;
 const NFT_PROTOCOL_ADDRESS = process.env.NFT_PROTOCOL_ADDRESS;
 const ENV = process.env.RPC_ENDPOINT || "LOCAL";
-// DEFAULT is: 0x2d1770323750638a27e8a2b4ad4fe54ec2b7edf0
+// DEFAULT is: 0xddcdd8e07b59852f58ba8db8daff1b585d2fca23
 const MNEMONIC =
   process.env.MNEMONIC ||
   "muffin tuition fit fish average true slender tower salmon artist song biology";
