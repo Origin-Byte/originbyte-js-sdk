@@ -23,7 +23,7 @@ export default function suite() {
       expect(effects.created![1].reference.objectId).toBe(safe);
     }
 
-    const ownerCaps = await safeClient.fetchOwnerCaps(user);
+    const ownerCaps = await safeClient.fetchOwnerCapsIds(user);
     expect(ownerCaps.length).toBe(1);
     expect(ownerCaps[0]).toBe(ownerCap);
 
