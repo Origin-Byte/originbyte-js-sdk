@@ -158,7 +158,7 @@ export const FixedPriceMarketParser: SuiObjectParser<
 
 // eslint-disable-next-line max-len
 export const VenueRegex =
-  /(0x[a-f0-9]{40})::venue::Venue/;
+  /(0x[a-f0-9]{39,40})::venue::Venue/;
 
 export const VenueParser: SuiObjectParser<
   VenueRpcResponse,
