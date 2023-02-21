@@ -1,9 +1,5 @@
 import { NftClient } from "../src";
-import {
-  LISTING_ID, PACKAGE_OBJECT_ID,
-  signer,
-  VENUE_ID
-} from "./common";
+import { LISTING_ID, PACKAGE_OBJECT_ID, signer, VENUE_ID } from "./common";
 
 const enableSales = async () => {
   const mintNftTransaction = NftClient.buildEnableSales({

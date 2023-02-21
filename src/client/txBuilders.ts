@@ -59,7 +59,6 @@ export const buildBuyNftTx = (
   gasBudget: params.gasBudget ?? 5000,
 });
 
-
 export const buildInitVenueTx = (
   params: BuildInitVenueParams
 ): MoveCallTransaction => ({
@@ -68,7 +67,7 @@ export const buildInitVenueTx = (
   function: "init_venue",
   typeArguments: [
     `${params.packageObjectId}::${params.nftModuleName}::${params.nftClassName}`,
-    params.coinType ?? SUI_TYPE
+    params.coinType ?? SUI_TYPE,
   ],
   arguments: [
     params.listing,

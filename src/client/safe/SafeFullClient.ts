@@ -92,9 +92,9 @@ export class SafeFullClient extends SafeReadClient {
       })
     );
 
-    const { transferCap } = parseTransferCapForSenderTxData(effects)
+    const { transferCap } = parseTransferCapForSenderTxData(effects);
 
-    return { effects, transferCap }
+    return { effects, transferCap };
   }
 
   public async createSafeForSender(): Promise<{
@@ -106,9 +106,9 @@ export class SafeFullClient extends SafeReadClient {
       createSafeForSenderTx(this.opts)
     );
 
-    const { safe, ownerCap } = parseCreateSafeForSenderTxData(effects)
+    const { safe, ownerCap } = parseCreateSafeForSenderTxData(effects);
 
-    return { effects, safe, ownerCap }
+    return { effects, safe, ownerCap };
   }
 
   public async createTransferCapForSender(p: {

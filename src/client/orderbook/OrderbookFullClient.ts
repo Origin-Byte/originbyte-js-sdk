@@ -65,7 +65,8 @@ export class OrderbookFullClient extends OrderbookReadClient {
 
   static depositAndListNftWithCommissionTx = depositAndListNftWithCommissionTx;
 
-  static createSafeAndDepositAndListNftWithCommissionTx = createSafeAndDepositAndListNftWithCommissionTx;
+  static createSafeAndDepositAndListNftWithCommissionTx =
+    createSafeAndDepositAndListNftWithCommissionTx;
 
   static buyNftTx = buyNftTx;
 
@@ -154,7 +155,7 @@ export class OrderbookFullClient extends OrderbookReadClient {
     ft: string;
     orderbook: ObjectId;
     price: number;
-    nft: ObjectId
+    nft: ObjectId;
     sellerSafe: ObjectId;
     ownerCap: ObjectId;
   }) {
@@ -175,10 +176,10 @@ export class OrderbookFullClient extends OrderbookReadClient {
   public async depositAndListNft(p: {
     collection: string;
     ft: string;
-    nftType: string
+    nftType: string;
     orderbook: ObjectId;
     price: number;
-    nft: ObjectId
+    nft: ObjectId;
     sellerSafe: ObjectId;
     ownerCap: ObjectId;
   }) {
@@ -201,10 +202,10 @@ export class OrderbookFullClient extends OrderbookReadClient {
     commission: number;
     collection: string;
     ft: string;
-    nftType: string
+    nftType: string;
     orderbook: ObjectId;
     price: number;
-    nft: ObjectId
+    nft: ObjectId;
     sellerSafe: ObjectId;
     ownerCap: ObjectId;
   }) {
@@ -225,10 +226,10 @@ export class OrderbookFullClient extends OrderbookReadClient {
   public async createSafeAndDepositAndListNft(p: {
     collection: string;
     ft: string;
-    nftType: string
+    nftType: string;
     orderbook: ObjectId;
     price: number;
-    nft: ObjectId
+    nft: ObjectId;
   }) {
     const effects = await this.client.sendTxWaitForEffects(
       createSafeAndDepositAndListNftTx({
@@ -249,10 +250,10 @@ export class OrderbookFullClient extends OrderbookReadClient {
     commission: number;
     collection: string;
     ft: string;
-    nftType: string
+    nftType: string;
     orderbook: ObjectId;
     price: number;
-    nft: ObjectId
+    nft: ObjectId;
   }) {
     const effects = await this.client.sendTxWaitForEffects(
       createSafeAndDepositAndListNftWithCommissionTx({

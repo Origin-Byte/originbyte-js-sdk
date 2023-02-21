@@ -71,7 +71,9 @@ export class NftClient {
       address
     );
 
-    return objectsForWallet.filter((_) => _.type.match(parser.regex)).map(({ objectId }) => objectId);
+    return objectsForWallet
+      .filter((_) => _.type.match(parser.regex))
+      .map(({ objectId }) => objectId);
   };
 
   parseObjects = async <RpcResponse, DataModel>(
@@ -130,13 +132,16 @@ export class NftClient {
 
     const venueWithMarket = await Promise.all(
       venues.map(async (venue) => {
-        const marketResponse = await this.getDynamicFields(venue.id)
-        const parsed = await this.parseObjects(marketResponse, FixedPriceMarketParser);
+        const marketResponse = await this.getDynamicFields(venue.id);
+        const parsed = await this.parseObjects(
+          marketResponse,
+          FixedPriceMarketParser
+        );
         if (parsed.length) {
           return {
             ...venue,
-            market: parsed[0]
-          } as VenueWithMarket
+            market: parsed[0],
+          } as VenueWithMarket;
         }
         return undefined;
       })
@@ -264,14 +269,17 @@ export class NftClient {
   };
 
   getInventoryById = async (params: GetInventoryParams) => {
-    const [inventory] = await this.fetchAndParseObjectsById([params.inventoryId], InventoryParser);
+    const [inventory] = await this.fetchAndParseObjectsById(
+      [params.inventoryId],
+      InventoryParser
+    );
     const fields = await this.getDynamicFields(params.inventoryId);
     const [parsedFields] = await this.parseObjects(fields, InventoryDofParser);
 
     return {
       id: inventory.id,
       nfts: parsedFields.nfts,
-    }
+    };
   };
 
   getNftsById = async (params: GetNftsParams): Promise<ArtNft[]> => {
@@ -281,20 +289,22 @@ export class NftClient {
       ArtNftParser
     );
 
-    const bags = resolveBags ? await Promise.all(
-      nfts.map(async (_) => {
-        const content = _.bagId
-          ? await this.getBagContent(_.bagId)
-          : await this.getDynamicFields(_.id);
+    const bags = resolveBags
+      ? await Promise.all(
+          nfts.map(async (_) => {
+            const content = _.bagId
+              ? await this.getBagContent(_.bagId)
+              : await this.getDynamicFields(_.id);
 
-        return {
-          nftId: _.id,
-          content: _.bagId
-            ? parseBagDomains(content)
-            : parseDynamicDomains(content),
-        };
-      })
-    ) : [];
+            return {
+              nftId: _.id,
+              content: _.bagId
+                ? parseBagDomains(content)
+                : parseDynamicDomains(content),
+            };
+          })
+        )
+      : [];
     const bagsByNftId = toMap(bags, (_) => _.nftId);
 
     return nfts.map((nft) => {
