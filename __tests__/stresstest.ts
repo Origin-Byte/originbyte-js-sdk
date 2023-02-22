@@ -28,11 +28,22 @@ const TESTRACT_OTW_TYPE = `${TESTRACT_ADDRESS}::testract::TESTRACT`;
 const TESTRACT_C_TYPE = TESTRACT_OTW_TYPE;
 const NFT_PROTOCOL_ADDRESS = process.env.NFT_PROTOCOL_ADDRESS;
 const ENV = process.env.RPC_ENDPOINT || "LOCAL";
-// DEFAULT is: 0xddcdd8e07b59852f58ba8db8daff1b585d2fca23
-const MNEMONIC =
-  process.env.MNEMONIC ||
-  "muffin tuition fit fish average true slender tower salmon artist song biology";
-const KEYPAIR = Ed25519Keypair.deriveKeypair(MNEMONIC);
+const KEYPAIR = process.env.MNEMONIC
+  ? Ed25519Keypair.deriveKeypair(process.env.MNEMONIC)
+  : new Ed25519Keypair({
+      publicKey: Uint8Array.from([
+        123, 49, 136, 138, 93, 52, 142, 26, 32, 156, 52, 154, 223, 80, 191, 2,
+        136, 183, 246, 194, 17, 192, 124, 120, 97, 137, 189, 25, 225, 196, 206,
+        252,
+      ]),
+      secretKey: Uint8Array.from([
+        247, 8, 180, 26, 178, 76, 142, 156, 80, 194, 241, 66, 143, 182, 235,
+        102, 66, 242, 47, 157, 43, 116, 165, 212, 124, 189, 163, 59, 11, 212,
+        187, 138, 123, 49, 136, 138, 93, 52, 142, 26, 32, 156, 52, 154, 223, 80,
+        191, 2, 136, 183, 246, 194, 17, 192, 124, 120, 97, 137, 189, 25, 225,
+        196, 206, 252,
+      ]),
+    });
 console.log("Using keypair", KEYPAIR.getPublicKey().toSuiAddress());
 const safeClient = SafeFullClient.fromKeypair(
   KEYPAIR,
@@ -70,7 +81,7 @@ const ASK_DISTRIBUTION = () => Math.round(normalDistribution(520, 50));
 
 const tradeIntermediaries: string[] = [];
 
-async function createSafeWithNfts(mintCap: ObjectId) {
+async function createSafeWithNfts() {
   const { safe, ownerCap } = await safeClient.createSafeForSender();
   if (ENV !== "LOCAL") {
     await new Promise((resolve) => setTimeout(resolve, 500));
@@ -81,7 +92,7 @@ async function createSafeWithNfts(mintCap: ObjectId) {
     module: "testract",
     function: "mint_n_nfts",
     typeArguments: [],
-    arguments: [mintCap, String(NFTS_PER_SAFE), safe],
+    arguments: [String(NFTS_PER_SAFE), safe],
     gasBudget: DEFAULT_GAS_BUDGET * 4,
   });
 
@@ -141,7 +152,6 @@ async function createBid(
 async function getGlobalObjects(): Promise<{
   treasury: ObjectId;
   allowlist: ObjectId;
-  mintCap: ObjectId;
 }> {
   console.log("Getting treasury and allowlist...");
 
@@ -156,30 +166,10 @@ async function getGlobalObjects(): Promise<{
       obj.type.includes(TESTRACT_ADDRESS!.replace("0x0", "0x"))
   )?.objectId;
   if (!treasury) {
-    console.log("TESTRACT_ADDRESS", TESTRACT_ADDRESS);
     objs
       .filter((obj) => obj.type.includes("TreasuryCap"))
       .forEach((obj) => console.log(obj.type));
     throw new Error("Treasury not found");
-  }
-
-  const mintCapType = `${NFT_PROTOCOL_ADDRESS!.replace(
-    "0x0",
-    "0x"
-  )}::mint_cap::MintCap<${TESTRACT_C_TYPE!.replace("0x0", "0x")}>`;
-  const mintCap = objs.find(
-    ({ type }) =>
-      // https://github.com/MystenLabs/sui/issues/8017
-      type === mintCapType
-  )?.objectId;
-  if (!mintCap) {
-    console.log("NFT_PROTOCOL_ADDRESS", NFT_PROTOCOL_ADDRESS);
-    console.log("TESTRACT_ADDRESS", TESTRACT_ADDRESS);
-    console.log("MintCap expected type", mintCapType);
-    objs
-      .filter((obj) => obj.type.includes("MintCap"))
-      .forEach((obj) => console.log(obj.type));
-    throw new Error("MintCap not found");
   }
 
   const allowlists = objs
@@ -201,7 +191,7 @@ async function getGlobalObjects(): Promise<{
       ({ fields }: any) => fields.name.startsWith(TESTRACT_ADDRESS?.slice(2))
     );
     if (hasTestract) {
-      return { treasury, allowlist, mintCap };
+      return { treasury, allowlist };
     }
   }
 
@@ -307,7 +297,7 @@ async function start(
 }
 
 async function main() {
-  const { treasury, allowlist, mintCap } = await getGlobalObjects();
+  const { treasury, allowlist } = await getGlobalObjects();
 
   const { orderbook } = await orderbookClient.createOrderbook({
     ft: TESTRACT_OTW_TYPE,
@@ -322,7 +312,7 @@ async function main() {
   }
   console.log(`Creating ${SAVES_WITH_NFTS_COUNT} safes with NFTs...`);
   for (let i = 0; i < SAVES_WITH_NFTS_COUNT; i++) {
-    saves.push(await createSafeWithNfts(mintCap));
+    saves.push(await createSafeWithNfts());
   }
 
   console.log("Trading begins...");

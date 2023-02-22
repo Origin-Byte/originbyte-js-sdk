@@ -34,19 +34,20 @@ export class FullClient extends ReadClient {
   async sendTxWaitForEffects(
     tx: MoveCallTransaction
   ): Promise<TransactionEffects> {
-    const res = await this.sendTx(tx, "WaitForEffectsCert");
-    if (typeof res !== "object" || !("EffectsCert" in res)) {
+    // there's a bug in the SDKs - the return type doesn't match the actual response
+    const res = (await this.sendTx(tx, "WaitForEffectsCert")) as any;
+    if (typeof res !== "object" || !("effects" in res)) {
       throw new Error(
-        `Response does not contain EffectsCert: ${JSON.stringify(res)}`
+        `Response does not contain effects: ${JSON.stringify(res)}`
       );
     }
 
-    if (res.EffectsCert.effects.effects.status.status === "failure") {
+    if (res.effects.effects.status.status === "failure") {
       throw new Error(
-        `Transaction failed: ${res.EffectsCert.effects.effects.status.error}`
+        `Transaction failed: ${res.effects.effects.status.error}`
       );
     }
 
-    return res.EffectsCert.effects.effects;
+    return res.effects.effects;
   }
 }
