@@ -138,8 +138,8 @@ export const MintCapParser: SuiObjectParser<MintCapRPCResponse, MintCap> = {
 };
 
 // eslint-disable-next-line max-len
-export const FixedPriceMarketRegex = /0x2::dynamic_field::Field<0x[a-f0-9]{39,40}::utils::Marker<0x[a-f0-9]{39,40}::fixed_price::FixedPriceMarket<0x2::sui::SUI>>, 0x[a-f0-9]{39,40}::fixed_price::FixedPriceMarket<0x2::sui::SUI>>/;
-
+export const FixedPriceMarketRegex =
+  /0x2::dynamic_field::Field<0x[a-f0-9]{39,40}::utils::Marker<0x[a-f0-9]{39,40}::fixed_price::FixedPriceMarket<0x2::sui::SUI>>, 0x[a-f0-9]{39,40}::fixed_price::FixedPriceMarket<0x2::sui::SUI>>/;
 
 export const FixedPriceMarketParser: SuiObjectParser<
   FixedPriceMarketRpcResponse,
@@ -154,16 +154,12 @@ export const FixedPriceMarketParser: SuiObjectParser<
     };
   },
   regex: FixedPriceMarketRegex,
-}
+};
 
 // eslint-disable-next-line max-len
-export const VenueRegex =
-  /(0x[a-f0-9]{39,40})::venue::Venue/;
+export const VenueRegex = /(0x[a-f0-9]{39,40})::venue::Venue/;
 
-export const VenueParser: SuiObjectParser<
-  VenueRpcResponse,
-  Venue
-> = {
+export const VenueParser: SuiObjectParser<VenueRpcResponse, Venue> = {
   parser: (data, suiData, _) => {
     return {
       id: suiData.reference.objectId,
@@ -260,32 +256,35 @@ export const DynamicFieldParser: SuiObjectParser<
 const WAREHOUSE_REGEX = /(0x[a-f0-9]{39,40})::warehouse::Warehouse/;
 
 export const WarehouseParser: SuiObjectParser<WarehouseRpcResponse, Warehouse> =
-{
-  regex: WAREHOUSE_REGEX,
-  parser: (data, suiData, _) => {
-    return {
-      id: suiData.reference.objectId,
-    };
-  },
-};
+  {
+    regex: WAREHOUSE_REGEX,
+    parser: (data, suiData, _) => {
+      return {
+        id: suiData.reference.objectId,
+      };
+    },
+  };
 
 const INVENTORY_REGEX = /(0x[a-f0-9]{39,40})::inventory::Inventory/;
 
 export const InventoryParser: SuiObjectParser<InventoryRpcResponse, Inventory> =
-{
-  regex: INVENTORY_REGEX,
-  parser: (data, suiData, _) => {
-    return {
-      id: suiData.reference.objectId,
-    };
-  },
-};
+  {
+    regex: INVENTORY_REGEX,
+    parser: (data, suiData, _) => {
+      return {
+        id: suiData.reference.objectId,
+      };
+    },
+  };
 
 // eslint-disable-next-line max-len
-const INVENTORY_DOF_REGEX = /0x2::dynamic_field::Field<(0x[a-f0-9]{39,40})::utils::Marker<(0x[a-f0-9]{39,40})::warehouse::Warehouse<(0x[a-f0-9]{39,40})::[a-zA-Z_]{1,}::[a-zA-Z_]{1,}>>, (0x[a-f0-9]{39,40})::warehouse::Warehouse<(0x[a-f0-9]{39,40})::[a-zA-Z_]{1,}::[a-zA-Z_]{1,}>>/
+const INVENTORY_DOF_REGEX =
+  /0x2::dynamic_field::Field<(0x[a-f0-9]{39,40})::utils::Marker<(0x[a-f0-9]{39,40})::warehouse::Warehouse<(0x[a-f0-9]{39,40})::[a-zA-Z_]{1,}::[a-zA-Z_]{1,}>>, (0x[a-f0-9]{39,40})::warehouse::Warehouse<(0x[a-f0-9]{39,40})::[a-zA-Z_]{1,}::[a-zA-Z_]{1,}>>/;
 
-export const InventoryDofParser: SuiObjectParser<InventoryDofRpcResponse, InventoryContent> =
-{
+export const InventoryDofParser: SuiObjectParser<
+  InventoryDofRpcResponse,
+  InventoryContent
+> = {
   regex: INVENTORY_DOF_REGEX,
   parser: (data, suiData, _) => {
     return {
@@ -294,7 +293,6 @@ export const InventoryDofParser: SuiObjectParser<InventoryDofRpcResponse, Invent
     };
   },
 };
-
 
 /* eslint-disable max-len */
 const ROYALTY_DOMAIN_BAG_REGEX =
@@ -429,7 +427,6 @@ const ATTRIBUTES_DOMAIN_REGEX =
 /* eslint-enable */
 
 export const parseDynamicDomains = (domains: GetObjectDataResponse[]) => {
-
   const response: Partial<CollectionDomains> = {};
   const royaltyDomain = domains.find((d) =>
     isTypeMatchRegex(d, ROYALTY_DOMAIN_REGEX)
@@ -487,8 +484,12 @@ export const parseDynamicDomains = (domains: GetObjectDataResponse[]) => {
     is(displayDomain.details.data, MoveObject)
   ) {
     const { data } = displayDomain.details;
-    response.description = (data.fields as DisplayDomainBagRpcResponse).value.fields.description;
-    response.name = (data.fields as DisplayDomainBagRpcResponse).value.fields.name;
+    response.description = (
+      data.fields as DisplayDomainBagRpcResponse
+    ).value.fields.description;
+    response.name = (
+      data.fields as DisplayDomainBagRpcResponse
+    ).value.fields.name;
   }
   if (
     tagsDomain &&

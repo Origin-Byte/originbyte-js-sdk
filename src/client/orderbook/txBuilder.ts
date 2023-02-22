@@ -82,11 +82,7 @@ export const createAskWithCommissionTx = (
 };
 
 export const listNftTx = (
-  p: OrderbookParams &
-    PriceParam &
-    NftParam &
-    AuthParam &
-    SellerSafeParam
+  p: OrderbookParams & PriceParam & NftParam & AuthParam & SellerSafeParam
 ) => {
   return txObj(
     "list_nft",
@@ -94,7 +90,7 @@ export const listNftTx = (
     [p.orderbook, String(p.price), p.nft, p.ownerCap, p.sellerSafe],
     [p.collection, p.ft]
   );
-}
+};
 
 export const depositAndlistNftTx = (
   p: OrderbookParams &
@@ -110,7 +106,7 @@ export const depositAndlistNftTx = (
     [p.orderbook, p.nft, String(p.price), p.ownerCap, p.sellerSafe],
     [p.nftType, p.collection, p.ft]
   );
-}
+};
 
 export const depositAndListNftWithCommissionTx = (
   p: OrderbookParams &
@@ -124,16 +120,21 @@ export const depositAndListNftWithCommissionTx = (
   return txObj(
     "deposit_and_list_nft_with_commission",
     p,
-    [p.orderbook, p.nft, String(p.price), p.ownerCap, p.beneficiary, String(p.commission), p.sellerSafe],
+    [
+      p.orderbook,
+      p.nft,
+      String(p.price),
+      p.ownerCap,
+      p.beneficiary,
+      String(p.commission),
+      p.sellerSafe,
+    ],
     [p.nftType, p.collection, p.ft]
   );
-}
+};
 
 export const createSafeAndDepositAndListNftTx = (
-  p: OrderbookParams &
-    PriceParam &
-    NftParam &
-    NftTypeParam
+  p: OrderbookParams & PriceParam & NftParam & NftTypeParam
 ) => {
   return txObj(
     "create_safe_and_deposit_and_list_nft",
@@ -141,14 +142,10 @@ export const createSafeAndDepositAndListNftTx = (
     [p.orderbook, p.nft, String(p.price)],
     [p.nftType, p.collection, p.ft]
   );
-}
+};
 
 export const createSafeAndDepositAndListNftWithCommissionTx = (
-  p: OrderbookParams &
-    PriceParam &
-    NftParam &
-    NftTypeParam &
-    CommissionParams
+  p: OrderbookParams & PriceParam & NftParam & NftTypeParam & CommissionParams
 ) => {
   return txObj(
     "create_safe_and_deposit_and_list_nft_with_commission",
@@ -156,7 +153,7 @@ export const createSafeAndDepositAndListNftWithCommissionTx = (
     [p.orderbook, p.nft, String(p.price), p.beneficiary, String(p.commission)],
     [p.nftType, p.collection, p.ft]
   );
-}
+};
 
 export const buyNftTx = (
   p: OrderbookParams &
@@ -183,23 +180,12 @@ export const buyNftTx = (
 };
 
 export const createSafeAndBuyNftTx = (
-  p: OrderbookParams &
-    NftParam &
-    DebitParams &
-    SellerSafeParam &
-    AllowlistParam
+  p: OrderbookParams & NftParam & DebitParams & SellerSafeParam & AllowlistParam
 ) => {
   return txObj(
     "create_safe_and_buy_nft",
     p,
-    [
-      p.orderbook,
-      p.nft,
-      String(p.price),
-      p.wallet,
-      p.sellerSafe,
-      p.allowlist,
-    ],
+    [p.orderbook, p.nft, String(p.price), p.wallet, p.sellerSafe, p.allowlist],
     [p.collection, p.ft]
   );
 };
@@ -224,7 +210,9 @@ export const cancelAskTx = (p: OrderbookParams & NftParam & PriceParam) => {
   );
 };
 
-export const cancelAskAndDiscardTransferCapTx = (p: OrderbookParams & NftParam & PriceParam & SellerSafeParam) => {
+export const cancelAskAndDiscardTransferCapTx = (
+  p: OrderbookParams & NftParam & PriceParam & SellerSafeParam
+) => {
   return txObj(
     "cancel_ask_and_discard_transfer_cap",
     p,
@@ -233,7 +221,13 @@ export const cancelAskAndDiscardTransferCapTx = (p: OrderbookParams & NftParam &
   );
 };
 
-export const editAskTx = (p: OrderbookParams & NftParam & OldPriceParam & NewPriceParam & SellerSafeParam) => {
+export const editAskTx = (
+  p: OrderbookParams &
+    NftParam &
+    OldPriceParam &
+    NewPriceParam &
+    SellerSafeParam
+) => {
   return txObj(
     "edit_ask",
     p,

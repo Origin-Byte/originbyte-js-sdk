@@ -50,7 +50,7 @@ export interface MintCapRPCResponse {
 export type VenueRpcResponse = {
   is_live: boolean;
   is_whitelisted: boolean;
-}
+};
 
 export interface FixedPriceMarketRpcResponse {
   id: ID;
@@ -58,16 +58,16 @@ export interface FixedPriceMarketRpcResponse {
     type: string;
     fields: {
       dummy_field: boolean;
-    }
-  }
+    };
+  };
   value: {
     type: string;
     fields: {
       id: ID;
       inventory_id: string;
       price: string;
-    }
-  }
+    };
+  };
 }
 
 export interface DomainRpcBase<T> {
@@ -191,7 +191,6 @@ export interface ListingRpcResponse {
   venues: ObjectBox;
   inventories: ObjectBox;
   custom_fee: ObjectBox;
-
 }
 
 export interface Listing extends WithPackageObjectId, WithId {
@@ -217,46 +216,42 @@ export interface WithRawResponse {
   rawResponse: GetObjectDataResponse;
 }
 
-export type WarehouseRpcResponse = {
-}
+export type WarehouseRpcResponse = {};
 
-export type Warehouse = WithId & {
-};
+export type Warehouse = WithId & {};
 
 export type InventoryRpcResponse = {
-  allowlist: {}
-}
+  allowlist: {};
+};
 
-
-export type Inventory = WithId & {}
-
+export type Inventory = WithId & {};
 
 export type InventoryDofRpcResponse = {
-  id: ID
+  id: ID;
   name: {
     type: string;
     fields: {
       dummy_field: boolean;
     };
-  }
+  };
   value: {
     type: string;
     fields: {
       id: ID;
       nfts: string[];
-    }
-
-  }
-}
+    };
+  };
+};
 
 export type InventoryContent = WithId & {
   nfts: string[];
-}
-
-export type Venue = WithRawResponse & WithId & {
-  isLive: boolean;
-  isWhitelisted: boolean;
 };
+
+export type Venue = WithRawResponse &
+  WithId & {
+    isLive: boolean;
+    isWhitelisted: boolean;
+  };
 
 export interface FixedPriceMarket extends WithRawResponse, WithId {
   price: string;
@@ -279,8 +274,8 @@ export interface MarketplaceRpcResponse {
 
 export interface Marketplace
   extends WithId,
-  WithPackageObjectId,
-  WithRawResponse {
+    WithPackageObjectId,
+    WithRawResponse {
   owner: string;
   admin: string;
   receiver: string;
@@ -368,15 +363,15 @@ export interface GetNftsParams extends WithIds {
   resolveBags?: boolean;
 }
 
-export interface GetCollectionsParams extends WithIds { }
+export interface GetCollectionsParams extends WithIds {}
 
 export interface GetCollectionDomainsParams {
   domainsBagId: string;
 }
 
-export interface GetMintCapsParams extends WithIds { }
+export interface GetMintCapsParams extends WithIds {}
 
-export interface GetVenuesParams extends WithIds { }
+export interface GetVenuesParams extends WithIds {}
 
 export type DynamicFieldRpcResponse = {
   id: ID;
@@ -406,13 +401,14 @@ export type BuildMintNftParams = WithPackageObjectId & {
 export type NftModuleParams = {
   nftModuleName: string;
   nftClassName: string;
-}
-
-export type BuildBuyNftParams = GlobalParams & NftModuleParams & {
-  listing: string;
-  venue: string;
-  coin: string;
 };
+
+export type BuildBuyNftParams = GlobalParams &
+  NftModuleParams & {
+    listing: string;
+    venue: string;
+    coin: string;
+  };
 
 export interface BuildEnableSalesParams extends WithPackageObjectId {
   listing: string;
@@ -447,7 +443,7 @@ export interface NftParam {
 }
 
 export interface NftTypeParam {
-  nftType: string
+  nftType: string;
 }
 
 export interface TransferCapParam {
@@ -519,10 +515,11 @@ export type BuildCreateFixedPriceMarketParams = WithPackageObjectId & {
   inventory: string;
 };
 
-export type BuildInitVenueParams = BuildCreateFixedPriceMarketParams & NftModuleParams & {
-  listing: string;
-  isWhitelisted: boolean;
-};
+export type BuildInitVenueParams = BuildCreateFixedPriceMarketParams &
+  NftModuleParams & {
+    listing: string;
+    isWhitelisted: boolean;
+  };
 
 export type BuildRequestToJoinMarketplaceParams = WithPackageObjectId & {
   marketplace: string;
@@ -531,14 +528,16 @@ export type BuildRequestToJoinMarketplaceParams = WithPackageObjectId & {
 
 export type BuildAcceptListingRequest = BuildRequestToJoinMarketplaceParams;
 
-export type BuildInitWarehouseParams = WithPackageObjectId & NftModuleParams & {};
+export type BuildInitWarehouseParams = WithPackageObjectId &
+  NftModuleParams & {};
 
-export type BuildAddWarehouseToListingParams = WithPackageObjectId & NftModuleParams & {
-  listing: string;
-  warehouse: string;
-  collection: string;
-};
+export type BuildAddWarehouseToListingParams = WithPackageObjectId &
+  NftModuleParams & {
+    listing: string;
+    warehouse: string;
+    collection: string;
+  };
 
 export type VenueWithMarket = Venue & {
   market: FixedPriceMarket;
-}
+};
