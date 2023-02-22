@@ -92,6 +92,22 @@ export const listNftTx = (
   );
 };
 
+export const listNftWithCommissionTx = (
+  p: OrderbookParams &
+    PriceParam &
+    NftParam &
+    AuthParam &
+    SellerSafeParam &
+    CommissionParams
+) => {
+  return txObj(
+    "list_nft_with_commission",
+    p,
+    [p.orderbook, String(p.price), p.nft, p.ownerCap, p.beneficiary, String(p.commission), p.sellerSafe],
+    [p.collection, p.ft]
+  );
+}
+
 export const depositAndlistNftTx = (
   p: OrderbookParams &
     PriceParam &

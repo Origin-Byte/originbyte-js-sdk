@@ -29,6 +29,7 @@ import {
   createSafeAndBuyNftTx,
   cancelAskAndDiscardTransferCapTx,
   editAskTx,
+  listNftWithCommissionTx,
 } from "./txBuilder";
 
 export class OrderbookFullClient extends OrderbookReadClient {
@@ -58,6 +59,8 @@ export class OrderbookFullClient extends OrderbookReadClient {
   static createAskWithCommissionTx = createAskWithCommissionTx;
 
   static listNftTx = listNftTx;
+
+  static listNftWithCommissionTx = listNftWithCommissionTx;
 
   static depositAndlistNftTx = depositAndlistNftTx;
 
@@ -161,6 +164,31 @@ export class OrderbookFullClient extends OrderbookReadClient {
   }) {
     const effects = await this.client.sendTxWaitForEffects(
       listNftTx({
+        ...this.opts,
+        ...p,
+      })
+    );
+
+    return {
+      // undefined if trade not executed instantly
+      trade: effects.created?.find(Boolean)?.reference.objectId,
+      effects,
+    };
+  }
+
+  public async listNftWithCommission(p: {
+    beneficiary: SuiAddress;
+    commission: number;
+    collection: string;
+    ft: string;
+    orderbook: ObjectId;
+    price: number;
+    nft: ObjectId
+    sellerSafe: ObjectId;
+    ownerCap: ObjectId;
+  }) {
+    const effects = await this.client.sendTxWaitForEffects(
+      listNftWithCommissionTx({
         ...this.opts,
         ...p,
       })
