@@ -77,6 +77,13 @@ export type OrderbookEvent =
         owner: SuiAddress;
         price: number;
       };
+    }
+  | {
+      OrderbookCreatedEvent: {
+        collectionType: string;
+        ftType: string;
+        orderbook: ObjectId;
+      };
     };
 
 interface TradeIntermediaryState {
@@ -142,6 +149,15 @@ function parseOrderbookEvent({
         orderbook: fields.orderbook,
         owner: fields.owner,
         price: parseInt(fields.price, 10),
+      },
+    };
+  }
+  if (type.endsWith("OrderbookCreatedEvent")) {
+    return {
+      OrderbookCreatedEvent: {
+        collectionType: fields.collection_type,
+        ftType: fields.fungible_token_type,
+        orderbook: fields.orderbook,
       },
     };
   }

@@ -304,5 +304,16 @@ export default function suite() {
     });
 
     expect(events.length).toBeGreaterThan(0);
+    expect(
+      events.find((event) => "BidCreatedEvent" in event.data)
+    ).toBeTruthy();
+    expect(
+      events.find((event) => "AskCreatedEvent" in event.data)
+    ).toBeTruthy();
+    expect(
+      events.find((event) => "OrderbookCreatedEvent" in event.data)
+    ).toBeTruthy();
+    expect(events.find((event) => "AskClosedEvent" in event.data)).toBeTruthy();
+    expect(events.find((event) => "BidClosedEvent" in event.data)).toBeTruthy();
   });
 }
