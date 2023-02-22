@@ -41,7 +41,7 @@ export const biuldMintNftTx = (
       params.mintCap,
       params.warehouseId,
     ],
-    gasBudget: 10000,
+    gasBudget: params.gasBudget ?? 10000,
   };
 };
 

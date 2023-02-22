@@ -388,7 +388,7 @@ export type DynamicField = {
   value: string;
 };
 
-export type BuildMintNftParams = WithPackageObjectId & {
+export type BuildMintNftParams = GlobalParams & {
   name: string;
   description: string;
   moduleName: string;
