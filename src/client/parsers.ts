@@ -270,7 +270,7 @@ const INVENTORY_REGEX = /(0x[a-f0-9]{39,40})::inventory::Inventory/;
 export const InventoryParser: SuiObjectParser<InventoryRpcResponse, Inventory> =
   {
     regex: INVENTORY_REGEX,
-    parser: (_data, suiData) => {
+    parser: (data, suiData, _) => {
       return {
         id: suiData.reference.objectId,
       };
