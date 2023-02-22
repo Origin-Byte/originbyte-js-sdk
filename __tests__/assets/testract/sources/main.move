@@ -9,20 +9,19 @@ module testract::testract {
     use sui::tx_context::{Self, TxContext};
 
     use nft_protocol::collection::{Self, Collection};
-    use nft_protocol::mint_cap::MintCap;
-    use nft_protocol::creators;
     use nft_protocol::display;
     use nft_protocol::nft;
+    use nft_protocol::royalties::{Self, TradePayment};
     use nft_protocol::royalty;
     use nft_protocol::tags;
+    use nft_protocol::transfer_allowlist_domain;
     use nft_protocol::transfer_allowlist;
+    use nft_protocol::witness;
 
     // mint more NFTs if not enough for new tests
     const NFTS_TO_MINT: u64 = 32;
 
     struct TESTRACT has drop {}
-
-    struct CTESTRACT has drop {}
 
     struct Witness has drop {}
 
@@ -31,30 +30,42 @@ module testract::testract {
         id: UID,
     }
 
-    const TEST_USER: address = @0x2d1770323750638a27e8a2b4ad4fe54ec2b7edf0;
+    const TEST_USER: address = @0xddcdd8e07b59852f58ba8db8daff1b585d2fca23;
 
     fun init(witness: TESTRACT, ctx: &mut TxContext) {
-        let (mint_cap, collection) = collection::create<CTESTRACT>(
-            &CTESTRACT {},
+        let (mint_cap, collection) = collection::create<TESTRACT>(
+            &witness,
             ctx,
         );
+        let delegated_witness = witness::from_witness(&Witness {});
 
         add_domains(&mut collection, ctx);
 
-        let col_cap = transfer_allowlist::create_collection_cap<CTESTRACT, Witness>(
-            &Witness {}, ctx,
+        let allowlist = transfer_allowlist::create(&Witness {}, ctx);
+        transfer_allowlist::insert_collection<TESTRACT, Witness>(
+            &Witness {},
+            witness::from_witness(&Witness {}),
+            &mut allowlist,
         );
 
-        let wl = transfer_allowlist::create(&Witness {}, ctx);
-        transfer_allowlist::insert_collection(
-            &Witness {},
-            &col_cap,
-            &mut wl,
+        collection::add_domain(
+            delegated_witness,
+            &mut collection,
+            transfer_allowlist_domain::from_id(object::id(&allowlist)),
         );
 
         let i = 0;
         while (i < NFTS_TO_MINT) {
-            transfer(nft::new(&mint_cap, TEST_USER, ctx), TEST_USER);
+            transfer(
+                nft::new<TESTRACT, Witness>(
+                    &Witness {},
+                    string::utf8(b"some nft"),
+                    sui::url::new_unsafe_from_bytes(b"http://example.com"),
+                    TEST_USER,
+                    ctx,
+                ),
+                TEST_USER,
+            );
             transfer(CapyNft { id: object::new(ctx) }, TEST_USER);
             i = i + 1;
         };
@@ -69,17 +80,15 @@ module testract::testract {
             ctx,
         );
 
-        transfer(col_cap, TEST_USER);
         transfer(treasury_cap, TEST_USER);
         transfer(mint_cap, TEST_USER);
-        transfer(wl, TEST_USER);
+        transfer(allowlist, TEST_USER);
 
         share_object(collection);
         share_object(meta);
     }
 
     public entry fun mint_n_nfts(
-        mint_cap: &MintCap<CTESTRACT>,
         n: u64,
         safe: &mut nft_protocol::safe::Safe,
         ctx: &mut TxContext,
@@ -88,15 +97,11 @@ module testract::testract {
 
         let i = 0;
         while (i < n) {
-            let nft = nft::new(mint_cap, sender, ctx);
-            display::add_display_domain(
-                &mut nft,
-                if (i % 2 == 0) {
-                    string::utf8(b"Even Testract")
-                } else {
-                    string::utf8(b"Odd Testract")
-                },
-                string::utf8(b"Dummy trading NFT"),
+            let nft = nft::new<TESTRACT, Witness>(
+                &Witness {},
+                string::utf8(b"hi there"),
+                sui::url::new_unsafe_from_bytes(b"http://example.com"),
+                sender,
                 ctx,
             );
             nft_protocol::safe::deposit_nft(nft, safe, ctx);
@@ -109,7 +114,7 @@ module testract::testract {
         price: u64,
         safe: &mut nft_protocol::safe::Safe,
         treasury: &mut sui::coin::TreasuryCap<TESTRACT>,
-        orderbook: &mut nft_protocol::orderbook::Orderbook<CTESTRACT, TESTRACT>,
+        orderbook: &mut nft_protocol::orderbook::Orderbook<TESTRACT, TESTRACT>,
         ctx: &mut TxContext,
     ) {
         let wallet = coin::mint(treasury, price, ctx);
@@ -126,50 +131,41 @@ module testract::testract {
     }
 
     public entry fun collect_royalty(
-        payment: &mut nft_protocol::royalties::TradePayment<CTESTRACT, TESTRACT>,
+        payment: &mut TradePayment<TESTRACT, TESTRACT>,
         ctx: &mut TxContext,
     ) {
-        nft_protocol::royalties::transfer_remaining_to_beneficiary(Witness {}, payment, ctx);
+        royalties::transfer_remaining_to_beneficiary(Witness {}, payment, ctx);
     }
 
     fun add_domains(
-        collection: &mut Collection<CTESTRACT>,
+        collection: &mut Collection<TESTRACT>,
         ctx: &mut TxContext,
     ) {
-        let delegated_witness = nft_protocol::witness::from_witness(&CTESTRACT {});
-
-        collection::add_domain(
-            delegated_witness,
-            collection,
-            creators::from_address(&delegated_witness, tx_context::sender(ctx), ctx)
-        );
+        let delegated_witness = witness::from_witness(&Witness {});
 
         display::add_collection_display_domain(
-            nft_protocol::witness::from_witness(&CTESTRACT {}),
+            delegated_witness,
             collection,
             string::utf8(b"Suimarines"),
             string::utf8(b"A unique NFT collection of Suimarines on Sui"),
-            ctx,
         );
 
         display::add_collection_url_domain(
-            nft_protocol::witness::from_witness(&CTESTRACT {}),
+            delegated_witness,
             collection,
             sui::url::new_unsafe_from_bytes(b"https://originbyte.io/"),
-            ctx,
         );
 
         display::add_collection_symbol_domain(
-            nft_protocol::witness::from_witness(&CTESTRACT {}),
+            delegated_witness,
             collection,
             string::utf8(b"SUIM"),
-            ctx,
         );
 
         let royalty = royalty::from_address(tx_context::sender(ctx), ctx);
         royalty::add_proportional_royalty(&mut royalty, 125); // 1.25%
         royalty::add_royalty_domain(
-            nft_protocol::witness::from_witness(&CTESTRACT {}),
+            nft_protocol::witness::from_witness(&Witness {}),
             collection,
             royalty,
         );
@@ -177,7 +173,7 @@ module testract::testract {
         let tags = tags::empty(ctx);
         tags::add_tag(&mut tags, tags::art());
         tags::add_collection_tag_domain(
-            nft_protocol::witness::from_witness(&CTESTRACT {}),
+            nft_protocol::witness::from_witness(&Witness {}),
             collection,
             tags,
         );

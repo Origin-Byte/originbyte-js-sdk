@@ -2,7 +2,7 @@
 
 set -e
 
-export $(cat "__tests__/.env.test" | xargs)
+source __tests__/.env.test.sh
 
 localnet_dir="__tests__/assets/.tmp/localnet"
 sui_bin="__tests__/assets/.tmp/sui"
