@@ -52,7 +52,7 @@ export const buildBuyNftTx = (
   module: "fixed_price",
   function: "buy_nft",
   typeArguments: [
-    `${params.packageObjectId}::${params.nftModuleName}::${params.nftClassName}`,
+    `${params.collectionPackageId ?? params.packageObjectId}::${params.nftModuleName}::${params.nftClassName}`,
     SUI_TYPE,
   ],
   arguments: [params.listing, params.venue, params.coin],
@@ -66,7 +66,7 @@ export const buildInitVenueTx = (
   module: "fixed_price",
   function: "init_venue",
   typeArguments: [
-    `${params.packageObjectId}::${params.nftModuleName}::${params.nftClassName}`,
+    `${params.collectionPackageId ?? params.packageObjectId}::${params.nftModuleName}::${params.nftClassName}`,
     params.coinType ?? SUI_TYPE,
   ],
   arguments: [
@@ -162,7 +162,7 @@ export const buildInitWarehouseTx = (
   module: "warehouse",
   function: "init_warehouse",
   typeArguments: [
-    `${params.packageObjectId}::${params.nftModuleName}::${params.nftClassName}`,
+    `${params.collectionPackageId ?? params.packageObjectId}::${params.nftModuleName}::${params.nftClassName}`,
   ],
   arguments: [],
   gasBudget: 5000,
@@ -175,7 +175,7 @@ export const buildAddWarehouseToListingTx = (
   module: "listing",
   function: "add_warehouse",
   typeArguments: [
-    `${params.packageObjectId}::${params.nftModuleName}::${params.nftClassName}`,
+    `${params.collectionPackageId ?? params.packageObjectId}::${params.nftModuleName}::${params.nftClassName}`,
   ],
   arguments: [params.listing, params.collection, params.warehouse],
   gasBudget: 50000,

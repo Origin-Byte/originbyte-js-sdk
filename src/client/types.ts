@@ -12,6 +12,10 @@ export interface GlobalParams {
   packageObjectId?: ObjectId;
 }
 
+export type WithCollectionPackageId = {
+  collectionPackageId?: string;
+};
+
 export interface WithPackageObjectId {
   packageObjectId: string;
 }
@@ -403,7 +407,7 @@ export type NftModuleParams = {
   nftClassName: string;
 };
 
-export type BuildBuyNftParams = GlobalParams &
+export type BuildBuyNftParams = GlobalParams & WithCollectionPackageId &
   NftModuleParams & {
     listing: string;
     venue: string;
@@ -515,7 +519,7 @@ export type BuildCreateFixedPriceMarketParams = WithPackageObjectId & {
   inventory: string;
 };
 
-export type BuildInitVenueParams = BuildCreateFixedPriceMarketParams &
+export type BuildInitVenueParams = BuildCreateFixedPriceMarketParams & WithCollectionPackageId &
   NftModuleParams & {
     listing: string;
     isWhitelisted: boolean;
@@ -529,9 +533,10 @@ export type BuildRequestToJoinMarketplaceParams = WithPackageObjectId & {
 export type BuildAcceptListingRequest = BuildRequestToJoinMarketplaceParams;
 
 export type BuildInitWarehouseParams = WithPackageObjectId &
-  NftModuleParams & {};
+  NftModuleParams & WithCollectionPackageId & {
+  };
 
-export type BuildAddWarehouseToListingParams = WithPackageObjectId &
+export type BuildAddWarehouseToListingParams = WithPackageObjectId & WithCollectionPackageId &
   NftModuleParams & {
     listing: string;
     warehouse: string;
