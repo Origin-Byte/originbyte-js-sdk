@@ -43,6 +43,8 @@ import {
   Inventory,
   InventoryDofRpcResponse,
   InventoryContent,
+  LimitedFixedPriceMarketpcResponse,
+  LimitedFixedPriceMarket,
 } from "./types";
 import { parseObjectOwner } from "./utils";
 
@@ -153,6 +155,27 @@ export const FixedPriceMarketParser: SuiObjectParser<
       rawResponse: _,
       price: data.value.fields.price,
       inventoryId: data.value.fields.inventory_id,
+    };
+  },
+  regex: FixedPriceMarketRegex,
+};
+
+export const LimitedFixedPriceMarketRegex =
+  // eslint-disable-next-line max-len
+  /0x2::dynamic_field::Field<0x[a-f0-9]{39,40}::utils::Marker<0x[a-f0-9]{39,40}::limited_fixed_price::LimitedFixedPriceMarket<0x2::sui::SUI>>, 0x[a-f0-9]{39,40}::limited_fixed_price::LimitedFixedPriceMarket<0x2::sui::SUI>>/;
+
+export const LimitedFixedPriceMarketParser: SuiObjectParser<
+LimitedFixedPriceMarketpcResponse,
+  LimitedFixedPriceMarket
+> = {
+  parser: (data, suiData, _) => {
+    return {
+      id: suiData.reference.objectId,
+      rawResponse: _,
+      price: data.value.fields.price,
+      inventoryId: data.value.fields.inventory_id,
+      limit: parseFloat(data.value.fields.limit),
+      addresses: data.value.fields.addresses,
     };
   },
   regex: FixedPriceMarketRegex,

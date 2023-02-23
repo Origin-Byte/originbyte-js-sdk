@@ -35,6 +35,7 @@ import {
   FixedPriceMarketParser,
   InventoryParser,
   InventoryDofParser,
+  LimitedFixedPriceMarketParser,
 } from "./parsers";
 import {
   GetMintCapsParams,
@@ -133,14 +134,22 @@ export class NftClient {
     const venueWithMarket = await Promise.all(
       venues.map(async (venue) => {
         const marketResponse = await this.getDynamicFields(venue.id);
-        const parsed = await this.parseObjects(
-          marketResponse,
-          FixedPriceMarketParser
-        );
-        if (parsed.length) {
+        const parsed = (await Promise.all([
+          this.parseObjects(
+            marketResponse,
+            FixedPriceMarketParser
+          ),
+          this.parseObjects(
+            marketResponse,
+            LimitedFixedPriceMarketParser
+          )
+        ]))
+        const market = parsed.flat().find((m) => !!m) ;
+
+        if (market) {
           return {
             ...venue,
-            market: parsed[0],
+            market,
           } as VenueWithMarket;
         }
         return undefined;

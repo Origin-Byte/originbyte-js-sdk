@@ -12,6 +12,7 @@ import {
   BuildRequestToJoinMarketplaceParams,
   BuildAcceptListingRequest,
   BuildAddWarehouseToListingParams,
+  BuildInitLimitedVenueParams,
 } from "./types";
 
 const SUI_TYPE = "0x2::sui::SUI";
@@ -73,6 +74,26 @@ export const buildInitVenueTx = (
     params.listing,
     params.inventory,
     params.isWhitelisted,
+    params.price.toFixed(0),
+  ],
+  gasBudget: 5000,
+});
+
+export const buildInitLimitedVenueTx = (
+  params: BuildInitLimitedVenueParams
+): MoveCallTransaction => ({
+  packageObjectId: params.packageObjectId,
+  module: "limited_fixed_price",
+  function: "init_venue",
+  typeArguments: [
+    `${params.packageObjectId}::${params.nftModuleName}::${params.nftClassName}`,
+    params.coinType ?? SUI_TYPE,
+  ],
+  arguments: [
+    params.listing,
+    params.inventory,
+    params.isWhitelisted,
+    params.limit.toFixed(0),
     params.price.toFixed(0),
   ],
   gasBudget: 5000,

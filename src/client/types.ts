@@ -56,7 +56,7 @@ export type VenueRpcResponse = {
   is_whitelisted: boolean;
 };
 
-export interface FixedPriceMarketRpcResponse {
+export type MarketAbstractRpcResponse<T = {}> = {
   id: ID;
   name: {
     type: string;
@@ -66,13 +66,19 @@ export interface FixedPriceMarketRpcResponse {
   };
   value: {
     type: string;
-    fields: {
+    fields: T & {
       id: ID;
       inventory_id: string;
       price: string;
     };
   };
 }
+
+export type FixedPriceMarketRpcResponse = MarketAbstractRpcResponse;
+export type LimitedFixedPriceMarketpcResponse = MarketAbstractRpcResponse<{
+  limit: string;
+  addresses: Record<string, string>;
+}>
 
 export interface DomainRpcBase<T> {
   id: ID;
@@ -262,6 +268,12 @@ export interface FixedPriceMarket extends WithRawResponse, WithId {
   inventoryId: string;
 }
 
+export type LimitedFixedPriceMarket = FixedPriceMarket & {
+  limit: number;
+  addresses: Record<string, string>;
+}
+
+
 export interface MarketplaceRpcResponse {
   admin: string;
   default_fee: {
@@ -278,8 +290,8 @@ export interface MarketplaceRpcResponse {
 
 export interface Marketplace
   extends WithId,
-    WithPackageObjectId,
-    WithRawResponse {
+  WithPackageObjectId,
+  WithRawResponse {
   owner: string;
   admin: string;
   receiver: string;
@@ -368,15 +380,15 @@ export interface GetNftsParams extends WithIds {
   resolveBags?: boolean;
 }
 
-export interface GetCollectionsParams extends WithIds {}
+export interface GetCollectionsParams extends WithIds { }
 
 export interface GetCollectionDomainsParams {
   domainsBagId: string;
 }
 
-export interface GetMintCapsParams extends WithIds {}
+export interface GetMintCapsParams extends WithIds { }
 
-export interface GetVenuesParams extends WithIds {}
+export interface GetVenuesParams extends WithIds { }
 
 export type DynamicFieldRpcResponse = {
   id: ID;
@@ -526,6 +538,12 @@ export type BuildInitVenueParams = BuildCreateFixedPriceMarketParams & WithColle
     isWhitelisted: boolean;
   };
 
+
+export type BuildInitLimitedVenueParams = BuildInitVenueParams & {
+  limit: number;
+}
+
+
 export type BuildRequestToJoinMarketplaceParams = WithPackageObjectId & {
   marketplace: string;
   listing: string;
@@ -545,5 +563,5 @@ export type BuildAddWarehouseToListingParams = WithPackageObjectId & WithCollect
   };
 
 export type VenueWithMarket = Venue & {
-  market: FixedPriceMarket;
+  market: FixedPriceMarket | LimitedFixedPriceMarket;
 };
