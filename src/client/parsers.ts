@@ -55,7 +55,7 @@ export const MoveObject = object({
 
 // eslint-disable-next-line max-len
 const ArtNftRegex =
-  /(0x[a-f0-9]{39,40})::nft::Nft<0x[a-f0-9]{39,40}::([a-zA-Z]{1,})::([a-zA-Z]{1,})>/;
+  /(0x[a-f0-9]{39,40})::nft::Nft<(0x[a-f0-9]{39,40})::([a-zA-Z]{1,})::([a-zA-Z]{1,})>/;
 
 export const ArtNftParser: SuiObjectParser<ArtNftRpcResponse, ArtNftRaw> = {
   parser: (data, suiData, _) => {
@@ -67,8 +67,9 @@ export const ArtNftParser: SuiObjectParser<ArtNftRpcResponse, ArtNftRaw> = {
         return undefined;
       }
       const packageObjectId = matches[1];
-      const packageModule = matches[2];
-      const packageModuleClassName = matches[3];
+      const collectionPackageObjectId = matches[2];
+      const packageModule = matches[3];
+      const packageModuleClassName = matches[4];
 
       return {
         owner,
@@ -76,6 +77,7 @@ export const ArtNftParser: SuiObjectParser<ArtNftRpcResponse, ArtNftRaw> = {
         type: suiData.data.dataType,
         id: _.details.reference.objectId,
         packageObjectId,
+        collectionPackageObjectId,
         packageModule,
         packageModuleClassName,
         rawResponse: _,
