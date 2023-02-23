@@ -11,12 +11,12 @@ import {
   buildCreateFlatFeeTx,
   buildInitMarketplaceTx,
   buildInitListingTx,
-  buildInitFixedPriceMarketTx,
   buildInitWarehouseTx,
   buildInitVenueTx,
   buildRequestToJoinMarketplaceTx,
   buildAcceptListingRequestTx,
   buildAddWarehouseToListingTx,
+  buildInitLimitedVenueTx,
 } from "./txBuilders";
 import { toMap } from "../utils";
 import {
@@ -134,17 +134,11 @@ export class NftClient {
     const venueWithMarket = await Promise.all(
       venues.map(async (venue) => {
         const marketResponse = await this.getDynamicFields(venue.id);
-        const parsed = (await Promise.all([
-          this.parseObjects(
-            marketResponse,
-            FixedPriceMarketParser
-          ),
-          this.parseObjects(
-            marketResponse,
-            LimitedFixedPriceMarketParser
-          )
-        ]))
-        const market = parsed.flat().find((m) => !!m) ;
+        const parsed = await Promise.all([
+          this.parseObjects(marketResponse, FixedPriceMarketParser),
+          this.parseObjects(marketResponse, LimitedFixedPriceMarketParser),
+        ]);
+        const market = parsed.flat().find((m) => !!m);
 
         if (market) {
           return {
@@ -352,7 +346,7 @@ export class NftClient {
 
   static buildInitVenue = buildInitVenueTx;
 
-  static buildInitFixedPriceMarket = buildInitFixedPriceMarketTx;
+  static buildInitLimitedVenue = buildInitLimitedVenueTx;
 
   static buildInitMarketplace = buildInitMarketplaceTx;
 

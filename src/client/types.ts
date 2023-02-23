@@ -72,13 +72,13 @@ export type MarketAbstractRpcResponse<T = {}> = {
       price: string;
     };
   };
-}
+};
 
 export type FixedPriceMarketRpcResponse = MarketAbstractRpcResponse;
 export type LimitedFixedPriceMarketpcResponse = MarketAbstractRpcResponse<{
   limit: string;
   addresses: Record<string, string>;
-}>
+}>;
 
 export interface DomainRpcBase<T> {
   id: ID;
@@ -266,13 +266,13 @@ export type Venue = WithRawResponse &
 export interface FixedPriceMarket extends WithRawResponse, WithId {
   price: string;
   inventoryId: string;
+  marketType: "fixed_price" | "limited_fixed_price";
 }
 
 export type LimitedFixedPriceMarket = FixedPriceMarket & {
   limit: number;
   addresses: Record<string, string>;
-}
-
+};
 
 export interface MarketplaceRpcResponse {
   admin: string;
@@ -290,8 +290,8 @@ export interface MarketplaceRpcResponse {
 
 export interface Marketplace
   extends WithId,
-  WithPackageObjectId,
-  WithRawResponse {
+    WithPackageObjectId,
+    WithRawResponse {
   owner: string;
   admin: string;
   receiver: string;
@@ -380,15 +380,15 @@ export interface GetNftsParams extends WithIds {
   resolveBags?: boolean;
 }
 
-export interface GetCollectionsParams extends WithIds { }
+export interface GetCollectionsParams extends WithIds {}
 
 export interface GetCollectionDomainsParams {
   domainsBagId: string;
 }
 
-export interface GetMintCapsParams extends WithIds { }
+export interface GetMintCapsParams extends WithIds {}
 
-export interface GetVenuesParams extends WithIds { }
+export interface GetVenuesParams extends WithIds {}
 
 export type DynamicFieldRpcResponse = {
   id: ID;
@@ -420,11 +420,13 @@ export type NftModuleParams = {
   nftClassName: string;
 };
 
-export type BuildBuyNftParams = GlobalParams & WithCollectionPackageId &
+export type BuildBuyNftParams = GlobalParams &
+  WithCollectionPackageId &
   NftModuleParams & {
     listing: string;
     venue: string;
     coin: string;
+    module?: "fixed_price" | "limited_fixed_price";
   };
 
 export interface BuildEnableSalesParams extends WithPackageObjectId {
@@ -532,17 +534,16 @@ export type BuildCreateFixedPriceMarketParams = WithPackageObjectId & {
   inventory: string;
 };
 
-export type BuildInitVenueParams = BuildCreateFixedPriceMarketParams & WithCollectionPackageId &
+export type BuildInitVenueParams = BuildCreateFixedPriceMarketParams &
+  WithCollectionPackageId &
   NftModuleParams & {
     listing: string;
     isWhitelisted: boolean;
   };
 
-
 export type BuildInitLimitedVenueParams = BuildInitVenueParams & {
   limit: number;
-}
-
+};
 
 export type BuildRequestToJoinMarketplaceParams = WithPackageObjectId & {
   marketplace: string;
@@ -552,10 +553,11 @@ export type BuildRequestToJoinMarketplaceParams = WithPackageObjectId & {
 export type BuildAcceptListingRequest = BuildRequestToJoinMarketplaceParams;
 
 export type BuildInitWarehouseParams = WithPackageObjectId &
-  NftModuleParams & WithCollectionPackageId & {
-  };
+  NftModuleParams &
+  WithCollectionPackageId & {};
 
-export type BuildAddWarehouseToListingParams = WithPackageObjectId & WithCollectionPackageId &
+export type BuildAddWarehouseToListingParams = WithPackageObjectId &
+  WithCollectionPackageId &
   NftModuleParams & {
     listing: string;
     warehouse: string;

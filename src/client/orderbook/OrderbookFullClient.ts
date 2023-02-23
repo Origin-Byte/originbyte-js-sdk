@@ -183,7 +183,7 @@ export class OrderbookFullClient extends OrderbookReadClient {
     ft: string;
     orderbook: ObjectId;
     price: number;
-    nft: ObjectId
+    nft: ObjectId;
     sellerSafe: ObjectId;
     ownerCap: ObjectId;
   }) {

@@ -155,6 +155,7 @@ export const FixedPriceMarketParser: SuiObjectParser<
       rawResponse: _,
       price: data.value.fields.price,
       inventoryId: data.value.fields.inventory_id,
+      marketType: "fixed_price",
     };
   },
   regex: FixedPriceMarketRegex,
@@ -165,7 +166,7 @@ export const LimitedFixedPriceMarketRegex =
   /0x2::dynamic_field::Field<0x[a-f0-9]{39,40}::utils::Marker<0x[a-f0-9]{39,40}::limited_fixed_price::LimitedFixedPriceMarket<0x2::sui::SUI>>, 0x[a-f0-9]{39,40}::limited_fixed_price::LimitedFixedPriceMarket<0x2::sui::SUI>>/;
 
 export const LimitedFixedPriceMarketParser: SuiObjectParser<
-LimitedFixedPriceMarketpcResponse,
+  LimitedFixedPriceMarketpcResponse,
   LimitedFixedPriceMarket
 > = {
   parser: (data, suiData, _) => {
@@ -176,9 +177,10 @@ LimitedFixedPriceMarketpcResponse,
       inventoryId: data.value.fields.inventory_id,
       limit: parseFloat(data.value.fields.limit),
       addresses: data.value.fields.addresses,
+      marketType: "limited_fixed_price",
     };
   },
-  regex: FixedPriceMarketRegex,
+  regex: LimitedFixedPriceMarketRegex,
 };
 
 // eslint-disable-next-line max-len
