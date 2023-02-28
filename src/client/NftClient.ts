@@ -3,6 +3,7 @@ import {
   is,
   SuiObject,
   JsonRpcProvider,
+  Connection,
 } from "@mysten/sui.js";
 import {
   buildBuyNftTx,
@@ -60,7 +61,9 @@ import { TESTNET_URL } from "./consts";
 export class NftClient {
   private provider: JsonRpcProvider;
 
-  constructor(_provider = new JsonRpcProvider(TESTNET_URL)) {
+  constructor(
+    _provider = new JsonRpcProvider(new Connection({ fullnode: TESTNET_URL }))
+  ) {
     this.provider = _provider;
   }
 

@@ -11,7 +11,12 @@
 console.warn = () => {};
 require("dotenv").config();
 
-import { Ed25519Keypair, JsonRpcProvider, ObjectId } from "@mysten/sui.js";
+import {
+  Connection,
+  Ed25519Keypair,
+  JsonRpcProvider,
+  ObjectId,
+} from "@mysten/sui.js";
 import { SafeFullClient, OrderbookFullClient } from "../src";
 
 // Initial setup
@@ -47,7 +52,7 @@ const KEYPAIR = process.env.MNEMONIC
 console.log("Using keypair", KEYPAIR.getPublicKey().toSuiAddress());
 const safeClient = SafeFullClient.fromKeypair(
   KEYPAIR,
-  new JsonRpcProvider(ENV),
+  new JsonRpcProvider(new Connection({ fullnode: ENV })),
   {
     packageObjectId: NFT_PROTOCOL_ADDRESS,
   }
