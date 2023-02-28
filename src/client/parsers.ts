@@ -55,9 +55,9 @@ export const MoveObject = object({
   has_public_transfer: boolean(),
 });
 
-// eslint-disable-next-line max-len
 const ArtNftRegex =
-  /(0x[a-f0-9]{39,40})::nft::Nft<(0x[a-f0-9]{39,40})::([a-zA-Z]{1,})::([a-zA-Z]{1,})>/;
+  // eslint-disable-next-line max-len
+  /(0x[a-f0-9]{39,40})::nft::Nft<0x[a-f0-9]{39,40}::([a-zA-Z]{1,})::([a-zA-Z]{1,})>/;
 
 export const ArtNftParser: SuiObjectParser<ArtNftRpcResponse, ArtNftRaw> = {
   parser: (data, suiData, _) => {

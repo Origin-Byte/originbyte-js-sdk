@@ -1,4 +1,4 @@
-import { Ed25519Keypair, JsonRpcProvider } from "@mysten/sui.js";
+import { Connection, Ed25519Keypair, JsonRpcProvider } from "@mysten/sui.js";
 import { OrderbookFullClient, SafeFullClient } from "../src";
 
 export const TESTRACT_ADDRESS = process.env.TESTRACT_ADDRESS;
@@ -8,7 +8,9 @@ export const NFT_GENERIC_TYPE = `${TESTRACT_ADDRESS}::testract::CapyNft`;
 export const NFT_PROTOCOL_ADDRESS = process.env.NFT_PROTOCOL_ADDRESS;
 export const NFT_TYPE = `${NFT_PROTOCOL_ADDRESS}::nft::Nft<${TESTRACT_C_TYPE}>`;
 
-const provider = new JsonRpcProvider("LOCAL");
+const provider = new JsonRpcProvider(
+  new Connection({ fullnode: "http://localhost:9000" })
+);
 // suiaddr: ddcdd8e07b59852f58ba8db8daff1b585d2fca23
 // also determines addr in test.sh
 export const keypair = new Ed25519Keypair({
