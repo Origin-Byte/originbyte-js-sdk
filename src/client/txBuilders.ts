@@ -12,6 +12,7 @@ import {
   BuildAcceptListingRequest,
   BuildAddWarehouseToListingParams,
   BuildInitLimitedVenueParams,
+  BuildSetLimitMarketLimitParams,
 } from "./types";
 
 const SUI_TYPE = "0x2::sui::SUI";
@@ -80,6 +81,23 @@ export const buildInitVenueTx = (
     params.price.toFixed(0),
   ],
   gasBudget: 5000,
+});
+
+export const buildSetLimtitedMarketNewLimitTx = (
+  params: BuildSetLimitMarketLimitParams
+): MoveCallTransaction => ({
+  packageObjectId: params.packageObjectId,
+  module: "limited_fixed_price",
+  function: "set_limit",
+  typeArguments: [
+    params.coinType ?? SUI_TYPE,
+  ],
+  arguments: [
+    params.listing,
+    params.venue,
+    params.newLimit.toFixed(0),
+  ],
+  gasBudget: params.gasBudget ?? 5000,
 });
 
 export const buildInitLimitedVenueTx = (

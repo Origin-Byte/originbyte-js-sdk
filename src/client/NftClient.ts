@@ -18,6 +18,7 @@ import {
   buildAcceptListingRequestTx,
   buildAddWarehouseToListingTx,
   buildInitLimitedVenueTx,
+  buildSetLimtitedMarketNewLimitTx,
 } from "./txBuilders";
 import { toMap } from "../utils";
 import {
@@ -327,6 +328,7 @@ export class NftClient {
         id: nft.id,
         rawResponse: nft.rawResponse,
         ownerAddress: nft.ownerAddress,
+        collectionPackageObjectId: nft.collectionPackageObjectId,
       };
     });
   };
@@ -362,6 +364,8 @@ export class NftClient {
   static buildAcceptListingRequest = buildAcceptListingRequestTx;
 
   static buildAddWarehouseToListing = buildAddWarehouseToListingTx;
+
+  static buildSetLimtitedMarketNewLimit = buildSetLimtitedMarketNewLimitTx;
 
   private mergeAuthoritiesWithCollections = (
     collections: NftCollection[],

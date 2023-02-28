@@ -6,19 +6,23 @@ import {
   SuiObject,
 } from "@mysten/sui.js";
 
-export interface GlobalParams {
+export type WithGasBudget = {
   gasBudget?: number;
+};
+
+
+export interface WithPackageObjectId {
+  packageObjectId: ObjectId;
+}
+
+export interface GlobalParams extends WithGasBudget, Partial<WithPackageObjectId> {
   moduleName?: string;
-  packageObjectId?: ObjectId;
 }
 
 export type WithCollectionPackageId = {
   collectionPackageId?: string;
 };
 
-export interface WithPackageObjectId {
-  packageObjectId: string;
-}
 export interface WithId {
   id: string;
 }
@@ -331,6 +335,7 @@ export interface ArtNft extends ProtocolData, WithRawResponse, WithId {
   logicalOwner: string;
   name?: string;
   description?: string;
+  collectionPackageObjectId: string;
   url?: string;
   ownerAddress: string;
   attributes: { [c: string]: string };
@@ -428,6 +433,8 @@ export type BuildBuyNftParams = GlobalParams &
     coin: string;
     module?: "fixed_price" | "limited_fixed_price";
   };
+
+
 
 export interface BuildEnableSalesParams extends WithPackageObjectId {
   listing: string;
@@ -544,6 +551,13 @@ export type BuildInitVenueParams = BuildCreateFixedPriceMarketParams &
 export type BuildInitLimitedVenueParams = BuildInitVenueParams & {
   limit: number;
 };
+
+export type BuildSetLimitMarketLimitParams = WithPackageObjectId & WithGasBudget & {
+  coinType?: string; // SUI by default
+  listing: string;
+  venue: string;
+  newLimit: number;
+}
 
 export type BuildRequestToJoinMarketplaceParams = WithPackageObjectId & {
   marketplace: string;
