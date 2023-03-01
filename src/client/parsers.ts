@@ -30,7 +30,6 @@ import {
   RoyaltyDomain,
   RoyaltyDomainBagRpcResponse,
   SuiObjectParser,
-  SymbolDomain,
   SymbolDomainBagRpcResponse,
   TagRpcResponse,
   TagsDomain,
@@ -57,7 +56,7 @@ export const MoveObject = object({
 
 const ArtNftRegex =
   // eslint-disable-next-line max-len
-  /(0x[a-f0-9]{39,40})::nft::Nft<0x[a-f0-9]{39,40}::([a-zA-Z]{1,})::([a-zA-Z]{1,})>/;
+  /(0x[a-f0-9]{39,40})::nft::Nft<(0x[a-f0-9]{39,40})::([a-zA-Z]{1,})::([a-zA-Z]{1,})>/;
 
 export const ArtNftParser: SuiObjectParser<ArtNftRpcResponse, ArtNftRaw> = {
   parser: (data, suiData, _) => {
@@ -68,6 +67,8 @@ export const ArtNftParser: SuiObjectParser<ArtNftRpcResponse, ArtNftRaw> = {
       if (!matches) {
         return undefined;
       }
+
+      console.log("matches", matches);
       const packageObjectId = matches[1];
       const collectionPackageObjectId = matches[2];
       const packageModule = matches[3];
