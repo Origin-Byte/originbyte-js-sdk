@@ -115,11 +115,29 @@ export type Bag = {
 };
 
 export type RoyaltyDomain = {
-  aggregations: Bag;
-  strategies: Bag;
+  value: {
+    fields: {
+      aggregations: {
+        id: string;
+      }
+      royalty_shares_bps: {
+        fields: {
+          contents: {
+            fields: {
+              key: string;
+              value: number;
+            }
+          }[]
+        },
+      },
+      strategies: {
+        id: string;
+      };
+    }
+  }
 };
 
-export type RoyaltyDomainBagRpcResponse = DomainRpcBase<RoyaltyDomain>;
+export type RoyaltyDomainBagRpcResponse = RoyaltyDomain;
 export type RoyaltyDomainRpcResponse = DomainRpcBase<RoyaltyDomain>;
 
 export type SymbolDomain = {
@@ -142,7 +160,18 @@ export type DisplayDomain = {
 export type DisplayDomainBagRpcResponse = DomainRpcBase<DisplayDomain>;
 
 export type TagsDomain = {
-  bag: Bag;
+  id: ID;
+  name: {
+    type: string,
+    fields: { dummy_field: boolean }
+  }
+  value: {
+    type: string,
+    fields: {
+      id: ID
+    }
+  }
+
 };
 
 export type TagsDomainBagRpcResponse = DomainRpcBase<TagsDomain>;
@@ -294,8 +323,8 @@ export interface MarketplaceRpcResponse {
 
 export interface Marketplace
   extends WithId,
-    WithPackageObjectId,
-    WithRawResponse {
+  WithPackageObjectId,
+  WithRawResponse {
   owner: string;
   admin: string;
   receiver: string;
@@ -385,15 +414,15 @@ export interface GetNftsParams extends WithIds {
   resolveBags?: boolean;
 }
 
-export interface GetCollectionsParams extends WithIds {}
+export interface GetCollectionsParams extends WithIds { }
 
 export interface GetCollectionDomainsParams {
   domainsBagId: string;
 }
 
-export interface GetMintCapsParams extends WithIds {}
+export interface GetMintCapsParams extends WithIds { }
 
-export interface GetVenuesParams extends WithIds {}
+export interface GetVenuesParams extends WithIds { }
 
 export type DynamicFieldRpcResponse = {
   id: ID;

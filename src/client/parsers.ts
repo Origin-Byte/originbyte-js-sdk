@@ -283,26 +283,26 @@ export const DynamicFieldParser: SuiObjectParser<
 const WAREHOUSE_REGEX = /(0x[a-f0-9]{39,40})::warehouse::Warehouse/;
 
 export const WarehouseParser: SuiObjectParser<WarehouseRpcResponse, Warehouse> =
-  {
-    regex: WAREHOUSE_REGEX,
-    parser: (data, suiData) => {
-      return {
-        id: suiData.reference.objectId,
-      };
-    },
-  };
+{
+  regex: WAREHOUSE_REGEX,
+  parser: (data, suiData) => {
+    return {
+      id: suiData.reference.objectId,
+    };
+  },
+};
 
 const INVENTORY_REGEX = /(0x[a-f0-9]{39,40})::inventory::Inventory/;
 
 export const InventoryParser: SuiObjectParser<InventoryRpcResponse, Inventory> =
-  {
-    regex: INVENTORY_REGEX,
-    parser: (data, suiData, _) => {
-      return {
-        id: suiData.reference.objectId,
-      };
-    },
-  };
+{
+  regex: INVENTORY_REGEX,
+  parser: (data, suiData, _) => {
+    return {
+      id: suiData.reference.objectId,
+    };
+  },
+};
 
 const INVENTORY_DOF_REGEX =
   // eslint-disable-next-line max-len
@@ -376,10 +376,10 @@ export const parseBagDomains = (domains: GetObjectDataResponse[]) => {
     const { data } = royaltyDomain.details;
     response.royaltyAggregationBagId = (
       data.fields as RoyaltyDomainBagRpcResponse
-    ).value.fields.aggregations.fields.id.id;
+    ).value.fields.aggregations.id;
     response.royaltyStrategiesBagId = (
       data.fields as RoyaltyDomainBagRpcResponse
-    ).value.fields.strategies.fields.id.id;
+    ).value.fields.strategies.id;
   }
 
   if (
@@ -420,9 +420,10 @@ export const parseBagDomains = (domains: GetObjectDataResponse[]) => {
     is(tagsDomain.details.data, MoveObject)
   ) {
     const { data } = tagsDomain.details;
+    console.log("data", JSON.stringify(data.fields));
     response.tagsBagId = (
       data.fields as TagsDomainBagRpcResponse
-    ).value.fields.bag.fields.id.id;
+    ).value.fields.value.fields.id.id;
   }
 
   if (
@@ -481,11 +482,12 @@ export const parseDynamicDomains = (domains: GetObjectDataResponse[]) => {
     const { data } = royaltyDomain.details;
     response.royaltyAggregationBagId = (
       data.fields as RoyaltyDomain
-    ).aggregations.fields.id.id;
+    ).value.fields.aggregations.id;
     response.royaltyStrategiesBagId = (
       data.fields as RoyaltyDomain
-    ).aggregations.fields.id.id;
+    ).value.fields.aggregations.id;
   }
+
 
   if (
     symbolDomain &&
@@ -493,7 +495,7 @@ export const parseDynamicDomains = (domains: GetObjectDataResponse[]) => {
     is(symbolDomain.details.data, MoveObject)
   ) {
     const { data } = symbolDomain.details;
-    response.symbol = (data.fields as SymbolDomain).symbol;
+    response.symbol = (data.fields as SymbolDomainBagRpcResponse).value.fields.symbol;
   }
 
   if (
@@ -524,7 +526,7 @@ export const parseDynamicDomains = (domains: GetObjectDataResponse[]) => {
     is(tagsDomain.details.data, MoveObject)
   ) {
     const { data } = tagsDomain.details;
-    response.tagsBagId = (data.fields as TagsDomain).bag.fields.id.id;
+    response.tagsBagId = (data.fields as TagsDomain).value.fields.id.id;
   }
 
   if (
