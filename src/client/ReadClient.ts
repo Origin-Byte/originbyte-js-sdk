@@ -1,4 +1,5 @@
 import {
+  Connection,
   JsonRpcProvider,
   ObjectId,
   Provider,
@@ -8,12 +9,19 @@ import { TESTNET_URL } from "./consts";
 
 export class ReadClient {
   // eslint-disable-next-line
-  constructor(public provider: Provider = new JsonRpcProvider(TESTNET_URL)) {
+  constructor(
+    // eslint-disable-next-line
+    public provider: Provider = new JsonRpcProvider(
+      new Connection({ fullnode: TESTNET_URL })
+    )
+  ) {
     //
   }
 
   public static fromRpcUrl(url: string) {
-    return new ReadClient(new JsonRpcProvider(url));
+    return new ReadClient(
+      new JsonRpcProvider(new Connection({ fullnode: url }))
+    );
   }
 
   public getObjects(addr: SuiAddress) {

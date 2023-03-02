@@ -6,15 +6,23 @@ import {
   SuiObject,
 } from "@mysten/sui.js";
 
-export interface GlobalParams {
+export type WithGasBudget = {
   gasBudget?: number;
-  moduleName?: string;
-  packageObjectId?: ObjectId;
-}
+};
+
 
 export interface WithPackageObjectId {
-  packageObjectId: string;
+  packageObjectId: ObjectId;
 }
+
+export interface GlobalParams extends WithGasBudget, Partial<WithPackageObjectId> {
+  moduleName?: string;
+}
+
+export type WithCollectionPackageId = {
+  collectionPackageId?: string;
+};
+
 export interface WithId {
   id: string;
 }
@@ -50,25 +58,31 @@ export interface MintCapRPCResponse {
 export type VenueRpcResponse = {
   is_live: boolean;
   is_whitelisted: boolean;
-}
+};
 
-export interface FixedPriceMarketRpcResponse {
+export type MarketAbstractRpcResponse<T = {}> = {
   id: ID;
   name: {
     type: string;
     fields: {
       dummy_field: boolean;
-    }
-  }
+    };
+  };
   value: {
     type: string;
-    fields: {
+    fields: T & {
       id: ID;
       inventory_id: string;
       price: string;
-    }
-  }
-}
+    };
+  };
+};
+
+export type FixedPriceMarketRpcResponse = MarketAbstractRpcResponse;
+export type LimitedFixedPriceMarketpcResponse = MarketAbstractRpcResponse<{
+  limit: string;
+  addresses: Record<string, string>;
+}>;
 
 export interface DomainRpcBase<T> {
   id: ID;
@@ -101,11 +115,29 @@ export type Bag = {
 };
 
 export type RoyaltyDomain = {
-  aggregations: Bag;
-  strategies: Bag;
+  value: {
+    fields: {
+      aggregations: {
+        id: string;
+      }
+      royalty_shares_bps: {
+        fields: {
+          contents: {
+            fields: {
+              key: string;
+              value: number;
+            }
+          }[]
+        },
+      },
+      strategies: {
+        id: string;
+      };
+    }
+  }
 };
 
-export type RoyaltyDomainBagRpcResponse = DomainRpcBase<RoyaltyDomain>;
+export type RoyaltyDomainBagRpcResponse = RoyaltyDomain;
 export type RoyaltyDomainRpcResponse = DomainRpcBase<RoyaltyDomain>;
 
 export type SymbolDomain = {
@@ -128,7 +160,18 @@ export type DisplayDomain = {
 export type DisplayDomainBagRpcResponse = DomainRpcBase<DisplayDomain>;
 
 export type TagsDomain = {
-  bag: Bag;
+  id: ID;
+  name: {
+    type: string,
+    fields: { dummy_field: boolean }
+  }
+  value: {
+    type: string,
+    fields: {
+      id: ID
+    }
+  }
+
 };
 
 export type TagsDomainBagRpcResponse = DomainRpcBase<TagsDomain>;
@@ -191,7 +234,6 @@ export interface ListingRpcResponse {
   venues: ObjectBox;
   inventories: ObjectBox;
   custom_fee: ObjectBox;
-
 }
 
 export interface Listing extends WithPackageObjectId, WithId {
@@ -217,51 +259,53 @@ export interface WithRawResponse {
   rawResponse: GetObjectDataResponse;
 }
 
-export type WarehouseRpcResponse = {
-}
+export type WarehouseRpcResponse = {};
 
-export type Warehouse = WithId & {
-};
+export type Warehouse = WithId & {};
 
 export type InventoryRpcResponse = {
-  allowlist: {}
-}
+  allowlist: {};
+};
 
-
-export type Inventory = WithId & {}
-
+export type Inventory = WithId & {};
 
 export type InventoryDofRpcResponse = {
-  id: ID
+  id: ID;
   name: {
     type: string;
     fields: {
       dummy_field: boolean;
     };
-  }
+  };
   value: {
     type: string;
     fields: {
       id: ID;
       nfts: string[];
-    }
-
-  }
-}
+    };
+  };
+};
 
 export type InventoryContent = WithId & {
   nfts: string[];
-}
-
-export type Venue = WithRawResponse & WithId & {
-  isLive: boolean;
-  isWhitelisted: boolean;
 };
+
+export type Venue = WithRawResponse &
+  WithId & {
+    isLive: boolean;
+    isWhitelisted: boolean;
+  };
 
 export interface FixedPriceMarket extends WithRawResponse, WithId {
   price: string;
   inventoryId: string;
+  marketType: "fixed_price" | "limited_fixed_price";
 }
+
+export type LimitedFixedPriceMarket = FixedPriceMarket & {
+  limit: number;
+  addresses: Record<string, string>;
+};
 
 export interface MarketplaceRpcResponse {
   admin: string;
@@ -309,6 +353,7 @@ export interface NftCollection extends ProtocolData, WithId {
 
 export interface ArtNftRaw extends ProtocolData, WithRawResponse, WithId {
   logicalOwner: string;
+  collectionPackageObjectId: string;
   bagId?: string;
   ownerAddress: string;
   name?: string;
@@ -319,6 +364,7 @@ export interface ArtNft extends ProtocolData, WithRawResponse, WithId {
   logicalOwner: string;
   name?: string;
   description?: string;
+  collectionPackageObjectId: string;
   url?: string;
   ownerAddress: string;
   attributes: { [c: string]: string };
@@ -393,7 +439,7 @@ export type DynamicField = {
   value: string;
 };
 
-export type BuildMintNftParams = WithPackageObjectId & {
+export type BuildMintNftParams = GlobalParams & {
   name: string;
   description: string;
   moduleName: string;
@@ -406,13 +452,18 @@ export type BuildMintNftParams = WithPackageObjectId & {
 export type NftModuleParams = {
   nftModuleName: string;
   nftClassName: string;
-}
-
-export type BuildBuyNftParams = GlobalParams & NftModuleParams & {
-  listing: string;
-  venue: string;
-  coin: string;
 };
+
+export type BuildBuyNftParams = GlobalParams &
+  WithCollectionPackageId &
+  NftModuleParams & {
+    listing: string;
+    venue: string;
+    coin: string;
+    module?: "fixed_price" | "limited_fixed_price";
+  };
+
+
 
 export interface BuildEnableSalesParams extends WithPackageObjectId {
   listing: string;
@@ -447,7 +498,7 @@ export interface NftParam {
 }
 
 export interface NftTypeParam {
-  nftType: string
+  nftType: string;
 }
 
 export interface TransferCapParam {
@@ -519,10 +570,23 @@ export type BuildCreateFixedPriceMarketParams = WithPackageObjectId & {
   inventory: string;
 };
 
-export type BuildInitVenueParams = BuildCreateFixedPriceMarketParams & NftModuleParams & {
-  listing: string;
-  isWhitelisted: boolean;
+export type BuildInitVenueParams = BuildCreateFixedPriceMarketParams &
+  WithCollectionPackageId &
+  NftModuleParams & {
+    listing: string;
+    isWhitelisted: boolean;
+  };
+
+export type BuildInitLimitedVenueParams = BuildInitVenueParams & {
+  limit: number;
 };
+
+export type BuildSetLimitMarketLimitParams = WithPackageObjectId & WithGasBudget & {
+  coinType?: string; // SUI by default
+  listing: string;
+  venue: string;
+  newLimit: number;
+}
 
 export type BuildRequestToJoinMarketplaceParams = WithPackageObjectId & {
   marketplace: string;
@@ -531,14 +595,18 @@ export type BuildRequestToJoinMarketplaceParams = WithPackageObjectId & {
 
 export type BuildAcceptListingRequest = BuildRequestToJoinMarketplaceParams;
 
-export type BuildInitWarehouseParams = WithPackageObjectId & NftModuleParams & {};
+export type BuildInitWarehouseParams = WithPackageObjectId &
+  NftModuleParams &
+  WithCollectionPackageId & {};
 
-export type BuildAddWarehouseToListingParams = WithPackageObjectId & NftModuleParams & {
-  listing: string;
-  warehouse: string;
-  collection: string;
-};
+export type BuildAddWarehouseToListingParams = WithPackageObjectId &
+  WithCollectionPackageId &
+  NftModuleParams & {
+    listing: string;
+    warehouse: string;
+    collection: string;
+  };
 
 export type VenueWithMarket = Venue & {
-  market: FixedPriceMarket;
-}
+  market: FixedPriceMarket | LimitedFixedPriceMarket;
+};

@@ -30,7 +30,6 @@ import {
   RoyaltyDomain,
   RoyaltyDomainBagRpcResponse,
   SuiObjectParser,
-  SymbolDomain,
   SymbolDomainBagRpcResponse,
   TagRpcResponse,
   TagsDomain,
@@ -43,6 +42,8 @@ import {
   Inventory,
   InventoryDofRpcResponse,
   InventoryContent,
+  LimitedFixedPriceMarketpcResponse,
+  LimitedFixedPriceMarket,
 } from "./types";
 import { parseObjectOwner } from "./utils";
 
@@ -53,9 +54,9 @@ export const MoveObject = object({
   has_public_transfer: boolean(),
 });
 
-// eslint-disable-next-line max-len
 const ArtNftRegex =
-  /(0x[a-f0-9]{39,40})::nft::Nft<0x[a-f0-9]{39,40}::([a-zA-Z]{1,})::([a-zA-Z]{1,})>/;
+  // eslint-disable-next-line max-len
+  /(0x[a-f0-9]{39,40})::nft::Nft<(0x[a-f0-9]{39,40})::([a-zA-Z]{1,})::([a-zA-Z]{1,})>/;
 
 export const ArtNftParser: SuiObjectParser<ArtNftRpcResponse, ArtNftRaw> = {
   parser: (data, suiData, _) => {
@@ -66,9 +67,12 @@ export const ArtNftParser: SuiObjectParser<ArtNftRpcResponse, ArtNftRaw> = {
       if (!matches) {
         return undefined;
       }
+
+      console.log("matches", matches);
       const packageObjectId = matches[1];
-      const packageModule = matches[2];
-      const packageModuleClassName = matches[3];
+      const collectionPackageObjectId = matches[2];
+      const packageModule = matches[3];
+      const packageModuleClassName = matches[4];
 
       return {
         owner,
@@ -76,6 +80,7 @@ export const ArtNftParser: SuiObjectParser<ArtNftRpcResponse, ArtNftRaw> = {
         type: suiData.data.dataType,
         id: _.details.reference.objectId,
         packageObjectId,
+        collectionPackageObjectId,
         packageModule,
         packageModuleClassName,
         rawResponse: _,
@@ -137,9 +142,9 @@ export const MintCapParser: SuiObjectParser<MintCapRPCResponse, MintCap> = {
     /0x[a-f0-9]{39,40}::collection::MintCap<0x[a-f0-9]{39,40}::[a-zA-Z_]{1,}::[a-zA-Z_]{1,}>/,
 };
 
-// eslint-disable-next-line max-len
-export const FixedPriceMarketRegex = /0x2::dynamic_field::Field<0x[a-f0-9]{39,40}::utils::Marker<0x[a-f0-9]{39,40}::fixed_price::FixedPriceMarket<0x2::sui::SUI>>, 0x[a-f0-9]{39,40}::fixed_price::FixedPriceMarket<0x2::sui::SUI>>/;
-
+export const FixedPriceMarketRegex =
+  // eslint-disable-next-line max-len
+  /0x2::dynamic_field::Field<0x[a-f0-9]{39,40}::utils::Marker<0x[a-f0-9]{39,40}::fixed_price::FixedPriceMarket<0x2::sui::SUI>>, 0x[a-f0-9]{39,40}::fixed_price::FixedPriceMarket<0x2::sui::SUI>>/;
 
 export const FixedPriceMarketParser: SuiObjectParser<
   FixedPriceMarketRpcResponse,
@@ -151,19 +156,38 @@ export const FixedPriceMarketParser: SuiObjectParser<
       rawResponse: _,
       price: data.value.fields.price,
       inventoryId: data.value.fields.inventory_id,
+      marketType: "fixed_price",
     };
   },
   regex: FixedPriceMarketRegex,
-}
+};
+
+export const LimitedFixedPriceMarketRegex =
+  // eslint-disable-next-line max-len
+  /0x2::dynamic_field::Field<0x[a-f0-9]{39,40}::utils::Marker<0x[a-f0-9]{39,40}::limited_fixed_price::LimitedFixedPriceMarket<0x2::sui::SUI>>, 0x[a-f0-9]{39,40}::limited_fixed_price::LimitedFixedPriceMarket<0x2::sui::SUI>>/;
+
+export const LimitedFixedPriceMarketParser: SuiObjectParser<
+  LimitedFixedPriceMarketpcResponse,
+  LimitedFixedPriceMarket
+> = {
+  parser: (data, suiData, _) => {
+    return {
+      id: suiData.reference.objectId,
+      rawResponse: _,
+      price: data.value.fields.price,
+      inventoryId: data.value.fields.inventory_id,
+      limit: parseFloat(data.value.fields.limit),
+      addresses: data.value.fields.addresses,
+      marketType: "limited_fixed_price",
+    };
+  },
+  regex: LimitedFixedPriceMarketRegex,
+};
 
 // eslint-disable-next-line max-len
-export const VenueRegex =
-  /(0x[a-f0-9]{39,40})::venue::Venue/;
+export const VenueRegex = /(0x[a-f0-9]{39,40})::venue::Venue/;
 
-export const VenueParser: SuiObjectParser<
-  VenueRpcResponse,
-  Venue
-> = {
+export const VenueParser: SuiObjectParser<VenueRpcResponse, Venue> = {
   parser: (data, suiData, _) => {
     return {
       id: suiData.reference.objectId,
@@ -207,7 +231,7 @@ export const MarketplaceParser: SuiObjectParser<
 const FLAT_FEE_REGEX = /(0x[a-f0-9]{39,40})::flat_fee::FlatFee/;
 
 export const FlatFeeParser: SuiObjectParser<FlatFeeRfcRpcResponse, FlatFee> = {
-  parser: (data, suiData, _) => {
+  parser: (data) => {
     return {
       id: data.id.id,
       rateBps: data.rate_bps,
@@ -250,7 +274,7 @@ export const DynamicFieldParser: SuiObjectParser<
   DynamicField
 > = {
   regex: DYNAMIC_FIELD_REGEX,
-  parser: (data, suiData, _) => {
+  parser: (data) => {
     return {
       value: data.value,
     };
@@ -262,7 +286,7 @@ const WAREHOUSE_REGEX = /(0x[a-f0-9]{39,40})::warehouse::Warehouse/;
 export const WarehouseParser: SuiObjectParser<WarehouseRpcResponse, Warehouse> =
 {
   regex: WAREHOUSE_REGEX,
-  parser: (data, suiData, _) => {
+  parser: (data, suiData) => {
     return {
       id: suiData.reference.objectId,
     };
@@ -281,20 +305,22 @@ export const InventoryParser: SuiObjectParser<InventoryRpcResponse, Inventory> =
   },
 };
 
-// eslint-disable-next-line max-len
-const INVENTORY_DOF_REGEX = /0x2::dynamic_field::Field<(0x[a-f0-9]{39,40})::utils::Marker<(0x[a-f0-9]{39,40})::warehouse::Warehouse<(0x[a-f0-9]{39,40})::[a-zA-Z_]{1,}::[a-zA-Z_]{1,}>>, (0x[a-f0-9]{39,40})::warehouse::Warehouse<(0x[a-f0-9]{39,40})::[a-zA-Z_]{1,}::[a-zA-Z_]{1,}>>/
+const INVENTORY_DOF_REGEX =
+  // eslint-disable-next-line max-len
+  /0x2::dynamic_field::Field<(0x[a-f0-9]{39,40})::utils::Marker<(0x[a-f0-9]{39,40})::warehouse::Warehouse<(0x[a-f0-9]{39,40})::[a-zA-Z_]{1,}::[a-zA-Z_]{1,}>>, (0x[a-f0-9]{39,40})::warehouse::Warehouse<(0x[a-f0-9]{39,40})::[a-zA-Z_]{1,}::[a-zA-Z_]{1,}>>/;
 
-export const InventoryDofParser: SuiObjectParser<InventoryDofRpcResponse, InventoryContent> =
-{
+export const InventoryDofParser: SuiObjectParser<
+  InventoryDofRpcResponse,
+  InventoryContent
+> = {
   regex: INVENTORY_DOF_REGEX,
-  parser: (data, suiData, _) => {
+  parser: (data, suiData) => {
     return {
       nfts: data.value.fields.nfts,
       id: suiData.reference.objectId,
     };
   },
 };
-
 
 /* eslint-disable max-len */
 const ROYALTY_DOMAIN_BAG_REGEX =
@@ -351,10 +377,10 @@ export const parseBagDomains = (domains: GetObjectDataResponse[]) => {
     const { data } = royaltyDomain.details;
     response.royaltyAggregationBagId = (
       data.fields as RoyaltyDomainBagRpcResponse
-    ).value.fields.aggregations.fields.id.id;
+    ).value.fields.aggregations.id;
     response.royaltyStrategiesBagId = (
       data.fields as RoyaltyDomainBagRpcResponse
-    ).value.fields.strategies.fields.id.id;
+    ).value.fields.strategies.id;
   }
 
   if (
@@ -395,9 +421,10 @@ export const parseBagDomains = (domains: GetObjectDataResponse[]) => {
     is(tagsDomain.details.data, MoveObject)
   ) {
     const { data } = tagsDomain.details;
+    console.log("data", JSON.stringify(data.fields));
     response.tagsBagId = (
       data.fields as TagsDomainBagRpcResponse
-    ).value.fields.bag.fields.id.id;
+    ).value.fields.value.fields.id.id;
   }
 
   if (
@@ -429,7 +456,6 @@ const ATTRIBUTES_DOMAIN_REGEX =
 /* eslint-enable */
 
 export const parseDynamicDomains = (domains: GetObjectDataResponse[]) => {
-
   const response: Partial<CollectionDomains> = {};
   const royaltyDomain = domains.find((d) =>
     isTypeMatchRegex(d, ROYALTY_DOMAIN_REGEX)
@@ -457,11 +483,12 @@ export const parseDynamicDomains = (domains: GetObjectDataResponse[]) => {
     const { data } = royaltyDomain.details;
     response.royaltyAggregationBagId = (
       data.fields as RoyaltyDomain
-    ).aggregations.fields.id.id;
+    ).value.fields.aggregations.id;
     response.royaltyStrategiesBagId = (
       data.fields as RoyaltyDomain
-    ).aggregations.fields.id.id;
+    ).value.fields.aggregations.id;
   }
+
 
   if (
     symbolDomain &&
@@ -469,7 +496,7 @@ export const parseDynamicDomains = (domains: GetObjectDataResponse[]) => {
     is(symbolDomain.details.data, MoveObject)
   ) {
     const { data } = symbolDomain.details;
-    response.symbol = (data.fields as SymbolDomain).symbol;
+    response.symbol = (data.fields as SymbolDomainBagRpcResponse).value.fields.symbol;
   }
 
   if (
@@ -487,8 +514,12 @@ export const parseDynamicDomains = (domains: GetObjectDataResponse[]) => {
     is(displayDomain.details.data, MoveObject)
   ) {
     const { data } = displayDomain.details;
-    response.description = (data.fields as DisplayDomainBagRpcResponse).value.fields.description;
-    response.name = (data.fields as DisplayDomainBagRpcResponse).value.fields.name;
+    response.description = (
+      data.fields as DisplayDomainBagRpcResponse
+    ).value.fields.description;
+    response.name = (
+      data.fields as DisplayDomainBagRpcResponse
+    ).value.fields.name;
   }
   if (
     tagsDomain &&
@@ -496,7 +527,7 @@ export const parseDynamicDomains = (domains: GetObjectDataResponse[]) => {
     is(tagsDomain.details.data, MoveObject)
   ) {
     const { data } = tagsDomain.details;
-    response.tagsBagId = (data.fields as TagsDomain).bag.fields.id.id;
+    response.tagsBagId = (data.fields as TagsDomain).value.fields.id.id;
   }
 
   if (

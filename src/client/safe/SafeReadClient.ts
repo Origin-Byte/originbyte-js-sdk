@@ -1,4 +1,9 @@
-import { ObjectId, Provider, SuiAddress, TransactionEffects } from "@mysten/sui.js";
+import {
+  ObjectId,
+  Provider,
+  SuiAddress,
+  TransactionEffects,
+} from "@mysten/sui.js";
 import {
   DEFAULT_GAS_BUDGET,
   DEFAULT_PACKAGE_ID,
@@ -106,9 +111,11 @@ export class SafeReadClient {
 
   public async fetchAllOwnerCapsByUser(user: SuiAddress) {
     const allObjects = await this.client.getObjects(user);
-    const ownerCapObjects = allObjects.filter((obj) => obj.type.endsWith(`::${this.module}::OwnerCap`));
+    const ownerCapObjects = allObjects.filter((obj) =>
+      obj.type.endsWith(`::${this.module}::OwnerCap`)
+    );
 
-    return ownerCapObjects
+    return ownerCapObjects;
   }
 
   public async fetchOwnerCapSafeId(ownerCap: ObjectId): Promise<ObjectId> {

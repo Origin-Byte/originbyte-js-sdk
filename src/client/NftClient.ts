@@ -3,6 +3,7 @@ import {
   is,
   SuiObject,
   JsonRpcProvider,
+  Connection,
 } from "@mysten/sui.js";
 import {
   buildBuyNftTx,
@@ -11,12 +12,13 @@ import {
   buildCreateFlatFeeTx,
   buildInitMarketplaceTx,
   buildInitListingTx,
-  buildInitFixedPriceMarketTx,
   buildInitWarehouseTx,
   buildInitVenueTx,
   buildRequestToJoinMarketplaceTx,
   buildAcceptListingRequestTx,
   buildAddWarehouseToListingTx,
+  buildInitLimitedVenueTx,
+  buildSetLimtitedMarketNewLimitTx,
 } from "./txBuilders";
 import { toMap } from "../utils";
 import {
@@ -35,6 +37,7 @@ import {
   FixedPriceMarketParser,
   InventoryParser,
   InventoryDofParser,
+  LimitedFixedPriceMarketParser,
 } from "./parsers";
 import {
   GetMintCapsParams,
@@ -59,7 +62,9 @@ import { TESTNET_URL } from "./consts";
 export class NftClient {
   private provider: JsonRpcProvider;
 
-  constructor(_provider = new JsonRpcProvider(TESTNET_URL)) {
+  constructor(
+    _provider = new JsonRpcProvider(new Connection({ fullnode: TESTNET_URL }))
+  ) {
     this.provider = _provider;
   }
 
@@ -71,7 +76,9 @@ export class NftClient {
       address
     );
 
-    return objectsForWallet.filter((_) => _.type.match(parser.regex)).map(({ objectId }) => objectId);
+    return objectsForWallet
+      .filter((_) => _.type.match(parser.regex))
+      .map(({ objectId }) => objectId);
   };
 
   parseObjects = async <RpcResponse, DataModel>(
@@ -130,13 +137,18 @@ export class NftClient {
 
     const venueWithMarket = await Promise.all(
       venues.map(async (venue) => {
-        const marketResponse = await this.getDynamicFields(venue.id)
-        const parsed = await this.parseObjects(marketResponse, FixedPriceMarketParser);
-        if (parsed.length) {
+        const marketResponse = await this.getDynamicFields(venue.id);
+        const parsed = await Promise.all([
+          this.parseObjects(marketResponse, FixedPriceMarketParser),
+          this.parseObjects(marketResponse, LimitedFixedPriceMarketParser),
+        ]);
+        const market = parsed.flat().find((m) => !!m);
+
+        if (market) {
           return {
             ...venue,
-            market: parsed[0]
-          } as VenueWithMarket
+            market,
+          } as VenueWithMarket;
         }
         return undefined;
       })
@@ -146,7 +158,16 @@ export class NftClient {
   };
 
   getCollectionsById = async (params: GetCollectionsParams) => {
-    return this.fetchAndParseObjectsById(params.objectIds, CollectionParser);
+    const collections = await this.fetchAndParseObjectsById(params.objectIds, CollectionParser);
+    return Promise.all(collections.map(async (collection) => {
+      const f = await this.getDynamicFields(collection.id);
+      return {
+        ...collection,
+        ...parseDynamicDomains(f),
+      }
+    }));
+
+
   };
 
   getDynamicFields = async (parentdId: string) => {
@@ -264,14 +285,17 @@ export class NftClient {
   };
 
   getInventoryById = async (params: GetInventoryParams) => {
-    const [inventory] = await this.fetchAndParseObjectsById([params.inventoryId], InventoryParser);
+    const [inventory] = await this.fetchAndParseObjectsById(
+      [params.inventoryId],
+      InventoryParser
+    );
     const fields = await this.getDynamicFields(params.inventoryId);
     const [parsedFields] = await this.parseObjects(fields, InventoryDofParser);
 
     return {
       id: inventory.id,
       nfts: parsedFields.nfts,
-    }
+    };
   };
 
   getNftsById = async (params: GetNftsParams): Promise<ArtNft[]> => {
@@ -281,20 +305,22 @@ export class NftClient {
       ArtNftParser
     );
 
-    const bags = resolveBags ? await Promise.all(
-      nfts.map(async (_) => {
-        const content = _.bagId
-          ? await this.getBagContent(_.bagId)
-          : await this.getDynamicFields(_.id);
+    const bags = resolveBags
+      ? await Promise.all(
+        nfts.map(async (_) => {
+          const content = _.bagId
+            ? await this.getBagContent(_.bagId)
+            : await this.getDynamicFields(_.id);
 
-        return {
-          nftId: _.id,
-          content: _.bagId
-            ? parseBagDomains(content)
-            : parseDynamicDomains(content),
-        };
-      })
-    ) : [];
+          return {
+            nftId: _.id,
+            content: _.bagId
+              ? parseBagDomains(content)
+              : parseDynamicDomains(content),
+          };
+        })
+      )
+      : [];
     const bagsByNftId = toMap(bags, (_) => _.nftId);
 
     return nfts.map((nft) => {
@@ -311,6 +337,7 @@ export class NftClient {
         id: nft.id,
         rawResponse: nft.rawResponse,
         ownerAddress: nft.ownerAddress,
+        collectionPackageObjectId: nft.collectionPackageObjectId,
       };
     });
   };
@@ -333,7 +360,7 @@ export class NftClient {
 
   static buildInitVenue = buildInitVenueTx;
 
-  static buildInitFixedPriceMarket = buildInitFixedPriceMarketTx;
+  static buildInitLimitedVenue = buildInitLimitedVenueTx;
 
   static buildInitMarketplace = buildInitMarketplaceTx;
 
@@ -346,6 +373,8 @@ export class NftClient {
   static buildAcceptListingRequest = buildAcceptListingRequestTx;
 
   static buildAddWarehouseToListing = buildAddWarehouseToListingTx;
+
+  static buildSetLimtitedMarketNewLimit = buildSetLimtitedMarketNewLimitTx;
 
   private mergeAuthoritiesWithCollections = (
     collections: NftCollection[],

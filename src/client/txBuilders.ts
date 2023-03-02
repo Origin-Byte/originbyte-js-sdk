@@ -7,11 +7,12 @@ import {
   BuildInitMarketplaceParams,
   BuildInitListingParams,
   BuildMintNftParams,
-  BuildCreateFixedPriceMarketParams,
   BuildInitVenueParams,
   BuildRequestToJoinMarketplaceParams,
   BuildAcceptListingRequest,
   BuildAddWarehouseToListingParams,
+  BuildInitLimitedVenueParams,
+  BuildSetLimitMarketLimitParams,
 } from "./types";
 
 const SUI_TYPE = "0x2::sui::SUI";
@@ -41,7 +42,7 @@ export const biuldMintNftTx = (
       params.mintCap,
       params.warehouseId,
     ],
-    gasBudget: 10000,
+    gasBudget: params.gasBudget ?? 10000,
   };
 };
 
@@ -49,16 +50,17 @@ export const buildBuyNftTx = (
   params: BuildBuyNftParams
 ): MoveCallTransaction => ({
   packageObjectId: params.packageObjectId,
-  module: "fixed_price",
+  module: params.module ?? "fixed_price",
   function: "buy_nft",
   typeArguments: [
-    `${params.packageObjectId}::${params.nftModuleName}::${params.nftClassName}`,
+    `${params.collectionPackageId ?? params.packageObjectId}::${
+      params.nftModuleName
+    }::${params.nftClassName}`,
     SUI_TYPE,
   ],
   arguments: [params.listing, params.venue, params.coin],
   gasBudget: params.gasBudget ?? 5000,
 });
-
 
 export const buildInitVenueTx = (
   params: BuildInitVenueParams
@@ -67,13 +69,54 @@ export const buildInitVenueTx = (
   module: "fixed_price",
   function: "init_venue",
   typeArguments: [
-    `${params.packageObjectId}::${params.nftModuleName}::${params.nftClassName}`,
-    params.coinType ?? SUI_TYPE
+    `${params.collectionPackageId ?? params.packageObjectId}::${
+      params.nftModuleName
+    }::${params.nftClassName}`,
+    params.coinType ?? SUI_TYPE,
   ],
   arguments: [
     params.listing,
     params.inventory,
     params.isWhitelisted,
+    params.price.toFixed(0),
+  ],
+  gasBudget: 5000,
+});
+
+export const buildSetLimtitedMarketNewLimitTx = (
+  params: BuildSetLimitMarketLimitParams
+): MoveCallTransaction => ({
+  packageObjectId: params.packageObjectId,
+  module: "limited_fixed_price",
+  function: "set_limit",
+  typeArguments: [
+    params.coinType ?? SUI_TYPE,
+  ],
+  arguments: [
+    params.listing,
+    params.venue,
+    params.newLimit.toFixed(0),
+  ],
+  gasBudget: params.gasBudget ?? 5000,
+});
+
+export const buildInitLimitedVenueTx = (
+  params: BuildInitLimitedVenueParams
+): MoveCallTransaction => ({
+  packageObjectId: params.packageObjectId,
+  module: "limited_fixed_price",
+  function: "init_venue",
+  typeArguments: [
+    `${params.collectionPackageId ?? params.packageObjectId}::${
+      params.nftModuleName
+    }::${params.nftClassName}`,
+    params.coinType ?? SUI_TYPE,
+  ],
+  arguments: [
+    params.listing,
+    params.inventory,
+    params.isWhitelisted,
+    params.limit.toFixed(0),
     params.price.toFixed(0),
   ],
   gasBudget: 5000,
@@ -98,17 +141,6 @@ export const buildAcceptListingRequestTx = (
   function: "accept_listing_request",
   typeArguments: [],
   arguments: [params.marketplace, params.listing],
-  gasBudget: 5000,
-});
-
-export const buildInitFixedPriceMarketTx = (
-  params: BuildCreateFixedPriceMarketParams
-): MoveCallTransaction => ({
-  packageObjectId: params.packageObjectId,
-  module: "fixed_price",
-  function: "init_market",
-  typeArguments: [params.coinType ?? SUI_TYPE],
-  arguments: [params.inventory, params.price.toFixed(0)],
   gasBudget: 5000,
 });
 
@@ -163,7 +195,9 @@ export const buildInitWarehouseTx = (
   module: "warehouse",
   function: "init_warehouse",
   typeArguments: [
-    `${params.packageObjectId}::${params.nftModuleName}::${params.nftClassName}`,
+    `${params.collectionPackageId ?? params.packageObjectId}::${
+      params.nftModuleName
+    }::${params.nftClassName}`,
   ],
   arguments: [],
   gasBudget: 5000,
@@ -176,7 +210,9 @@ export const buildAddWarehouseToListingTx = (
   module: "listing",
   function: "add_warehouse",
   typeArguments: [
-    `${params.packageObjectId}::${params.nftModuleName}::${params.nftClassName}`,
+    `${params.collectionPackageId ?? params.packageObjectId}::${
+      params.nftModuleName
+    }::${params.nftClassName}`,
   ],
   arguments: [params.listing, params.collection, params.warehouse],
   gasBudget: 50000,

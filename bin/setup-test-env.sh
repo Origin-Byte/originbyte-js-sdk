@@ -3,31 +3,33 @@
 set -e
 
 # set SKIP_DEPS env to skip fetching dependencies and deploying nft-protocol
+# set TEST_VALIDATOR_CONFIG env to use a custom validator config
+# set SUI_BIN env to use a custom sui binary
 
-export $(cat "__tests__/.env.test" | xargs)
+source __tests__/.env.test.sh
 
 # current dir
 root="$(pwd)"
 # defined by mnemonic in test consts
-test_addr="2d1770323750638a27e8a2b4ad4fe54ec2b7edf0"
+test_addr="ddcdd8e07b59852f58ba8db8daff1b585d2fca23"
 # path to test assets
 test_assets_dir="${root}/__tests__/assets"
 test_assets_tmp_dir="${test_assets_dir}/.tmp"
 nft_protocol_dir="${test_assets_tmp_dir}/nft-protocol"
 originmate_dir="${test_assets_tmp_dir}/originmate"
-test_validator_config="${test_assets_tmp_dir}/localnet/client.yaml"
-sui_bin="${test_assets_tmp_dir}/sui"
+test_validator_config=${TEST_VALIDATOR_CONFIG:-"${test_assets_tmp_dir}/localnet/client.yaml"}
+sui_bin=${SUI_BIN:-"${test_assets_tmp_dir}/sui"}
 
 mkdir -p "${test_assets_tmp_dir}"
 
-# if sui file does not exist, download it
-# TODO: check sui version as well
-if [ ! -f "${sui_bin}" ]; then
-    echo "Downloading sui binary version '${SUI_TAG}'"
-
-    wget "https://github.com/MystenLabs/sui/releases/download/${SUI_TAG}/sui" \
-        -O "${sui_bin}" -q --show-progress
-    chmod +x "${sui_bin}"
+installed_sui_version=$($sui_bin --version)
+if [[ "${installed_sui_version}" != "${SUI_VERSION}" ]]; then
+    echo "ERROR: expected sui version '${SUI_VERSION}'"
+    echo "But running '$ sui --version' returned:"
+    echo
+    echo "${installed_sui_version}"
+    echo
+    exit 1
 fi
 
 # check for dependencies
@@ -150,7 +152,7 @@ if [ -z "${SKIP_DEPS}" ]; then
                 pay_all_sui \
                 --gas-budget 100000 \
                 --input-coins "${coin_id}" \
-                --recipient "${test_addr}" 1>/dev/null
+                --recipient "0x${test_addr}" 1>/dev/null
         done
     fi
 fi

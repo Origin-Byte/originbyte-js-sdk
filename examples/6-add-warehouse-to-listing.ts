@@ -1,5 +1,11 @@
 import { NftClient } from "../src";
-import { WAREHOUSE_ID, LISTING_ID, PACKAGE_OBJECT_ID, signer, COLLECTION_ID } from "./common";
+import {
+  WAREHOUSE_ID,
+  LISTING_ID,
+  PACKAGE_OBJECT_ID,
+  signer,
+  COLLECTION_ID,
+} from "./common";
 
 export const addInventoryToListing = async () => {
   const transaction = NftClient.buildAddWarehouseToListing({
