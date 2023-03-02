@@ -1,4 +1,4 @@
-import { Ed25519Keypair, JsonRpcProvider, RawSigner } from "@mysten/sui.js";
+import { Connection, Ed25519Keypair, JsonRpcProvider, RawSigner } from "@mysten/sui.js";
 import { NftClient } from "../src";
 
 // export const mnemonic = 'muffin tuition fit fish average true slender tower salmon artist song biology';
@@ -39,6 +39,6 @@ export function normalizeMnemonics(mnemonics: string): string {
 
 export const keypair = Ed25519Keypair.deriveKeypair(mnemonic);
 
-export const provider = new JsonRpcProvider("https://fullnode.devnet.sui.io");
+export const provider = new JsonRpcProvider(new Connection({ fullnode: "https://fullnode.devnet.sui.io"} ));
 export const signer = new RawSigner(keypair, provider);
 export const client = new NftClient(provider);
