@@ -30,6 +30,9 @@ import {
   cancelAskAndDiscardTransferCapTx,
   editAskTx,
   listNftWithCommissionTx,
+  listMultipleNftsWithCommissionTx,
+  editBidTx,
+  createSafeAndBidWithCommissionTx,
 } from "./txBuilder";
 
 export class OrderbookFullClient extends OrderbookReadClient {
@@ -62,13 +65,16 @@ export class OrderbookFullClient extends OrderbookReadClient {
 
   static listNftWithCommissionTx = listNftWithCommissionTx;
 
+  static listMultipleNftsWithCommissionTx = listMultipleNftsWithCommissionTx;
+
   static depositAndlistNftTx = depositAndlistNftTx;
 
   static createSafeAndDepositAndListNftTx = createSafeAndDepositAndListNftTx;
 
   static depositAndListNftWithCommissionTx = depositAndListNftWithCommissionTx;
 
-  static createSafeAndDepositAndListNftWithCommissionTx = createSafeAndDepositAndListNftWithCommissionTx;
+  static createSafeAndDepositAndListNftWithCommissionTx =
+    createSafeAndDepositAndListNftWithCommissionTx;
 
   static buyNftTx = buyNftTx;
 
@@ -82,6 +88,8 @@ export class OrderbookFullClient extends OrderbookReadClient {
 
   static editAskTx = editAskTx;
 
+  static editBidTx = editBidTx;
+
   static finishTradeTx = finishTradeTx;
 
   static finishTradeOfGenericNft = finishTradeOfGenericNftTx;
@@ -89,6 +97,8 @@ export class OrderbookFullClient extends OrderbookReadClient {
   static createBidTx = createBidTx;
 
   static createBidWithCommissionTx = createBidWithCommissionTx;
+
+  static createSafeAndBidWithCommissionTx = createSafeAndBidWithCommissionTx;
 
   static cancelBidTx = cancelBidTx;
 
@@ -157,7 +167,7 @@ export class OrderbookFullClient extends OrderbookReadClient {
     ft: string;
     orderbook: ObjectId;
     price: number;
-    nft: ObjectId
+    nft: ObjectId;
     sellerSafe: ObjectId;
     ownerCap: ObjectId;
   }) {
@@ -182,7 +192,7 @@ export class OrderbookFullClient extends OrderbookReadClient {
     ft: string;
     orderbook: ObjectId;
     price: number;
-    nft: ObjectId
+    nft: ObjectId;
     sellerSafe: ObjectId;
     ownerCap: ObjectId;
   }) {
@@ -200,13 +210,38 @@ export class OrderbookFullClient extends OrderbookReadClient {
     };
   }
 
+  public async listMultipleNftsWithCommission(p: {
+    beneficiary: SuiAddress;
+    commissions: number[];
+    collection: string;
+    ft: string;
+    orderbook: ObjectId;
+    prices: number[];
+    nfts: ObjectId[];
+    sellerSafe: ObjectId;
+    ownerCap: ObjectId;
+  }) {
+    const effects = await this.client.sendTxWaitForEffects(
+      listMultipleNftsWithCommissionTx({
+        ...this.opts,
+        ...p,
+      })
+    );
+
+    return {
+      // undefined if trade not executed instantly
+      trade: effects.created?.find(Boolean)?.reference.objectId,
+      effects,
+    };
+  }
+
   public async depositAndListNft(p: {
     collection: string;
     ft: string;
-    nftType: string
+    nftType: string;
     orderbook: ObjectId;
     price: number;
-    nft: ObjectId
+    nft: ObjectId;
     sellerSafe: ObjectId;
     ownerCap: ObjectId;
   }) {
@@ -229,10 +264,10 @@ export class OrderbookFullClient extends OrderbookReadClient {
     commission: number;
     collection: string;
     ft: string;
-    nftType: string
+    nftType: string;
     orderbook: ObjectId;
     price: number;
-    nft: ObjectId
+    nft: ObjectId;
     sellerSafe: ObjectId;
     ownerCap: ObjectId;
   }) {
@@ -253,10 +288,10 @@ export class OrderbookFullClient extends OrderbookReadClient {
   public async createSafeAndDepositAndListNft(p: {
     collection: string;
     ft: string;
-    nftType: string
+    nftType: string;
     orderbook: ObjectId;
     price: number;
-    nft: ObjectId
+    nft: ObjectId;
   }) {
     const effects = await this.client.sendTxWaitForEffects(
       createSafeAndDepositAndListNftTx({
@@ -277,10 +312,10 @@ export class OrderbookFullClient extends OrderbookReadClient {
     commission: number;
     collection: string;
     ft: string;
-    nftType: string
+    nftType: string;
     orderbook: ObjectId;
     price: number;
-    nft: ObjectId
+    nft: ObjectId;
   }) {
     const effects = await this.client.sendTxWaitForEffects(
       createSafeAndDepositAndListNftWithCommissionTx({
@@ -421,6 +456,23 @@ export class OrderbookFullClient extends OrderbookReadClient {
     );
   }
 
+  public async editBid(p: {
+    collection: string;
+    ft: string;
+    orderbook: ObjectId;
+    oldPrice: number;
+    newPrice: number;
+    buyerSafe: ObjectId;
+    wallet: ObjectId;
+  }) {
+    return this.client.sendTxWaitForEffects(
+      editBidTx({
+        ...this.opts,
+        ...p,
+      })
+    );
+  }
+
   public async cancelBid(p: {
     collection: string;
     ft: string;
@@ -507,6 +559,29 @@ export class OrderbookFullClient extends OrderbookReadClient {
   }) {
     const effects = await this.client.sendTxWaitForEffects(
       createBidWithCommissionTx({
+        ...this.opts,
+        ...p,
+      })
+    );
+
+    return {
+      // undefined if trade not executed instantly
+      trade: effects.created?.find(Boolean)?.reference.objectId,
+      effects,
+    };
+  }
+
+  public async createSafeAndBidWithCommission(p: {
+    beneficiary: SuiAddress;
+    collection: string;
+    commission: number;
+    ft: string;
+    orderbook: ObjectId;
+    price: number;
+    wallet: ObjectId;
+  }) {
+    const effects = await this.client.sendTxWaitForEffects(
+      createSafeAndBidWithCommissionTx({
         ...this.opts,
         ...p,
       })
