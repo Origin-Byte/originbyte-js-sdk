@@ -221,18 +221,12 @@ export class OrderbookFullClient extends OrderbookReadClient {
     sellerSafe: ObjectId;
     ownerCap: ObjectId;
   }) {
-    const effects = await this.client.sendTxWaitForEffects(
+    return this.client.sendTxWaitForEffects(
       listMultipleNftsWithCommissionTx({
         ...this.opts,
         ...p,
       })
     );
-
-    return {
-      // undefined if trade not executed instantly
-      trade: effects.created?.find(Boolean)?.reference.objectId,
-      effects,
-    };
   }
 
   public async depositAndListNft(p: {
@@ -580,17 +574,11 @@ export class OrderbookFullClient extends OrderbookReadClient {
     price: number;
     wallet: ObjectId;
   }) {
-    const effects = await this.client.sendTxWaitForEffects(
+    return this.client.sendTxWaitForEffects(
       createSafeAndBidWithCommissionTx({
         ...this.opts,
         ...p,
       })
     );
-
-    return {
-      // undefined if trade not executed instantly
-      trade: effects.created?.find(Boolean)?.reference.objectId,
-      effects,
-    };
   }
 }
