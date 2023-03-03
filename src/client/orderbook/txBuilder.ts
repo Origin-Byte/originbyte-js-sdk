@@ -132,11 +132,11 @@ export const listMultipleNftsWithCommissionTx = (
     p,
     [
       p.orderbook,
-      p.prices.map((price) => String(price)),
+      p.prices.map(String),
       p.nfts,
       p.ownerCap,
       p.beneficiary,
-      p.commissions.map((cm) => String(cm)),
+      p.commissions.map(String),
       p.sellerSafe,
     ],
     [p.collection, p.ft]
