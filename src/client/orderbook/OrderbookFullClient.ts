@@ -221,6 +221,11 @@ export class OrderbookFullClient extends OrderbookReadClient {
     sellerSafe: ObjectId;
     ownerCap: ObjectId;
   }) {
+
+    if (!(p.commissions.length === p.nfts.length && p.prices.length === p.nfts.length)) {
+      throw new Error("The length of provided lists (commissions & nfts & prices) do not match with each together")
+    }
+
     return this.client.sendTxWaitForEffects(
       listMultipleNftsWithCommissionTx({
         ...this.opts,
