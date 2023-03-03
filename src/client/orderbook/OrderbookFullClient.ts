@@ -30,6 +30,9 @@ import {
   cancelAskAndDiscardTransferCapTx,
   editAskTx,
   listNftWithCommissionTx,
+  listMultipleNftsWithCommissionTx,
+  editBidTx,
+  createSafeAndBidWithCommissionTx,
 } from "./txBuilder";
 
 export class OrderbookFullClient extends OrderbookReadClient {
@@ -62,6 +65,8 @@ export class OrderbookFullClient extends OrderbookReadClient {
 
   static listNftWithCommissionTx = listNftWithCommissionTx;
 
+  static listMultipleNftsWithCommissionTx = listMultipleNftsWithCommissionTx;
+
   static depositAndlistNftTx = depositAndlistNftTx;
 
   static createSafeAndDepositAndListNftTx = createSafeAndDepositAndListNftTx;
@@ -83,6 +88,8 @@ export class OrderbookFullClient extends OrderbookReadClient {
 
   static editAskTx = editAskTx;
 
+  static editBidTx = editBidTx;
+
   static finishTradeTx = finishTradeTx;
 
   static finishTradeOfGenericNft = finishTradeOfGenericNftTx;
@@ -90,6 +97,8 @@ export class OrderbookFullClient extends OrderbookReadClient {
   static createBidTx = createBidTx;
 
   static createBidWithCommissionTx = createBidWithCommissionTx;
+
+  static createSafeAndBidWithCommissionTx = createSafeAndBidWithCommissionTx;
 
   static cancelBidTx = cancelBidTx;
 
@@ -199,6 +208,30 @@ export class OrderbookFullClient extends OrderbookReadClient {
       trade: effects.created?.find(Boolean)?.reference.objectId,
       effects,
     };
+  }
+
+  public async listMultipleNftsWithCommission(p: {
+    beneficiary: SuiAddress;
+    commissions: number[];
+    collection: string;
+    ft: string;
+    orderbook: ObjectId;
+    prices: number[];
+    nfts: ObjectId[];
+    sellerSafe: ObjectId;
+    ownerCap: ObjectId;
+  }) {
+
+    if (!(p.commissions.length === p.nfts.length && p.prices.length === p.nfts.length)) {
+      throw new Error("The length of provided lists (commissions & nfts & prices) do not match with each together")
+    }
+
+    return this.client.sendTxWaitForEffects(
+      listMultipleNftsWithCommissionTx({
+        ...this.opts,
+        ...p,
+      })
+    );
   }
 
   public async depositAndListNft(p: {
@@ -422,6 +455,23 @@ export class OrderbookFullClient extends OrderbookReadClient {
     );
   }
 
+  public async editBid(p: {
+    collection: string;
+    ft: string;
+    orderbook: ObjectId;
+    oldPrice: number;
+    newPrice: number;
+    buyerSafe: ObjectId;
+    wallet: ObjectId;
+  }) {
+    return this.client.sendTxWaitForEffects(
+      editBidTx({
+        ...this.opts,
+        ...p,
+      })
+    );
+  }
+
   public async cancelBid(p: {
     collection: string;
     ft: string;
@@ -518,5 +568,22 @@ export class OrderbookFullClient extends OrderbookReadClient {
       trade: effects.created?.find(Boolean)?.reference.objectId,
       effects,
     };
+  }
+
+  public async createSafeAndBidWithCommission(p: {
+    beneficiary: SuiAddress;
+    collection: string;
+    commission: number;
+    ft: string;
+    orderbook: ObjectId;
+    price: number;
+    wallet: ObjectId;
+  }) {
+    return this.client.sendTxWaitForEffects(
+      createSafeAndBidWithCommissionTx({
+        ...this.opts,
+        ...p,
+      })
+    );
   }
 }

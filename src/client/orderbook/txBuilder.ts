@@ -22,6 +22,9 @@ import {
   NftTypeParam,
   OldPriceParam,
   NewPriceParam,
+  PricesParam,
+  NftsParam,
+  CommissionsParams,
 } from "../types";
 
 function txObj(
@@ -110,6 +113,30 @@ export const listNftWithCommissionTx = (
       p.ownerCap,
       p.beneficiary,
       String(p.commission),
+      p.sellerSafe,
+    ],
+    [p.collection, p.ft]
+  );
+};
+
+export const listMultipleNftsWithCommissionTx = (
+  p: OrderbookParams &
+    PricesParam &
+    NftsParam &
+    AuthParam &
+    SellerSafeParam &
+    CommissionsParams
+) => {
+  return txObj(
+    "list_multiple_nfts_with_commission",
+    p,
+    [
+      p.orderbook,
+      p.prices.map(String),
+      p.nfts,
+      p.ownerCap,
+      p.beneficiary,
+      p.commissions.map(String),
       p.sellerSafe,
     ],
     [p.collection, p.ft]
@@ -260,6 +287,27 @@ export const editAskTx = (
   );
 };
 
+export const editBidTx = (
+  p: OrderbookParams &
+    OldPriceParam &
+    NewPriceParam &
+    BuyerSafeParam &
+    WalletParam
+) => {
+  return txObj(
+    "edit_bid",
+    p,
+    [
+      p.orderbook,
+      p.buyerSafe,
+      String(p.oldPrice),
+      String(p.newPrice),
+      p.wallet,
+    ],
+    [p.collection, p.ft]
+  );
+};
+
 export const finishTradeTx = (
   p: OrderbookTParams &
     SellerSafeParam &
@@ -306,6 +354,23 @@ export const createBidWithCommissionTx = (
     [
       p.orderbook,
       p.buyerSafe,
+      String(p.price),
+      p.beneficiary,
+      String(p.commission),
+      p.wallet,
+    ],
+    [p.collection, p.ft]
+  );
+};
+
+export const createSafeAndBidWithCommissionTx = (
+  p: OrderbookParams & CommissionParams & DebitParams
+) => {
+  return txObj(
+    "create_safe_and_bid_with_commission",
+    p,
+    [
+      p.orderbook,
       String(p.price),
       p.beneficiary,
       String(p.commission),
