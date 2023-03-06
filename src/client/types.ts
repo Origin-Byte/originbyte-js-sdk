@@ -10,12 +10,13 @@ export type WithGasBudget = {
   gasBudget?: number;
 };
 
-
 export interface WithPackageObjectId {
   packageObjectId: ObjectId;
 }
 
-export interface GlobalParams extends WithGasBudget, Partial<WithPackageObjectId> {
+export interface GlobalParams
+  extends WithGasBudget,
+    Partial<WithPackageObjectId> {
   moduleName?: string;
 }
 
@@ -119,22 +120,22 @@ export type RoyaltyDomain = {
     fields: {
       aggregations: {
         id: string;
-      }
+      };
       royalty_shares_bps: {
         fields: {
           contents: {
             fields: {
               key: string;
               value: number;
-            }
-          }[]
-        },
-      },
+            };
+          }[];
+        };
+      };
       strategies: {
         id: string;
       };
-    }
-  }
+    };
+  };
 };
 
 export type RoyaltyDomainBagRpcResponse = RoyaltyDomain;
@@ -162,16 +163,15 @@ export type DisplayDomainBagRpcResponse = DomainRpcBase<DisplayDomain>;
 export type TagsDomain = {
   id: ID;
   name: {
-    type: string,
-    fields: { dummy_field: boolean }
-  }
+    type: string;
+    fields: { dummy_field: boolean };
+  };
   value: {
-    type: string,
+    type: string;
     fields: {
-      id: ID
-    }
-  }
-
+      id: ID;
+    };
+  };
 };
 
 export type TagsDomainBagRpcResponse = DomainRpcBase<TagsDomain>;
@@ -323,8 +323,8 @@ export interface MarketplaceRpcResponse {
 
 export interface Marketplace
   extends WithId,
-  WithPackageObjectId,
-  WithRawResponse {
+    WithPackageObjectId,
+    WithRawResponse {
   owner: string;
   admin: string;
   receiver: string;
@@ -414,15 +414,15 @@ export interface GetNftsParams extends WithIds {
   resolveBags?: boolean;
 }
 
-export interface GetCollectionsParams extends WithIds { }
+export interface GetCollectionsParams extends WithIds {}
 
 export interface GetCollectionDomainsParams {
   domainsBagId: string;
 }
 
-export interface GetMintCapsParams extends WithIds { }
+export interface GetMintCapsParams extends WithIds {}
 
-export interface GetVenuesParams extends WithIds { }
+export interface GetVenuesParams extends WithIds {}
 
 export type DynamicFieldRpcResponse = {
   id: ID;
@@ -463,7 +463,9 @@ export type BuildBuyNftParams = GlobalParams &
     module?: "fixed_price" | "limited_fixed_price";
   };
 
-
+export type BuildBuyWhitelistedNftParams = BuildBuyNftParams & {
+  whitelistCertificate: string;
+};
 
 export interface BuildEnableSalesParams extends WithPackageObjectId {
   listing: string;
@@ -581,12 +583,13 @@ export type BuildInitLimitedVenueParams = BuildInitVenueParams & {
   limit: number;
 };
 
-export type BuildSetLimitMarketLimitParams = WithPackageObjectId & WithGasBudget & {
-  coinType?: string; // SUI by default
-  listing: string;
-  venue: string;
-  newLimit: number;
-}
+export type BuildSetLimitMarketLimitParams = WithPackageObjectId &
+  WithGasBudget & {
+    coinType?: string; // SUI by default
+    listing: string;
+    venue: string;
+    newLimit: number;
+  };
 
 export type BuildRequestToJoinMarketplaceParams = WithPackageObjectId & {
   marketplace: string;
@@ -609,4 +612,10 @@ export type BuildAddWarehouseToListingParams = WithPackageObjectId &
 
 export type VenueWithMarket = Venue & {
   market: FixedPriceMarket | LimitedFixedPriceMarket;
+};
+
+export type BuildIsueWhitelistCertificateParams = WithPackageObjectId & {
+  listing: string;
+  venue: string;
+  recipient: string;
 };

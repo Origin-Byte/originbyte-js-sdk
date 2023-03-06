@@ -13,6 +13,8 @@ import {
   BuildAddWarehouseToListingParams,
   BuildInitLimitedVenueParams,
   BuildSetLimitMarketLimitParams,
+  BuildIsueWhitelistCertificateParams,
+  BuildBuyWhitelistedNftParams,
 } from "./types";
 
 const SUI_TYPE = "0x2::sui::SUI";
@@ -62,6 +64,27 @@ export const buildBuyNftTx = (
   gasBudget: params.gasBudget ?? 5000,
 });
 
+export const buildBuyWhitelistedNftTx = (
+  params: BuildBuyWhitelistedNftParams
+): MoveCallTransaction => ({
+  packageObjectId: params.packageObjectId,
+  module: params.module ?? "fixed_price",
+  function: "buy_nft",
+  typeArguments: [
+    `${params.collectionPackageId ?? params.packageObjectId}::${
+      params.nftModuleName
+    }::${params.nftClassName}`,
+    SUI_TYPE,
+  ],
+  arguments: [
+    params.listing,
+    params.venue,
+    params.coin,
+    params.whitelistCertificate,
+  ],
+  gasBudget: params.gasBudget ?? 5000,
+});
+
 export const buildInitVenueTx = (
   params: BuildInitVenueParams
 ): MoveCallTransaction => ({
@@ -89,14 +112,8 @@ export const buildSetLimtitedMarketNewLimitTx = (
   packageObjectId: params.packageObjectId,
   module: "limited_fixed_price",
   function: "set_limit",
-  typeArguments: [
-    params.coinType ?? SUI_TYPE,
-  ],
-  arguments: [
-    params.listing,
-    params.venue,
-    params.newLimit.toFixed(0),
-  ],
+  typeArguments: [params.coinType ?? SUI_TYPE],
+  arguments: [params.listing, params.venue, params.newLimit.toFixed(0)],
   gasBudget: params.gasBudget ?? 5000,
 });
 
@@ -215,5 +232,16 @@ export const buildAddWarehouseToListingTx = (
     }::${params.nftClassName}`,
   ],
   arguments: [params.listing, params.collection, params.warehouse],
+  gasBudget: 50000,
+});
+
+export const buildIssueWhitelistCertificateTx = (
+  params: BuildIsueWhitelistCertificateParams
+): MoveCallTransaction => ({
+  packageObjectId: params.packageObjectId,
+  module: "market_whitelist",
+  function: "issue",
+  typeArguments: [],
+  arguments: [params.listing, params.venue, params.recipient],
   gasBudget: 50000,
 });
