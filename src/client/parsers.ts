@@ -284,26 +284,26 @@ export const DynamicFieldParser: SuiObjectParser<
 const WAREHOUSE_REGEX = /(0x[a-f0-9]{39,40})::warehouse::Warehouse/;
 
 export const WarehouseParser: SuiObjectParser<WarehouseRpcResponse, Warehouse> =
-{
-  regex: WAREHOUSE_REGEX,
-  parser: (data, suiData) => {
-    return {
-      id: suiData.reference.objectId,
-    };
-  },
-};
+  {
+    regex: WAREHOUSE_REGEX,
+    parser: (data, suiData) => {
+      return {
+        id: suiData.reference.objectId,
+      };
+    },
+  };
 
 const INVENTORY_REGEX = /(0x[a-f0-9]{39,40})::inventory::Inventory/;
 
 export const InventoryParser: SuiObjectParser<InventoryRpcResponse, Inventory> =
-{
-  regex: INVENTORY_REGEX,
-  parser: (data, suiData, _) => {
-    return {
-      id: suiData.reference.objectId,
-    };
-  },
-};
+  {
+    regex: INVENTORY_REGEX,
+    parser: (data, suiData, _) => {
+      return {
+        id: suiData.reference.objectId,
+      };
+    },
+  };
 
 const INVENTORY_DOF_REGEX =
   // eslint-disable-next-line max-len
@@ -489,14 +489,15 @@ export const parseDynamicDomains = (domains: GetObjectDataResponse[]) => {
     ).value.fields.aggregations.id;
   }
 
-
   if (
     symbolDomain &&
     is(symbolDomain.details, SuiObject) &&
     is(symbolDomain.details.data, MoveObject)
   ) {
     const { data } = symbolDomain.details;
-    response.symbol = (data.fields as SymbolDomainBagRpcResponse).value.fields.symbol;
+    response.symbol = (
+      data.fields as SymbolDomainBagRpcResponse
+    ).value.fields.symbol;
   }
 
   if (

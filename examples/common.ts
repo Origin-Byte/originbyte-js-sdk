@@ -1,4 +1,9 @@
-import { Connection, Ed25519Keypair, JsonRpcProvider, RawSigner } from "@mysten/sui.js";
+import {
+  Connection,
+  Ed25519Keypair,
+  JsonRpcProvider,
+  RawSigner,
+} from "@mysten/sui.js";
 import { NftClient, OrderbookFullClient, SafeFullClient } from "../src";
 
 // export const mnemonic = 'muffin tuition fit fish average true slender tower salmon artist song biology';
@@ -16,8 +21,8 @@ export const mnemonic =
 
 export const PACKAGE_OBJECT_ID = "0x52f6dee1b2a9b63d448e1e3956199a1625c63a3c"; // Change to your deployed contract
 export const COLLECTION_ID = "0x80b392f50d194f6bd20da7b12b250a66eb539be"; // Change to your deployed contract
-export const COLLECTION_ID_NAME = `${COLLECTION_ID}::suim::SUIM`
-export const COLLECTION_TYPE = `${PACKAGE_OBJECT_ID}::collection::Collection<${COLLECTION_ID_NAME}>`
+export const COLLECTION_ID_NAME = `${COLLECTION_ID}::suim::SUIM`;
+export const COLLECTION_TYPE = `${PACKAGE_OBJECT_ID}::collection::Collection<${COLLECTION_ID_NAME}>`;
 export const NFT_TYPE = `${PACKAGE_OBJECT_ID}::nft::Nft<${COLLECTION_ID_NAME}>`;
 
 export const MINT_CAP_ID = "0x2ac4bb34ae39625385d0d0355f5ff82b53df1db1"; // Change to your deployed contract
@@ -48,7 +53,9 @@ export function normalizeMnemonics(mnemonics: string): string {
 
 export const keypair = Ed25519Keypair.deriveKeypair(mnemonic);
 
-export const provider = new JsonRpcProvider(new Connection({ fullnode: "https://fullnode.devnet.sui.io"} ));
+export const provider = new JsonRpcProvider(
+  new Connection({ fullnode: "https://fullnode.devnet.sui.io" })
+);
 export const signer = new RawSigner(keypair, provider);
 export const client = new NftClient(provider);
 export const orderbookClient = OrderbookFullClient.fromKeypair(
@@ -64,7 +71,7 @@ export const safeClient = SafeFullClient.fromKeypair(keypair, provider, {
 
 export const user = keypair.getPublicKey().toSuiAddress();
 
-export const feeCollectorAddress = "0x29c8227d3c77ead5816b243be14dc53f09b59c09"
+export const feeCollectorAddress = "0x29c8227d3c77ead5816b243be14dc53f09b59c09";
 
 export async function getGas() {
   const coins = await provider.getCoinBalancesOwnedByAddress(user);
@@ -88,17 +95,19 @@ export async function fetchNfts() {
 
 export async function getSafeAndOwnerCap() {
   const ownerCaps = await safeClient.fetchOwnerCapsIds(user);
-  const safeIdsByOwnerCap = await Promise.all(ownerCaps.map(async ownerCap => safeClient.fetchOwnerCapSafeId(ownerCap)))
+  const safeIdsByOwnerCap = await Promise.all(
+    ownerCaps.map(async (ownerCap) => safeClient.fetchOwnerCapSafeId(ownerCap))
+  );
 
-  let safe = safeIdsByOwnerCap[0]
-  let ownerCap = ownerCaps[0]
+  let safe = safeIdsByOwnerCap[0];
+  let ownerCap = ownerCaps[0];
 
   if (safeIdsByOwnerCap.length === 0) {
     const result = await safeClient.createSafeForSender();
-    ownerCap = result.ownerCap
-    safe = result.safe
+    ownerCap = result.ownerCap;
+    safe = result.safe;
   }
 
   // console.log("ownerCap: ", ownerCap, "safe: ", safe)
-  return { ownerCap, safe }
+  return { ownerCap, safe };
 }

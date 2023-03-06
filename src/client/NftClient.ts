@@ -19,6 +19,8 @@ import {
   buildAddWarehouseToListingTx,
   buildInitLimitedVenueTx,
   buildSetLimtitedMarketNewLimitTx,
+  buildBuyWhitelistedNftTx,
+  buildIssueWhitelistCertificateTx,
 } from "./txBuilders";
 import { toMap } from "../utils";
 import {
@@ -158,16 +160,19 @@ export class NftClient {
   };
 
   getCollectionsById = async (params: GetCollectionsParams) => {
-    const collections = await this.fetchAndParseObjectsById(params.objectIds, CollectionParser);
-    return Promise.all(collections.map(async (collection) => {
-      const f = await this.getDynamicFields(collection.id);
-      return {
-        ...collection,
-        ...parseDynamicDomains(f),
-      }
-    }));
-
-
+    const collections = await this.fetchAndParseObjectsById(
+      params.objectIds,
+      CollectionParser
+    );
+    return Promise.all(
+      collections.map(async (collection) => {
+        const f = await this.getDynamicFields(collection.id);
+        return {
+          ...collection,
+          ...parseDynamicDomains(f),
+        };
+      })
+    );
   };
 
   getDynamicFields = async (parentdId: string) => {
@@ -307,19 +312,19 @@ export class NftClient {
 
     const bags = resolveBags
       ? await Promise.all(
-        nfts.map(async (_) => {
-          const content = _.bagId
-            ? await this.getBagContent(_.bagId)
-            : await this.getDynamicFields(_.id);
+          nfts.map(async (_) => {
+            const content = _.bagId
+              ? await this.getBagContent(_.bagId)
+              : await this.getDynamicFields(_.id);
 
-          return {
-            nftId: _.id,
-            content: _.bagId
-              ? parseBagDomains(content)
-              : parseDynamicDomains(content),
-          };
-        })
-      )
+            return {
+              nftId: _.id,
+              content: _.bagId
+                ? parseBagDomains(content)
+                : parseDynamicDomains(content),
+            };
+          })
+        )
       : [];
     const bagsByNftId = toMap(bags, (_) => _.nftId);
 
@@ -375,6 +380,10 @@ export class NftClient {
   static buildAddWarehouseToListing = buildAddWarehouseToListingTx;
 
   static buildSetLimtitedMarketNewLimit = buildSetLimtitedMarketNewLimitTx;
+
+  static buildBuyWhitelistedNft = buildBuyWhitelistedNftTx;
+
+  static buildIssueWhitelistCertificate = buildIssueWhitelistCertificateTx;
 
   private mergeAuthoritiesWithCollections = (
     collections: NftCollection[],
