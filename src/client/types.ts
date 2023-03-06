@@ -499,6 +499,10 @@ export interface NftParam {
   nft: ObjectId;
 }
 
+export interface NftsParam {
+  nfts: ObjectId[]
+}
+
 export interface NftTypeParam {
   nftType: string;
 }
@@ -520,8 +524,17 @@ export interface CommissionParams {
   commission: number;
 }
 
+export interface CommissionsParams {
+  beneficiary: SuiAddress;
+  commissions: number[];
+}
+
 export interface PriceParam {
   price: number;
+}
+
+export interface PricesParam {
+  prices: number[]
 }
 
 export interface OldPriceParam {
