@@ -69,7 +69,7 @@ export const buildBuyWhitelistedNftTx = (
 ): MoveCallTransaction => ({
   packageObjectId: params.packageObjectId,
   module: params.module ?? "fixed_price",
-  function: "buy_nft",
+  function: "buy_whitelisted_nft",
   typeArguments: [
     `${params.collectionPackageId ?? params.packageObjectId}::${
       params.nftModuleName
