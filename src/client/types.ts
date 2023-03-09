@@ -10,9 +10,23 @@ export type WithGasBudget = {
   gasBudget?: number;
 };
 
+
+
 export interface WithPackageObjectId {
   packageObjectId: ObjectId;
 }
+
+export interface WithId {
+  id: string;
+}
+
+export interface WithOwner {
+  owner: string;
+}
+
+export type EmptyRpcResponse = {}
+export type EmptyModel = WithPackageObjectId & WithOwner & WithId & {}
+
 
 export interface GlobalParams
   extends WithGasBudget,
@@ -24,13 +38,6 @@ export type WithCollectionPackageId = {
   collectionPackageId?: string;
 };
 
-export interface WithId {
-  id: string;
-}
-
-export interface WithOwner {
-  owner: string;
-}
 
 export interface ProtocolData extends WithPackageObjectId {
   packageModule: string;
@@ -250,7 +257,7 @@ export interface FlatFeeRfcRpcResponse {
   rate_bps: number;
 }
 
-export interface FlatFee {
+export type FlatFee = WithPackageObjectId & {
   id: string;
   rateBps: number;
 }
@@ -267,7 +274,8 @@ export type InventoryRpcResponse = {
   allowlist: {};
 };
 
-export type Inventory = WithId & {};
+export type Inventory = EmptyModel & WithRawResponse & ProtocolData & {
+};
 
 export type InventoryDofRpcResponse = {
   id: ID;
@@ -290,13 +298,13 @@ export type InventoryContent = WithId & {
   nfts: string[];
 };
 
-export type Venue = WithRawResponse &
+export type Venue = WithRawResponse & WithPackageObjectId &
   WithId & {
     isLive: boolean;
     isWhitelisted: boolean;
   };
 
-export interface FixedPriceMarket extends WithRawResponse, WithId {
+export interface FixedPriceMarket extends WithRawResponse, WithId, WithPackageObjectId {
   price: string;
   inventoryId: string;
   marketType: "fixed_price" | "limited_fixed_price";
@@ -331,12 +339,8 @@ export interface Marketplace
   defaultFeeBoxId: string;
 }
 
-export interface MintCap extends WithRawResponse, WithId {
+export interface MintCap extends WithRawResponse, EmptyModel {
   collectionId: string;
-  // regulated: boolean
-  // currentSupply: number
-  // maxSupply: number
-  // frozen: boolean
 }
 
 export interface ArtNftRpcResponse {
@@ -349,6 +353,7 @@ export interface ArtNftRpcResponse {
 export interface NftCollection extends ProtocolData, WithId {
   domainsBagId: string;
   rawResponse: GetObjectDataResponse;
+  nftProtocolPackageObjectId: string;
 }
 
 export interface ArtNftRaw extends ProtocolData, WithRawResponse, WithId {
@@ -632,3 +637,4 @@ export type BuildIsueWhitelistCertificateParams = WithPackageObjectId & {
   venue: string;
   recipient: string;
 };
+
