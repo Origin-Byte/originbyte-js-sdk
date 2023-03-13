@@ -312,7 +312,7 @@ const doFullCycle = async () => {
 
   if (CONFIG.mintTestNFTs) {
     for (let i = 0; i < 100; i += 1) {
-      const tx = NftClient.biuldMintNft({
+      const tx = NftClient.buildMintNft({
         name: `Test NFT ${i}`,
         description: `Test NFT ${i} Description `,
         mintCap: loadedContract.mintCapId,

@@ -7,7 +7,7 @@ import {
 } from "@mysten/sui.js";
 import {
   buildBuyNftTx,
-  biuldMintNftTx,
+  buildMintNftTx,
   buildEnableSalesTx,
   buildCreateFlatFeeTx,
   buildInitMarketplaceTx,
@@ -355,7 +355,7 @@ export class NftClient {
     return this.getNftsById({ objectIds });
   };
 
-  static biuldMintNft = biuldMintNftTx;
+  static buildMintNft = buildMintNftTx;
 
   static buildBuyNft = buildBuyNftTx;
 

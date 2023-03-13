@@ -32,7 +32,7 @@ export const mintNFt = async () => {
   const txs: MoveCallTransaction[] = [];
   for (let i = 1; i <= 950; i += 1) {
     txs.push(
-      NftClient.biuldMintNft({
+      NftClient.buildMintNft({
         name: "Game Over",
         description: "Try Next Time",
         mintCap: MINT_CAP_ID,
@@ -48,7 +48,7 @@ export const mintNFt = async () => {
   }
   for (let i = 1; i <= 50; i += 1) {
     txs.push(
-      NftClient.biuldMintNft({
+      NftClient.buildMintNft({
         name: `Golden Ticket #${i}`,
         description: "You have been selected",
         mintCap: MINT_CAP_ID,

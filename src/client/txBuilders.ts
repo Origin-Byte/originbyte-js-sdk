@@ -19,7 +19,7 @@ import {
 
 const SUI_TYPE = "0x2::sui::SUI";
 
-export const biuldMintNftTx = (
+export const buildMintNftTx = (
   params: BuildMintNftParams
 ): MoveCallTransaction => {
   const keys: string[] = [];
