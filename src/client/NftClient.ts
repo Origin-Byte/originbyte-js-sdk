@@ -279,11 +279,15 @@ export class NftClient {
     const NO_INVENTORIES: Inventory[] = [];
 
     if (!params.resolveBags) {
-      return {...listing, venues: NO_VENUES, inventories: NO_INVENTORIES };
+      return { ...listing, venues: NO_VENUES, inventories: NO_INVENTORIES };
     }
     const [inventories, venues] = await Promise.all([
-      listing.inventoriesBagId ? this.getAndParseBagContent(listing.inventoriesBagId, InventoryParser) : NO_INVENTORIES,
-      listing.venuesBagId ? this.getAndParseBagContent(listing.venuesBagId, VenueParser) : NO_VENUES,
+      listing.inventoriesBagId
+        ? this.getAndParseBagContent(listing.inventoriesBagId, InventoryParser)
+        : NO_INVENTORIES,
+      listing.venuesBagId
+        ? this.getAndParseBagContent(listing.venuesBagId, VenueParser)
+        : NO_VENUES,
     ]);
     return {
       ...listing,

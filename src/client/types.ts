@@ -10,8 +10,6 @@ export type WithGasBudget = {
   gasBudget?: number;
 };
 
-
-
 export interface WithPackageObjectId {
   packageObjectId: ObjectId;
 }
@@ -24,9 +22,8 @@ export interface WithOwner {
   owner: string;
 }
 
-export type EmptyRpcResponse = {}
-export type EmptyModel = WithPackageObjectId & WithOwner & WithId & {}
-
+export type EmptyRpcResponse = {};
+export type EmptyModel = WithPackageObjectId & WithOwner & WithId & {};
 
 export interface GlobalParams
   extends WithGasBudget,
@@ -37,7 +34,6 @@ export interface GlobalParams
 export type WithCollectionPackageId = {
   collectionPackageId?: string;
 };
-
 
 export interface ProtocolData extends WithPackageObjectId {
   packageModule: string;
@@ -262,7 +258,7 @@ export interface FlatFeeRfcRpcResponse {
 export type FlatFee = WithPackageObjectId & {
   id: string;
   rateBps: number;
-}
+};
 
 export interface WithRawResponse {
   rawResponse: GetObjectDataResponse;
@@ -276,9 +272,11 @@ export type InventoryRpcResponse = {
   allowlist: {};
 };
 
-export type Inventory = EmptyModel & WithRawResponse & ProtocolData & {
-  collectionContractPackageId: string;
-};
+export type Inventory = EmptyModel &
+  WithRawResponse &
+  ProtocolData & {
+    collectionContractPackageId: string;
+  };
 
 export type InventoryDofRpcResponse = {
   id: ID;
@@ -301,13 +299,17 @@ export type InventoryContent = WithId & {
   nfts: string[];
 };
 
-export type Venue = WithRawResponse & WithPackageObjectId &
+export type Venue = WithRawResponse &
+  WithPackageObjectId &
   WithId & {
     isLive: boolean;
     isWhitelisted: boolean;
   };
 
-export interface FixedPriceMarket extends WithRawResponse, WithId, WithPackageObjectId {
+export interface FixedPriceMarket
+  extends WithRawResponse,
+    WithId,
+    WithPackageObjectId {
   price: string;
   inventoryId: string;
   marketType: "fixed_price" | "limited_fixed_price";
@@ -508,7 +510,7 @@ export interface NftParam {
 }
 
 export interface NftsParam {
-  nfts: ObjectId[]
+  nfts: ObjectId[];
 }
 
 export interface NftTypeParam {
@@ -542,7 +544,7 @@ export interface PriceParam {
 }
 
 export interface PricesParam {
-  prices: number[]
+  prices: number[];
 }
 
 export interface OldPriceParam {
@@ -640,4 +642,3 @@ export type BuildIsueWhitelistCertificateParams = WithPackageObjectId & {
   venue: string;
   recipient: string;
 };
-

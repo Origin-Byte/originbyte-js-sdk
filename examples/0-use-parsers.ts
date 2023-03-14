@@ -14,7 +14,7 @@ import {
 import { client, provider } from "./common";
 
 const useParsers = async () => {
- const [fee] = await client.fetchAndParseObjectsById(
+  const [fee] = await client.fetchAndParseObjectsById(
     ["0x0b4220239e180479f118f4694ef8c8c0b91635ae"],
     FlatFeeParser
   );
@@ -49,7 +49,9 @@ const useParsers = async () => {
   );
   console.log("venue.packageObjectId", venue.packageObjectId);
 
-  const marketObj = await provider.getObject("0xc22904b27db6a160640bfb81d95319d2cab341ea")
+  const marketObj = await provider.getObject(
+    "0xc22904b27db6a160640bfb81d95319d2cab341ea"
+  );
   const [openMarket] = await client.parseObjects(
     [marketObj],
     FixedPriceMarketParser
@@ -66,8 +68,11 @@ const useParsers = async () => {
     ["0xca5e9b706359c0a1f8ef766dd4811c0110c7de2b"],
     CollectionParser
   );
-  console.log("collection.packageObjectId", collection.packageObjectId, collection.nftProtocolPackageObjectId);
-
+  console.log(
+    "collection.packageObjectId",
+    collection.packageObjectId,
+    collection.nftProtocolPackageObjectId
+  );
 
   const [mintCap] = await client.fetchAndParseObjectsById(
     ["0x273c0cfb47456d8bdeabdeb7b95a2c600a5486ab"],
@@ -82,7 +87,6 @@ const useParsers = async () => {
   );
 
   console.log("allowList.packageObjectId", allowList.packageObjectId);
-
 };
 
 useParsers();

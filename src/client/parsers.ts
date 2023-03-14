@@ -56,14 +56,11 @@ export const MoveObject = object({
   has_public_transfer: boolean(),
 });
 
-
-const getEmptyParser = (regex: RegExp): SuiObjectParser<
-  EmptyRpcResponse,
-  EmptyModel
-> => ({
+const getEmptyParser = (
+  regex: RegExp
+): SuiObjectParser<EmptyRpcResponse, EmptyModel> => ({
   regex,
   parser: (data, suiData) => {
-
     const matches = (suiData.data as SuiMoveObject).type.match(regex);
     if (!matches) {
       return undefined;
@@ -77,8 +74,7 @@ const getEmptyParser = (regex: RegExp): SuiObjectParser<
       owner: parseObjectOwner(suiData.owner),
     };
   },
-})
-
+});
 
 const ArtNftRegex =
   // eslint-disable-next-line max-len
@@ -129,7 +125,9 @@ export const CollectionParser: SuiObjectParser<
   NftCollection
 > = {
   parser: (data, suiData, _) => {
-    const matches = (suiData.data as SuiMoveObject).type.match(COLLECTION_REGEX);
+    const matches = (suiData.data as SuiMoveObject).type.match(
+      COLLECTION_REGEX
+    );
     if (!matches) {
       return undefined;
     }
@@ -152,7 +150,8 @@ export const CollectionParser: SuiObjectParser<
   regex: COLLECTION_REGEX,
 };
 
-const MINT_CAP_REGEX = /(0x[a-f0-9]{39,40})::mint_cap::MintCap<0x[a-f0-9]{39,40}::[a-zA-Z_]{1,}::[a-zA-Z_]{1,}>/;
+const MINT_CAP_REGEX =
+  /(0x[a-f0-9]{39,40})::mint_cap::MintCap<0x[a-f0-9]{39,40}::[a-zA-Z_]{1,}::[a-zA-Z_]{1,}>/;
 
 export const MintCapParser: SuiObjectParser<MintCapRPCResponse, MintCap> = {
   parser: (data, suiData, _) => {
@@ -167,7 +166,8 @@ export const MintCapParser: SuiObjectParser<MintCapRPCResponse, MintCap> = {
 };
 
 // eslint-disable-next-line max-len
-const ORDER_BOOK_REGEX = /(0x[a-f0-9]{39,40})::orderbook::Orderbook<0x[a-f0-9]{39,40}::[a-zA-Z_]{1,}::[a-zA-Z_]{1,}, 0x[a-f0-9]{1,40}::[a-zA-Z_]{1,}::[a-zA-Z_]{1,}>/;
+const ORDER_BOOK_REGEX =
+  /(0x[a-f0-9]{39,40})::orderbook::Orderbook<0x[a-f0-9]{39,40}::[a-zA-Z_]{1,}::[a-zA-Z_]{1,}, 0x[a-f0-9]{1,40}::[a-zA-Z_]{1,}::[a-zA-Z_]{1,}>/;
 
 export const OrderbookParser = getEmptyParser(ORDER_BOOK_REGEX);
 
@@ -180,7 +180,9 @@ export const FixedPriceMarketParser: SuiObjectParser<
   FixedPriceMarket
 > = {
   parser: (data, suiData, _) => {
-    const matches = (suiData.data as SuiMoveObject).type.match(FIXED_PRICE_MARKET_REGEX);
+    const matches = (suiData.data as SuiMoveObject).type.match(
+      FIXED_PRICE_MARKET_REGEX
+    );
     if (!matches) {
       return undefined;
     }
@@ -206,7 +208,9 @@ export const LimitedFixedPriceMarketParser: SuiObjectParser<
   LimitedFixedPriceMarket
 > = {
   parser: (data, suiData, _) => {
-    const matches = (suiData.data as SuiMoveObject).type.match(LIMITED_FIXED_PRICE_MARKET_REGEX);
+    const matches = (suiData.data as SuiMoveObject).type.match(
+      LIMITED_FIXED_PRICE_MARKET_REGEX
+    );
     if (!matches) {
       return undefined;
     }
@@ -278,12 +282,8 @@ export const MarketplaceParser: SuiObjectParser<
 const FLAT_FEE_REGEX = /(0x[a-f0-9]{39,40})::flat_fee::FlatFee/;
 
 export const FlatFeeParser: SuiObjectParser<FlatFeeRfcRpcResponse, FlatFee> = {
-
   parser: (data, suiData) => {
-
-    const matches = (suiData.data as SuiMoveObject).type.match(
-      FLAT_FEE_REGEX
-    );
+    const matches = (suiData.data as SuiMoveObject).type.match(FLAT_FEE_REGEX);
 
     if (!matches) {
       return undefined;
@@ -343,37 +343,40 @@ export const DynamicFieldParser: SuiObjectParser<
 const WAREHOUSE_REGEX = /(0x[a-f0-9]{39,40})::warehouse::Warehouse/;
 
 export const WarehouseParser: SuiObjectParser<WarehouseRpcResponse, Warehouse> =
-{
-  regex: WAREHOUSE_REGEX,
-  parser: (data, suiData) => {
-    return {
-      id: suiData.reference.objectId,
-    };
-  },
-};
+  {
+    regex: WAREHOUSE_REGEX,
+    parser: (data, suiData) => {
+      return {
+        id: suiData.reference.objectId,
+      };
+    },
+  };
 
-const INVENTORY_REGEX = /(0x[a-f0-9]{39,40})::inventory::Inventory<(0x[a-f0-9]{39,40})::([a-zA-Z_]{1,})::([a-zA-Z_]{1,})>/;
+const INVENTORY_REGEX =
+  /(0x[a-f0-9]{39,40})::inventory::Inventory<(0x[a-f0-9]{39,40})::([a-zA-Z_]{1,})::([a-zA-Z_]{1,})>/;
 
 export const InventoryParser: SuiObjectParser<InventoryRpcResponse, Inventory> =
-{
-  regex: INVENTORY_REGEX,
-  parser: (data, suiData, _) => {
-    const matches = (suiData.data as SuiMoveObject).type.match(INVENTORY_REGEX);
+  {
+    regex: INVENTORY_REGEX,
+    parser: (data, suiData, _) => {
+      const matches = (suiData.data as SuiMoveObject).type.match(
+        INVENTORY_REGEX
+      );
 
-    if (!matches) {
-      return undefined;
-    }
-    return {
-      id: suiData.reference.objectId,
-      collectionContractPackageId: matches[2],
-      packageModule: matches[3],
-      packageModuleClassName: matches[4],
-      packageObjectId: matches[1],
-      rawResponse: _,
-      owner: parseObjectOwner(suiData.owner),
-    };
-  },
-};
+      if (!matches) {
+        return undefined;
+      }
+      return {
+        id: suiData.reference.objectId,
+        collectionContractPackageId: matches[2],
+        packageModule: matches[3],
+        packageModuleClassName: matches[4],
+        packageObjectId: matches[1],
+        rawResponse: _,
+        owner: parseObjectOwner(suiData.owner),
+      };
+    },
+  };
 
 const INVENTORY_DOF_REGEX =
   // eslint-disable-next-line max-len
@@ -392,11 +395,9 @@ export const InventoryDofParser: SuiObjectParser<
   },
 };
 
-const ALLOWLIST_REGEX =
-  /(0x[a-f0-9]{39,40})::transfer_allowlist::Allowlist/;
+const ALLOWLIST_REGEX = /(0x[a-f0-9]{39,40})::transfer_allowlist::Allowlist/;
 
 export const AllowlistParser = getEmptyParser(ALLOWLIST_REGEX);
-
 
 /* eslint-disable max-len */
 const ROYALTY_DOMAIN_BAG_REGEX =
