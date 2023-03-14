@@ -309,7 +309,7 @@ export class NftClient {
     const [parsedFields] = await this.parseObjects(fields, InventoryDofParser);
 
     return {
-      id: inventory.id,
+      ...inventory,
       nfts: parsedFields.nfts,
     };
   };
