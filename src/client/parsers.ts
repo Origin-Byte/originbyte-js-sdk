@@ -165,8 +165,8 @@ export const MintCapParser: SuiObjectParser<MintCapRPCResponse, MintCap> = {
   regex: MINT_CAP_REGEX,
 };
 
-// eslint-disable-next-line max-len
 const ORDER_BOOK_REGEX =
+  // eslint-disable-next-line max-len
   /(0x[a-f0-9]{39,40})::orderbook::Orderbook<0x[a-f0-9]{39,40}::[a-zA-Z_]{1,}::[a-zA-Z_]{1,}, 0x[a-f0-9]{1,40}::[a-zA-Z_]{1,}::[a-zA-Z_]{1,}>/;
 
 export const OrderbookParser = getEmptyParser(ORDER_BOOK_REGEX);
