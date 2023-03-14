@@ -57,6 +57,8 @@ import {
   ArtNft,
   VenueWithMarket,
   GetInventoryParams,
+  Inventory,
+  Venue,
 } from "./types";
 import { isObjectExists } from "./utils";
 import { TESTNET_URL } from "./consts";
@@ -131,7 +133,7 @@ export class NftClient {
     return this.fetchAndParseObjectsById(params.objectIds, MintCapParser);
   };
 
-  getVenuesByParams = async (params: GetVenuesParams) => {
+  getVenuesById = async (params: GetVenuesParams) => {
     const venues = await this.fetchAndParseObjectsById(
       params.objectIds,
       VenueParser
@@ -273,15 +275,20 @@ export class NftClient {
 
     const listing = listings[0];
 
-    if (!params.resolveBags || !listing.inventoriesBagId) {
-      return listing;
+    const NO_VENUES: Venue[] = [];
+    const NO_INVENTORIES: Inventory[] = [];
+
+    if (!params.resolveBags) {
+      return {...listing, venues: NO_VENUES, inventories: NO_INVENTORIES };
     }
-    const [[inventory]] = await Promise.all([
-      this.getAndParseBagContent(listing.inventoriesBagId, InventoryParser),
+    const [inventories, venues] = await Promise.all([
+      listing.inventoriesBagId ? this.getAndParseBagContent(listing.inventoriesBagId, InventoryParser) : NO_INVENTORIES,
+      listing.venuesBagId ? this.getAndParseBagContent(listing.venuesBagId, VenueParser) : NO_VENUES,
     ]);
     return {
       ...listing,
-      inventoryId: inventory?.id,
+      inventories,
+      venues,
     };
   };
 

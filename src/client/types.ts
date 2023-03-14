@@ -249,7 +249,9 @@ export interface Listing extends WithPackageObjectId, WithId {
   receiver: string;
   customFeeBagId: string;
   inventoriesBagId?: string;
+  venuesBagId?: string;
   qtSold: number;
+  rawResponse: GetObjectDataResponse;
 }
 
 export interface FlatFeeRfcRpcResponse {
