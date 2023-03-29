@@ -2,7 +2,6 @@ import {
   Connection,
   JsonRpcProvider,
   ObjectId,
-  Provider,
   SuiAddress,
 } from "@mysten/sui.js";
 import { TESTNET_URL } from "./consts";
@@ -11,7 +10,7 @@ export class ReadClient {
   // eslint-disable-next-line
   constructor(
     // eslint-disable-next-line
-    public provider: Provider = new JsonRpcProvider(
+    public provider: JsonRpcProvider = new JsonRpcProvider(
       new Connection({ fullnode: TESTNET_URL })
     )
   ) {
@@ -24,17 +23,15 @@ export class ReadClient {
     );
   }
 
-  public getObjects(addr: SuiAddress) {
-    return this.provider.getObjectsOwnedByAddress(addr);
+  public async getObjects(owner: SuiAddress) {
+    const d = await this.provider.getOwnedObjects({ owner });
+    return d.data;
   }
 
   public async getObject(id: ObjectId) {
-    const { status, details } = await this.provider.getObject(id);
+    const { data } = await this.provider.getObject({ id, options: { showContent: true } });
 
-    if (status !== "Exists") {
-      throw new Error(`Object '${id}' does not exist`);
-    }
 
-    return details;
+    return data;
   }
 }

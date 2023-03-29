@@ -1,17 +1,9 @@
 /* eslint-disable camelcase */
-import {
-  GetObjectDataResponse,
-  ObjectId,
-  SuiAddress,
-  SuiObject,
-} from "@mysten/sui.js";
-
-export type WithGasBudget = {
-  gasBudget?: number;
-};
+import { ObjectId, SuiAddress, SuiObjectResponse, Transaction } from "@mysten/sui.js";
 
 export interface WithPackageObjectId {
   packageObjectId: ObjectId;
+  transaction?: Transaction
 }
 
 export interface WithId {
@@ -26,9 +18,9 @@ export type EmptyRpcResponse = {};
 export type EmptyModel = WithPackageObjectId & WithOwner & WithId & {};
 
 export interface GlobalParams
-  extends WithGasBudget,
-    Partial<WithPackageObjectId> {
+  extends Partial<WithPackageObjectId> {
   moduleName?: string;
+  transaction?: Transaction;
 }
 
 export type WithCollectionPackageId = {
@@ -247,7 +239,7 @@ export interface Listing extends WithPackageObjectId, WithId {
   inventoriesBagId?: string;
   venuesBagId?: string;
   qtSold: number;
-  rawResponse: GetObjectDataResponse;
+  rawResponse: SuiObjectResponse;
 }
 
 export interface FlatFeeRfcRpcResponse {
@@ -261,7 +253,7 @@ export type FlatFee = WithPackageObjectId & {
 };
 
 export interface WithRawResponse {
-  rawResponse: GetObjectDataResponse;
+  rawResponse: SuiObjectResponse;
 }
 
 export type WarehouseRpcResponse = {};
@@ -308,8 +300,8 @@ export type Venue = WithRawResponse &
 
 export interface FixedPriceMarket
   extends WithRawResponse,
-    WithId,
-    WithPackageObjectId {
+  WithId,
+  WithPackageObjectId {
   price: string;
   inventoryId: string;
   marketType: "fixed_price" | "limited_fixed_price";
@@ -336,8 +328,8 @@ export interface MarketplaceRpcResponse {
 
 export interface Marketplace
   extends WithId,
-    WithPackageObjectId,
-    WithRawResponse {
+  WithPackageObjectId,
+  WithRawResponse {
   owner: string;
   admin: string;
   receiver: string;
@@ -357,7 +349,7 @@ export interface ArtNftRpcResponse {
 
 export interface NftCollection extends ProtocolData, WithId {
   domainsBagId: string;
-  rawResponse: GetObjectDataResponse;
+  rawResponse: SuiObjectResponse;
   nftProtocolPackageObjectId: string;
 }
 
@@ -424,15 +416,15 @@ export interface GetNftsParams extends WithIds {
   resolveBags?: boolean;
 }
 
-export interface GetCollectionsParams extends WithIds {}
+export interface GetCollectionsParams extends WithIds { }
 
 export interface GetCollectionDomainsParams {
   domainsBagId: string;
 }
 
-export interface GetMintCapsParams extends WithIds {}
+export interface GetMintCapsParams extends WithIds { }
 
-export interface GetVenuesParams extends WithIds {}
+export interface GetVenuesParams extends WithIds { }
 
 export type DynamicFieldRpcResponse = {
   id: ID;
@@ -471,6 +463,7 @@ export type BuildBuyNftParams = GlobalParams &
     venue: string;
     coin: string;
     module?: "fixed_price" | "limited_fixed_price";
+    coinType?: string;
   };
 
 export type BuildBuyWhitelistedNftParams = BuildBuyNftParams & {
@@ -482,14 +475,12 @@ export interface BuildEnableSalesParams extends WithPackageObjectId {
   venue: string;
 }
 
-export type FetchFnParser<RpcResponse, DataModel> = (
-  typedData: RpcResponse,
-  suiObject: SuiObject,
-  rpcResponse: GetObjectDataResponse
+export type FetchFnParser<DataModel> = (
+  data: SuiObjectResponse
 ) => DataModel | undefined;
 
-export interface SuiObjectParser<RpcResponse, DataModel> {
-  parser: FetchFnParser<RpcResponse, DataModel>;
+export interface SuiObjectParser<DataModel> {
+  parser: FetchFnParser<DataModel>;
   regex: RegExp;
 }
 
@@ -607,7 +598,7 @@ export type BuildInitLimitedVenueParams = BuildInitVenueParams & {
 };
 
 export type BuildSetLimitMarketLimitParams = WithPackageObjectId &
-  WithGasBudget & {
+  {
     coinType?: string; // SUI by default
     listing: string;
     venue: string;

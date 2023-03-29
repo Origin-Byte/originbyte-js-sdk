@@ -1,4 +1,4 @@
-import { MoveCallTransaction, SuiJsonValue } from "@mysten/sui.js";
+import { Transaction } from "@mysten/sui.js";
 import {
   AuthParam,
   CollectionParam,
@@ -8,7 +8,6 @@ import {
   TransferCapParam,
 } from "../types";
 import {
-  DEFAULT_GAS_BUDGET,
   DEFAULT_PACKAGE_ID,
   DEFAULT_SAFE_MODULE,
 } from "../consts";
@@ -18,24 +17,35 @@ export type AuthParams = GlobalParams & SafeParam & AuthParam;
 export type ColAuthParams = AuthParams & CollectionParam;
 export type NftAuthParams = AuthParam & NftParams;
 
+export type TransactionArgument = {
+  kind: "Input";
+  index: number;
+  type?: "object" | "pure" | undefined;
+  value?: any;
+}
+
 function txObj(
   fun: string,
   p: GlobalParams,
-  args: SuiJsonValue[],
-  tArgs: string[]
-): MoveCallTransaction {
-  return {
-    packageObjectId: p.packageObjectId ?? DEFAULT_PACKAGE_ID,
-    module: p.moduleName ?? DEFAULT_SAFE_MODULE,
-    function: fun,
+  args: TransactionArgument[],
+  tArgs: string[],
+): Transaction {
+
+  const tx = p.transaction ?? new Transaction();
+
+  tx.moveCall({
+    target: `${p.packageObjectId ?? DEFAULT_PACKAGE_ID}::${p.moduleName ?? DEFAULT_SAFE_MODULE}::${fun}`,
     typeArguments: tArgs,
-    arguments: args,
-    gasBudget: p.gasBudget ?? DEFAULT_GAS_BUDGET,
-  };
+    arguments: args
+  });
+
+  return tx;
 }
 
+const t = new Transaction(); // serialization purposes
+
 function authNftArgs(p: NftParam & AuthParam & SafeParam) {
-  return [p.nft, p.ownerCap, p.safe];
+  return [t.object(p.nft), t.object(p.ownerCap), t.object(p.safe)];
 }
 
 export const createSafeForSenderTx = (p: GlobalParams) => {
@@ -43,29 +53,29 @@ export const createSafeForSenderTx = (p: GlobalParams) => {
 };
 
 export const restrictDepositsTx = (p: AuthParams) => {
-  return txObj("restrict_deposits", p, [p.ownerCap, p.safe], []);
+  return txObj("restrict_deposits", p, [t.object(p.ownerCap), t.object(p.safe)], []);
 };
 
 export const enableAnyDepositTx = (p: AuthParams) => {
-  return txObj("enable_any_deposit", p, [p.ownerCap, p.safe], []);
+  return txObj("enable_any_deposit", p, [t.object(p.ownerCap), t.object(p.safe)], []);
 };
 
 export const enableDepositsOfCollectionTx = (p: ColAuthParams) => {
   const fun = "enable_deposits_of_collection";
-  return txObj(fun, p, [p.ownerCap, p.safe], [p.collection]);
+  return txObj(fun, p, [t.object(p.ownerCap), t.object(p.safe)], [p.collection]);
 };
 
 export const disableDepositsOfCollectionTx = (p: ColAuthParams) => {
   const fun = "disable_deposits_of_collection";
-  return txObj(fun, p, [p.ownerCap, p.safe], [p.collection]);
+  return txObj(fun, p, [t.object(p.ownerCap), t.object(p.safe)], [p.collection]);
 };
 
 export const depositNftTx = (p: NftParams & CollectionParam) => {
-  return txObj("deposit_nft", p, [p.nft, p.safe], [p.collection]);
+  return txObj("deposit_nft", p, [t.object(p.nft), t.object(p.safe)], [p.collection]);
 };
 
 export const depositGenericNftTx = (p: NftParams & CollectionParam) => {
-  return txObj("deposit_generic_nft", p, [p.nft, p.safe], [p.collection]);
+  return txObj("deposit_generic_nft", p, [t.object(p.nft), t.object(p.safe)], [p.collection]);
 };
 
 export const depositNftPrivilegedTx = (p: ColAuthParams & NftParam) => {
@@ -94,5 +104,5 @@ export const delistNftTx = (p: NftAuthParams) => {
 export const burnTransferCapTx = (
   p: GlobalParams & TransferCapParam & SafeParam
 ) => {
-  return txObj("burn_transfer_cap", p, [p.transferCap, p.safe], []);
+  return txObj("burn_transfer_cap", p, [t.object(p.transferCap), t.object(p.safe)], []);
 };

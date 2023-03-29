@@ -1,7 +1,4 @@
-import { GetObjectDataResponse, ObjectOwner } from "@mysten/sui.js";
-
-export const isObjectExists = (o: GetObjectDataResponse) =>
-  o.status === "Exists";
+import { ObjectOwner } from "@mysten/sui.js";
 
 export const parseObjectOwner = (
   owner: ObjectOwner
@@ -23,3 +20,4 @@ export const parseObjectOwner = (
 
   throw new Error("Unexpected owner type");
 };
+

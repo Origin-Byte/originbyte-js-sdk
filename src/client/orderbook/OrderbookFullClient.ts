@@ -1,7 +1,7 @@
 import {
   Ed25519Keypair,
   ObjectId,
-  Provider,
+  JsonRpcProvider,
   SuiAddress,
   TransactionEffects,
 } from "@mysten/sui.js";
@@ -46,7 +46,7 @@ export class OrderbookFullClient extends OrderbookReadClient {
 
   public static fromKeypair(
     keypair: Ed25519Keypair,
-    provider?: Provider,
+    provider?: JsonRpcProvider,
     opts?: Partial<GlobalParams>
   ) {
     return new OrderbookFullClient(

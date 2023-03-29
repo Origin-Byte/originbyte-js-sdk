@@ -1,10 +1,11 @@
 import {
   EventId,
   ObjectId,
-  Provider,
+  JsonRpcProvider,
   SubscriptionId,
   SuiAddress,
-  SuiEventEnvelope,
+  CheckpointedObjectId,
+  PaginatedEvents,
 } from "@mysten/sui.js";
 import { DEFAULT_ORDERBOOK_MODULE, DEFAULT_PAGINATION_LIMIT } from "../consts";
 import { ReadClient } from "../ReadClient";
@@ -48,43 +49,43 @@ export interface OrderbookState {
 
 export type OrderbookEvent =
   | {
-      BidCreatedEvent: {
-        orderbook: ObjectId;
-        owner: SuiAddress;
-        price: number;
-      };
-    }
-  | {
-      AskCreatedEvent: {
-        nft: ObjectId;
-        orderbook: ObjectId;
-        owner: SuiAddress;
-        price: number;
-        safe: ObjectId;
-      };
-    }
-  | {
-      BidClosedEvent: {
-        orderbook: ObjectId;
-        owner: SuiAddress;
-        price: number;
-      };
-    }
-  | {
-      AskClosedEvent: {
-        nft: ObjectId;
-        orderbook: ObjectId;
-        owner: SuiAddress;
-        price: number;
-      };
-    }
-  | {
-      OrderbookCreatedEvent: {
-        collectionType: string;
-        ftType: string;
-        orderbook: ObjectId;
-      };
+    BidCreatedEvent: {
+      orderbook: ObjectId;
+      owner: SuiAddress;
+      price: number;
     };
+  }
+  | {
+    AskCreatedEvent: {
+      nft: ObjectId;
+      orderbook: ObjectId;
+      owner: SuiAddress;
+      price: number;
+      safe: ObjectId;
+    };
+  }
+  | {
+    BidClosedEvent: {
+      orderbook: ObjectId;
+      owner: SuiAddress;
+      price: number;
+    };
+  }
+  | {
+    AskClosedEvent: {
+      nft: ObjectId;
+      orderbook: ObjectId;
+      owner: SuiAddress;
+      price: number;
+    };
+  }
+  | {
+    OrderbookCreatedEvent: {
+      collectionType: string;
+      ftType: string;
+      orderbook: ObjectId;
+    };
+  };
 
 interface TradeIntermediaryState {
   paid: number;
@@ -98,20 +99,19 @@ export function parseCommission(fields: any): AskCommissionState | undefined {
   return fields === null
     ? undefined
     : {
-        beneficiary: fields.beneficiary,
-        cut: parseInt(fields.cut, 10),
-      };
+      beneficiary: fields.beneficiary,
+      cut: parseInt(fields.cut, 10),
+    };
 }
 
-function parseOrderbookEvent({
-  txDigest,
-  event,
-}: SuiEventEnvelope): OrderbookEvent | null {
-  if (!("moveEvent" in event)) {
-    return null;
-  }
+type Unpacked<T> = T extends (infer U)[] ? U : T;
 
-  const { type, fields } = event.moveEvent;
+type Envelope = Unpacked<PaginatedEvents["data"]>;
+
+function parseOrderbookEvent(e: Envelope): OrderbookEvent | null {
+
+
+  const { type, parsedJson: fields } = e;
 
   if (type.endsWith("BidCreatedEvent")) {
     return {
@@ -163,7 +163,7 @@ function parseOrderbookEvent({
   }
 
   // eslint-disable-next-line no-console
-  console.warn(`Unknown orderbook event in tx '${txDigest}'`);
+  console.warn(`Unknown orderbook event in tx '${e.id}'`);
   return null;
 }
 
@@ -173,7 +173,7 @@ export class OrderbookReadClient {
     //
   }
 
-  public static fromProvider(provider: Provider) {
+  public static fromProvider(provider: JsonRpcProvider) {
     return new OrderbookReadClient(new ReadClient(provider));
   }
 
@@ -216,9 +216,9 @@ export class OrderbookReadClient {
             transferCap: transformTransferCap(a.fields.transfer_cap),
             commission: a.fields.commission
               ? {
-                  beneficiary: a.fields.commission.fields.beneficiary,
-                  cut: parseInt(a.fields.commission.fields.cut, 10),
-                }
+                beneficiary: a.fields.commission.fields.beneficiary,
+                cut: parseInt(a.fields.commission.fields.cut, 10),
+              }
               : undefined,
           };
         })
@@ -236,9 +236,9 @@ export class OrderbookReadClient {
             safe: b.fields.safe,
             commission: b.fields.commission
               ? {
-                  beneficiary: b.fields.commission.fields.beneficiary,
-                  cut: parseInt(b.fields.commission.fields.cut, 10),
-                }
+                beneficiary: b.fields.commission.fields.beneficiary,
+                cut: parseInt(b.fields.commission.fields.cut, 10),
+              }
               : undefined,
           };
         })
@@ -281,7 +281,7 @@ export class OrderbookReadClient {
   public async fetchEvents(p: {
     packageId: ObjectId;
     module?: string;
-    cursor?: EventId;
+    cursor?: CheckpointedObjectId | ObjectId | null;
     limit?: number; // or DEFAULT_PAGINATION_LIMIT
     order?: "ascending" | "descending";
   }): Promise<{
@@ -291,23 +291,25 @@ export class OrderbookReadClient {
     }>;
     nextCursor: EventId | null;
   }> {
-    const { data, nextCursor } = await this.client.provider.getEvents(
+    const { data, nextCursor } = await this.client.provider.queryEvents(
       {
-        MoveModule: {
-          package: p.packageId,
-          module: p.module || DEFAULT_ORDERBOOK_MODULE,
+        query: {
+          MoveModule: {
+            package: p.packageId,
+            module: p.module || DEFAULT_ORDERBOOK_MODULE,
+          },
         },
+        cursor: p.cursor || null,
+        limit: p.limit || DEFAULT_PAGINATION_LIMIT,
+        order: p.order || "ascending",
       },
-      p.cursor || null,
-      p.limit || DEFAULT_PAGINATION_LIMIT,
-      p.order || "ascending"
     );
 
     return {
       events: data
         .map((envelope) => {
           return {
-            txDigest: envelope.txDigest,
+            txDigest: envelope.id.txDigest,
             data: parseOrderbookEvent(envelope),
           };
         })
@@ -323,18 +325,25 @@ export class OrderbookReadClient {
   ): Promise<SubscriptionId> {
     return this.client.provider.subscribeEvent(
       {
-        All: [
-          { Package: p.packageId },
-          { Module: p.module || DEFAULT_ORDERBOOK_MODULE },
-          { EventType: "MoveEvent" },
-        ],
-      },
-      (envelope) => {
-        const parsedEvent = parseOrderbookEvent(envelope);
-        if (parsedEvent) {
-          cb(parsedEvent);
+        filter: {
+          All: [
+            {
+              MoveModule: {
+                package: p.packageId,
+                module: p.module || DEFAULT_ORDERBOOK_MODULE,
+              }
+            },
+            { MoveEventType: "MoveEvent" },
+          ],
+        },
+        onMessage: (envelope) => {
+          const parsedEvent = parseOrderbookEvent(envelope);
+          if (parsedEvent) {
+            cb(parsedEvent);
+          }
         }
-      }
+      },
+
     );
   }
 }

@@ -1,11 +1,10 @@
 import {
   ObjectId,
-  Provider,
+  JsonRpcProvider,
   SuiAddress,
   TransactionEffects,
 } from "@mysten/sui.js";
 import {
-  DEFAULT_GAS_BUDGET,
   DEFAULT_PACKAGE_ID,
   DEFAULT_SAFE_MODULE,
 } from "../consts";
@@ -78,7 +77,7 @@ export class SafeReadClient {
     //
   }
 
-  public static fromProvider(provider: Provider) {
+  public static fromProvider(provider: JsonRpcProvider) {
     return new SafeReadClient(new ReadClient(provider));
   }
 
@@ -94,9 +93,6 @@ export class SafeReadClient {
     return this.opts.moduleName ?? DEFAULT_SAFE_MODULE;
   }
 
-  public get gasBudget() {
-    return this.opts.gasBudget ?? DEFAULT_GAS_BUDGET;
-  }
 
   public async fetchOwnerCapsIds(
     user: SuiAddress,
@@ -106,13 +102,13 @@ export class SafeReadClient {
       p.moduleName || this.module
     }::OwnerCap`;
     const objs = await this.client.getObjects(user);
-    return objs.filter((o) => o.type === ownerCapType).map((o) => o.objectId);
+    return objs.filter((o) => o.data.type === ownerCapType).map((o) => o.data.objectId);
   }
 
   public async fetchAllOwnerCapsByUser(user: SuiAddress) {
     const allObjects = await this.client.getObjects(user);
     const ownerCapObjects = allObjects.filter((obj) =>
-      obj.type.endsWith(`::${this.module}::OwnerCap`)
+      obj.data.type.endsWith(`::${this.module}::OwnerCap`)
     );
 
     return ownerCapObjects;

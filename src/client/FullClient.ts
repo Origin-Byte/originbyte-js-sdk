@@ -1,12 +1,10 @@
 import {
   Ed25519Keypair,
-  ExecuteTransactionRequestType,
-  MoveCallTransaction,
-  Provider,
+  Transaction,
+  JsonRpcProvider,
   RawSigner,
   SignerWithProvider,
-  SuiExecuteTransactionResponse,
-  TransactionEffects,
+  TransactionEffects
 } from "@mysten/sui.js";
 import { ReadClient } from "./ReadClient";
 
@@ -20,22 +18,21 @@ export class FullClient extends ReadClient {
     signer.connect(this.provider);
   }
 
-  public static fromKeypair(keypair: Ed25519Keypair, provider?: Provider) {
+  public static fromKeypair(keypair: Ed25519Keypair, provider?: JsonRpcProvider) {
     return new FullClient(new RawSigner(keypair, provider));
   }
 
   async sendTx(
-    tx: MoveCallTransaction,
-    requestType?: ExecuteTransactionRequestType
-  ): Promise<SuiExecuteTransactionResponse> {
-    return this.signer.executeMoveCall(tx, requestType);
+    transaction: Transaction
+  ) {
+    return this.signer.signAndExecuteTransaction({ transaction });
   }
 
   async sendTxWaitForEffects(
-    tx: MoveCallTransaction
+    tx: Transaction
   ): Promise<TransactionEffects> {
     // there's a bug in the SDKs - the return type doesn't match the actual response
-    const res = (await this.sendTx(tx, "WaitForEffectsCert")) as any;
+    const res = (await this.sendTx(tx)) as any;
     if (typeof res !== "object" || !("effects" in res)) {
       throw new Error(
         `Response does not contain effects: ${JSON.stringify(res)}`

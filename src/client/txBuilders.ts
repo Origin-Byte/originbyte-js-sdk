@@ -1,4 +1,4 @@
-import { MoveCallTransaction } from "@mysten/sui.js";
+import { Transaction } from "@mysten/sui.js";
 import {
   BuildBuyNftParams,
   BuildInitWarehouseParams,
@@ -21,7 +21,7 @@ const SUI_TYPE = "0x2::sui::SUI";
 
 export const buildMintNftTx = (
   params: BuildMintNftParams
-): MoveCallTransaction => {
+): Transaction => {
   const keys: string[] = [];
   const values: string[] = [];
   const { attributes } = params;
@@ -30,218 +30,287 @@ export const buildMintNftTx = (
     values.push(attributes[key]);
   });
 
-  return {
-    packageObjectId: params.packageObjectId,
-    module: params.moduleName,
-    function: "mint_nft",
-    typeArguments: [],
+  const tx = params.transaction ?? new Transaction();
+
+  tx.moveCall({
+    target: `${params.packageObjectId}::${params.moduleName}::mint_nft`,
     arguments: [
-      params.name,
-      params.description,
-      params.url,
-      keys,
-      values,
-      params.mintCap,
-      params.warehouseId,
+      tx.pure(params.name),
+      tx.pure(params.description),
+      tx.pure(params.url),
+      tx.pure(keys),
+      tx.pure(values),
+      tx.object(params.mintCap),
+      tx.object(params.warehouseId),
     ],
-    gasBudget: params.gasBudget ?? 10000,
-  };
+  });
+
+  return tx;
 };
 
 export const buildBuyNftTx = (
   params: BuildBuyNftParams
-): MoveCallTransaction => ({
-  packageObjectId: params.packageObjectId,
-  module: params.module ?? "fixed_price",
-  function: "buy_nft",
-  typeArguments: [
-    `${params.collectionPackageId ?? params.packageObjectId}::${
-      params.nftModuleName
-    }::${params.nftClassName}`,
-    SUI_TYPE,
-  ],
-  arguments: [params.listing, params.venue, params.coin],
-  gasBudget: params.gasBudget ?? 5000,
-});
+): Transaction => {
+  const tx = params.transaction ?? new Transaction();
+
+  tx.moveCall({
+    target: `${params.packageObjectId}::${params.module ?? "fixed_price"}::buy_nft`,
+    typeArguments: [
+      `${params.collectionPackageId ?? params.packageObjectId}::${params.nftModuleName
+      }::${params.nftClassName}`,
+      params.coinType ?? SUI_TYPE,
+    ],
+    arguments: [
+      tx.object(params.listing),
+      tx.object(params.venue),
+      tx.object(params.coin),
+    ]
+    ,
+  });
+
+  return tx;
+}
 
 export const buildBuyWhitelistedNftTx = (
   params: BuildBuyWhitelistedNftParams
-): MoveCallTransaction => ({
-  packageObjectId: params.packageObjectId,
-  module: params.module ?? "fixed_price",
-  function: "buy_whitelisted_nft",
-  typeArguments: [
-    `${params.collectionPackageId ?? params.packageObjectId}::${
-      params.nftModuleName
-    }::${params.nftClassName}`,
-    SUI_TYPE,
-  ],
-  arguments: [
-    params.listing,
-    params.venue,
-    params.coin,
-    params.whitelistCertificate,
-  ],
-  gasBudget: params.gasBudget ?? 5000,
-});
+): Transaction => {
+  const tx = params.transaction ?? new Transaction();
+
+  tx.moveCall({
+    target: `${params.packageObjectId}::${params.module ?? "fixed_price"}::buy_whitelisted_nft`,
+    typeArguments: [
+      `${params.collectionPackageId ?? params.packageObjectId}::${params.nftModuleName
+      }::${params.nftClassName}`,
+      params.coinType ?? SUI_TYPE,
+    ],
+    arguments: [
+      tx.object(params.listing),
+      tx.object(params.venue),
+      tx.object(params.coin),
+      tx.object(params.whitelistCertificate),
+    ]
+    ,
+  });
+
+  return tx;
+};
 
 export const buildInitVenueTx = (
   params: BuildInitVenueParams
-): MoveCallTransaction => ({
-  packageObjectId: params.packageObjectId,
-  module: "fixed_price",
-  function: "init_venue",
-  typeArguments: [
-    `${params.collectionPackageId ?? params.packageObjectId}::${
-      params.nftModuleName
-    }::${params.nftClassName}`,
-    params.coinType ?? SUI_TYPE,
-  ],
-  arguments: [
-    params.listing,
-    params.inventory,
-    params.isWhitelisted,
-    params.price.toFixed(0),
-  ],
-  gasBudget: 5000,
-});
+): Transaction => {
+
+  const tx = params.transaction ?? new Transaction();
+  tx.moveCall({
+    target: `${params.packageObjectId}::fixed_price::init_venue`,
+    typeArguments: [
+      `${params.collectionPackageId ?? params.packageObjectId}::${params.nftModuleName
+      }::${params.nftClassName}`,
+      params.coinType ?? SUI_TYPE,
+    ],
+    arguments: [
+      tx.object(params.listing),
+      tx.object(params.inventory),
+      tx.pure(params.isWhitelisted),
+      tx.pure(params.price),
+    ],
+  });
+
+  return tx;
+};
 
 export const buildSetLimtitedMarketNewLimitTx = (
   params: BuildSetLimitMarketLimitParams
-): MoveCallTransaction => ({
-  packageObjectId: params.packageObjectId,
-  module: "limited_fixed_price",
-  function: "set_limit",
-  typeArguments: [params.coinType ?? SUI_TYPE],
-  arguments: [params.listing, params.venue, params.newLimit.toFixed(0)],
-  gasBudget: params.gasBudget ?? 5000,
-});
+): Transaction => {
+
+  const tx = params.transaction ?? new Transaction();
+
+  tx.moveCall({
+    target: `${params.packageObjectId}::limited_fixed_price::set_limit`,
+    typeArguments: [
+      params.coinType ?? SUI_TYPE,
+    ],
+    arguments: [
+      tx.object(params.listing),
+      tx.object(params.venue),
+      tx.pure(params.newLimit),
+    ],
+  });
+
+  return tx;
+};
 
 export const buildInitLimitedVenueTx = (
   params: BuildInitLimitedVenueParams
-): MoveCallTransaction => ({
-  packageObjectId: params.packageObjectId,
-  module: "limited_fixed_price",
-  function: "init_venue",
-  typeArguments: [
-    `${params.collectionPackageId ?? params.packageObjectId}::${
-      params.nftModuleName
-    }::${params.nftClassName}`,
-    params.coinType ?? SUI_TYPE,
-  ],
-  arguments: [
-    params.listing,
-    params.inventory,
-    params.isWhitelisted,
-    params.limit.toFixed(0),
-    params.price.toFixed(0),
-  ],
-  gasBudget: 5000,
-});
+): Transaction => {
+  const tx = params.transaction ?? new Transaction();
+
+  tx.moveCall({
+    target: `${params.packageObjectId}::limited_fixed_price::init_venue`,
+    typeArguments: [
+      `${params.collectionPackageId ?? params.packageObjectId}::${params.nftModuleName
+      }::${params.nftClassName}`,
+      params.coinType ?? SUI_TYPE,
+    ],
+    arguments: [
+      tx.object(params.listing),
+      tx.object(params.inventory),
+      tx.pure(params.isWhitelisted),
+      tx.pure(params.limit),
+
+      tx.pure(params.price),
+    ],
+  });
+
+  return tx;
+};
 
 export const buildRequestToJoinMarketplaceTx = (
   params: BuildRequestToJoinMarketplaceParams
-): MoveCallTransaction => ({
-  packageObjectId: params.packageObjectId,
-  module: "listing",
-  function: "request_to_join_marketplace",
-  typeArguments: [],
-  arguments: [params.marketplace, params.listing],
-  gasBudget: 5000,
-});
+): Transaction => {
+  const tx = params.transaction ?? new Transaction();
+
+  tx.moveCall({
+    target: `${params.packageObjectId}::listing::request_to_join_marketplace`,
+    arguments: [
+      tx.object(params.marketplace),
+      tx.object(params.listing),
+    ],
+  });
+
+  return tx;
+};
 
 export const buildAcceptListingRequestTx = (
   params: BuildAcceptListingRequest
-): MoveCallTransaction => ({
-  packageObjectId: params.packageObjectId,
-  module: "listing",
-  function: "accept_listing_request",
-  typeArguments: [],
-  arguments: [params.marketplace, params.listing],
-  gasBudget: 5000,
-});
+): Transaction => {
+  const tx = params.transaction ?? new Transaction();
+
+  tx.moveCall({
+    target: `${params.packageObjectId}::listing::accept_listing_request`,
+    arguments: [
+      tx.object(params.marketplace),
+      tx.object(params.listing),
+    ],
+  });
+
+  return tx;
+}
 
 export const buildEnableSalesTx = (
   params: BuildEnableSalesParams
-): MoveCallTransaction => ({
-  packageObjectId: params.packageObjectId,
-  module: "listing",
-  function: "sale_on",
-  typeArguments: [],
-  arguments: [params.listing, params.venue],
-  gasBudget: 5000,
-});
+): Transaction => {
+  const tx = params.transaction ?? new Transaction();
+
+  tx.moveCall({
+    target: `${params.packageObjectId}::listing::enable_sales`,
+    arguments: [
+      tx.object(params.listing),
+      tx.object(params.venue),
+    ],
+  });
+
+  return tx;
+}
 
 export const buildCreateFlatFeeTx = (
   params: BuildCreateFlatFeeParams
-): MoveCallTransaction => ({
-  packageObjectId: params.packageObjectId,
-  module: "flat_fee",
-  function: "init_fee",
-  typeArguments: [],
-  arguments: [params.rate.toFixed(0)],
-  gasBudget: 5000,
-});
+): Transaction => {
+  const tx = params.transaction ?? new Transaction();
+
+  tx.moveCall({
+    target: `${params.packageObjectId}::flat_fee::init_fee`,
+    arguments: [
+      tx.pure(params.rate),
+    ],
+  });
+
+  return tx;
+};
 
 export const buildInitMarketplaceTx = (
   params: BuildInitMarketplaceParams
-): MoveCallTransaction => ({
-  packageObjectId: params.packageObjectId,
-  module: "marketplace",
-  function: "init_marketplace",
-  typeArguments: [`${params.packageObjectId}::flat_fee::FlatFee`],
-  arguments: [params.admin, params.receiver, params.defaultFee],
-  gasBudget: 5000,
-});
+): Transaction => {
+  const tx = params.transaction ?? new Transaction();
+
+  tx.moveCall({
+    target: `${params.packageObjectId}::marketplace::init_marketplace`,
+    typeArguments: [`${params.packageObjectId}::flat_fee::FlatFee`],
+    arguments: [
+      tx.object(params.admin),
+      tx.object(params.receiver),
+      tx.pure(params.defaultFee),
+    ],
+  });
+
+  return tx;
+}
 
 export const buildInitListingTx = (
   params: BuildInitListingParams
-): MoveCallTransaction => ({
-  packageObjectId: params.packageObjectId,
-  module: "listing",
-  function: "init_listing",
-  typeArguments: [],
-  arguments: [params.listingAdmin, params.receiver],
-  gasBudget: 5000,
-});
+): Transaction => {
+  const tx = params.transaction ?? new Transaction();
+
+  tx.moveCall({
+    target: `${params.packageObjectId}::listing::init_listing`,
+    arguments: [
+      tx.object(params.listingAdmin),
+      tx.object(params.receiver),
+    ],
+  });
+
+  return tx;
+}
 
 export const buildInitWarehouseTx = (
   params: BuildInitWarehouseParams
-): MoveCallTransaction => ({
-  packageObjectId: params.packageObjectId,
-  module: "warehouse",
-  function: "init_warehouse",
-  typeArguments: [
-    `${params.collectionPackageId ?? params.packageObjectId}::${
-      params.nftModuleName
-    }::${params.nftClassName}`,
-  ],
-  arguments: [],
-  gasBudget: 5000,
-});
+): Transaction => {
+  const tx = params.transaction ?? new Transaction();
+
+  tx.moveCall({
+    target: `${params.packageObjectId}::warehouse::init_warehouse`,
+    typeArguments: [
+      `${params.collectionPackageId ?? params.packageObjectId}::${params.nftModuleName
+      }::${params.nftClassName}`,
+    ],
+  });
+
+  return tx;
+}
 
 export const buildAddWarehouseToListingTx = (
   params: BuildAddWarehouseToListingParams
-): MoveCallTransaction => ({
-  packageObjectId: params.packageObjectId,
-  module: "listing",
-  function: "add_warehouse",
-  typeArguments: [
-    `${params.collectionPackageId ?? params.packageObjectId}::${
-      params.nftModuleName
-    }::${params.nftClassName}`,
-  ],
-  arguments: [params.listing, params.collection, params.warehouse],
-  gasBudget: 50000,
-});
+): Transaction => {
+  const tx = params.transaction ?? new Transaction();
+
+  tx.moveCall({
+    target: `${params.packageObjectId}::listing::add_warehouse`,
+    typeArguments: [
+      `${params.collectionPackageId ?? params.packageObjectId}::${params.nftModuleName
+      }::${params.nftClassName}`,
+    ],
+    arguments: [
+      tx.object(params.listing),
+      tx.object(params.collection),
+      tx.object(params.warehouse),
+    ],
+  });
+
+  return tx;
+}
 
 export const buildIssueWhitelistCertificateTx = (
   params: BuildIsueWhitelistCertificateParams
-): MoveCallTransaction => ({
-  packageObjectId: params.packageObjectId,
-  module: "market_whitelist",
-  function: "issue",
-  typeArguments: [],
-  arguments: [params.listing, params.venue, params.recipient],
-  gasBudget: 50000,
-});
+): Transaction => {
+  const tx = params.transaction ?? new Transaction();
+
+  tx.moveCall({
+    target: `${params.packageObjectId}::market_whitelist::issue`,
+    arguments: [
+      tx.object(params.listing),
+      tx.object(params.venue),
+      tx.object(params.recipient),
+    ],
+  });
+
+  return tx;
+}
