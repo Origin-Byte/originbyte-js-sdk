@@ -1,6 +1,6 @@
 import {
   Ed25519Keypair,
-  Transaction,
+  TransactionBlock,
   JsonRpcProvider,
   RawSigner,
   SignerWithProvider,
@@ -23,13 +23,13 @@ export class FullClient extends ReadClient {
   }
 
   async sendTx(
-    transaction: Transaction
+    transactionBlock: TransactionBlock
   ) {
-    return this.signer.signAndExecuteTransaction({ transaction });
+    return this.signer.signAndExecuteTransactionBlock({ transactionBlock });
   }
 
   async sendTxWaitForEffects(
-    tx: Transaction
+    tx: TransactionBlock
   ): Promise<TransactionEffects> {
     // there's a bug in the SDKs - the return type doesn't match the actual response
     const res = (await this.sendTx(tx)) as any;

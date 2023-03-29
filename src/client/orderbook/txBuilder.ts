@@ -1,4 +1,4 @@
-import { Transaction } from "@mysten/sui.js";
+import { TransactionBlock } from "@mysten/sui.js";
 import {
   DEFAULT_ORDERBOOK_MODULE,
   DEFAULT_PACKAGE_ID,
@@ -28,7 +28,7 @@ import {
 
 
 
-export type TransactionArgument = {
+export type TransactionBlockArgument = {
   kind: "Input";
   index: number;
   type?: "object" | "pure" | undefined;
@@ -38,11 +38,11 @@ export type TransactionArgument = {
 function txObj(
   fun: string,
   p: GlobalParams,
-  args: TransactionArgument[],
+  args: TransactionBlockArgument[],
   tArgs: string[],
-): Transaction {
+): TransactionBlock {
 
-  const tx = p.transaction ?? new Transaction();
+  const tx = p.transaction ?? new TransactionBlock();
 
   tx.moveCall({
     target: `${p.packageObjectId ?? DEFAULT_PACKAGE_ID}::${p.moduleName ?? DEFAULT_ORDERBOOK_MODULE}::${fun}`,
@@ -57,7 +57,7 @@ export type OrderbookTParams = GlobalParams & CollectionParam & FTParam;
 export type OrderbookParams = OrderbookTParams & OrderbookParam;
 export type DebitParams = PriceParam & WalletParam;
 
-const t = new Transaction(); // serialization purposes
+const t = new TransactionBlock(); // serialization purposes
 
 export const createOrderbookTx = (p: OrderbookTParams) => {
   return txObj("create", p, [], [p.collection, p.ft]);

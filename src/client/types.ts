@@ -1,9 +1,9 @@
 /* eslint-disable camelcase */
-import { ObjectId, SuiAddress, SuiObjectResponse, Transaction } from "@mysten/sui.js";
+import { ObjectId, SuiAddress, SuiObjectResponse, TransactionBlock } from "@mysten/sui.js";
 
 export interface WithPackageObjectId {
   packageObjectId: ObjectId;
-  transaction?: Transaction
+  transaction?: TransactionBlock
 }
 
 export interface WithId {
@@ -20,7 +20,7 @@ export type EmptyModel = WithPackageObjectId & WithOwner & WithId & {};
 export interface GlobalParams
   extends Partial<WithPackageObjectId> {
   moduleName?: string;
-  transaction?: Transaction;
+  transaction?: TransactionBlock;
 }
 
 export type WithCollectionPackageId = {

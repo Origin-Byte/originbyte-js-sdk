@@ -1,4 +1,4 @@
-import { Transaction } from "@mysten/sui.js";
+import { TransactionBlock } from "@mysten/sui.js";
 import {
   BuildBuyNftParams,
   BuildInitWarehouseParams,
@@ -21,7 +21,7 @@ const SUI_TYPE = "0x2::sui::SUI";
 
 export const buildMintNftTx = (
   params: BuildMintNftParams
-): Transaction => {
+): TransactionBlock => {
   const keys: string[] = [];
   const values: string[] = [];
   const { attributes } = params;
@@ -30,7 +30,7 @@ export const buildMintNftTx = (
     values.push(attributes[key]);
   });
 
-  const tx = params.transaction ?? new Transaction();
+  const tx = params.transaction ?? new TransactionBlock();
 
   tx.moveCall({
     target: `${params.packageObjectId}::${params.moduleName}::mint_nft`,
@@ -50,8 +50,8 @@ export const buildMintNftTx = (
 
 export const buildBuyNftTx = (
   params: BuildBuyNftParams
-): Transaction => {
-  const tx = params.transaction ?? new Transaction();
+): TransactionBlock => {
+  const tx = params.transaction ?? new TransactionBlock();
 
   tx.moveCall({
     target: `${params.packageObjectId}::${params.module ?? "fixed_price"}::buy_nft`,
@@ -73,8 +73,8 @@ export const buildBuyNftTx = (
 
 export const buildBuyWhitelistedNftTx = (
   params: BuildBuyWhitelistedNftParams
-): Transaction => {
-  const tx = params.transaction ?? new Transaction();
+): TransactionBlock => {
+  const tx = params.transaction ?? new TransactionBlock();
 
   tx.moveCall({
     target: `${params.packageObjectId}::${params.module ?? "fixed_price"}::buy_whitelisted_nft`,
@@ -97,9 +97,9 @@ export const buildBuyWhitelistedNftTx = (
 
 export const buildInitVenueTx = (
   params: BuildInitVenueParams
-): Transaction => {
+): TransactionBlock => {
 
-  const tx = params.transaction ?? new Transaction();
+  const tx = params.transaction ?? new TransactionBlock();
   tx.moveCall({
     target: `${params.packageObjectId}::fixed_price::init_venue`,
     typeArguments: [
@@ -120,9 +120,9 @@ export const buildInitVenueTx = (
 
 export const buildSetLimtitedMarketNewLimitTx = (
   params: BuildSetLimitMarketLimitParams
-): Transaction => {
+): TransactionBlock => {
 
-  const tx = params.transaction ?? new Transaction();
+  const tx = params.transaction ?? new TransactionBlock();
 
   tx.moveCall({
     target: `${params.packageObjectId}::limited_fixed_price::set_limit`,
@@ -141,8 +141,8 @@ export const buildSetLimtitedMarketNewLimitTx = (
 
 export const buildInitLimitedVenueTx = (
   params: BuildInitLimitedVenueParams
-): Transaction => {
-  const tx = params.transaction ?? new Transaction();
+): TransactionBlock => {
+  const tx = params.transaction ?? new TransactionBlock();
 
   tx.moveCall({
     target: `${params.packageObjectId}::limited_fixed_price::init_venue`,
@@ -166,8 +166,8 @@ export const buildInitLimitedVenueTx = (
 
 export const buildRequestToJoinMarketplaceTx = (
   params: BuildRequestToJoinMarketplaceParams
-): Transaction => {
-  const tx = params.transaction ?? new Transaction();
+): TransactionBlock => {
+  const tx = params.transaction ?? new TransactionBlock();
 
   tx.moveCall({
     target: `${params.packageObjectId}::listing::request_to_join_marketplace`,
@@ -182,8 +182,8 @@ export const buildRequestToJoinMarketplaceTx = (
 
 export const buildAcceptListingRequestTx = (
   params: BuildAcceptListingRequest
-): Transaction => {
-  const tx = params.transaction ?? new Transaction();
+): TransactionBlock => {
+  const tx = params.transaction ?? new TransactionBlock();
 
   tx.moveCall({
     target: `${params.packageObjectId}::listing::accept_listing_request`,
@@ -198,8 +198,8 @@ export const buildAcceptListingRequestTx = (
 
 export const buildEnableSalesTx = (
   params: BuildEnableSalesParams
-): Transaction => {
-  const tx = params.transaction ?? new Transaction();
+): TransactionBlock => {
+  const tx = params.transaction ?? new TransactionBlock();
 
   tx.moveCall({
     target: `${params.packageObjectId}::listing::enable_sales`,
@@ -214,8 +214,8 @@ export const buildEnableSalesTx = (
 
 export const buildCreateFlatFeeTx = (
   params: BuildCreateFlatFeeParams
-): Transaction => {
-  const tx = params.transaction ?? new Transaction();
+): TransactionBlock => {
+  const tx = params.transaction ?? new TransactionBlock();
 
   tx.moveCall({
     target: `${params.packageObjectId}::flat_fee::init_fee`,
@@ -229,8 +229,8 @@ export const buildCreateFlatFeeTx = (
 
 export const buildInitMarketplaceTx = (
   params: BuildInitMarketplaceParams
-): Transaction => {
-  const tx = params.transaction ?? new Transaction();
+): TransactionBlock => {
+  const tx = params.transaction ?? new TransactionBlock();
 
   tx.moveCall({
     target: `${params.packageObjectId}::marketplace::init_marketplace`,
@@ -247,8 +247,8 @@ export const buildInitMarketplaceTx = (
 
 export const buildInitListingTx = (
   params: BuildInitListingParams
-): Transaction => {
-  const tx = params.transaction ?? new Transaction();
+): TransactionBlock => {
+  const tx = params.transaction ?? new TransactionBlock();
 
   tx.moveCall({
     target: `${params.packageObjectId}::listing::init_listing`,
@@ -263,8 +263,8 @@ export const buildInitListingTx = (
 
 export const buildInitWarehouseTx = (
   params: BuildInitWarehouseParams
-): Transaction => {
-  const tx = params.transaction ?? new Transaction();
+): TransactionBlock => {
+  const tx = params.transaction ?? new TransactionBlock();
 
   tx.moveCall({
     target: `${params.packageObjectId}::warehouse::init_warehouse`,
@@ -279,8 +279,8 @@ export const buildInitWarehouseTx = (
 
 export const buildAddWarehouseToListingTx = (
   params: BuildAddWarehouseToListingParams
-): Transaction => {
-  const tx = params.transaction ?? new Transaction();
+): TransactionBlock => {
+  const tx = params.transaction ?? new TransactionBlock();
 
   tx.moveCall({
     target: `${params.packageObjectId}::listing::add_warehouse`,
@@ -300,8 +300,8 @@ export const buildAddWarehouseToListingTx = (
 
 export const buildIssueWhitelistCertificateTx = (
   params: BuildIsueWhitelistCertificateParams
-): Transaction => {
-  const tx = params.transaction ?? new Transaction();
+): TransactionBlock => {
+  const tx = params.transaction ?? new TransactionBlock();
 
   tx.moveCall({
     target: `${params.packageObjectId}::market_whitelist::issue`,

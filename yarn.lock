@@ -582,19 +582,19 @@
     "@jridgewell/resolve-uri" "3.1.0"
     "@jridgewell/sourcemap-codec" "1.4.14"
 
-"@mysten/bcs@0.0.0-experimental-20230326165705":
-  version "0.0.0-experimental-20230326165705"
-  resolved "https://registry.yarnpkg.com/@mysten/bcs/-/bcs-0.0.0-experimental-20230326165705.tgz#020ddcac91946d409d4b728837529d09f5730cb8"
-  integrity sha512-5R8JQ0UUIhUHI5S67w6cYXUMvrcTuubeYqTYZtr9TYmt8667IrKm5AGsDGifkSwAc2+qhhfOrxv2gzi2u41Whw==
+"@mysten/bcs@0.7.0":
+  version "0.7.0"
+  resolved "https://registry.yarnpkg.com/@mysten/bcs/-/bcs-0.7.0.tgz#141cbaba8ccb89215747d9ca1296c20c5b4fe4a1"
+  integrity sha512-AFNnTClmc1XuxWZOzrzqVPDnujgN5AF2oNUyPYbLfvwqAj+qH7CrE3Rxhuf7et+k8M1Ff55CDgF58vPDMIhIrA==
   dependencies:
     bs58 "^5.0.0"
 
-"@mysten/sui.js@0.0.0-experimental-20230326165705":
-  version "0.0.0-experimental-20230326165705"
-  resolved "https://registry.yarnpkg.com/@mysten/sui.js/-/sui.js-0.0.0-experimental-20230326165705.tgz#b9f6ac8c746357d5ddc83d0054e464391e559f92"
-  integrity sha512-cPFSRUNQTZiMsosPV+USGVED+r41AQU9DxbM/uOFIyK6900NTHJVzd4U28JrDWdCkH2NO6xg5llnY7M9uUDfYQ==
+"@mysten/sui.js@0.30.0":
+  version "0.30.0"
+  resolved "https://registry.yarnpkg.com/@mysten/sui.js/-/sui.js-0.30.0.tgz#4f952418f97b172444412f771a5dab842f45e0e8"
+  integrity sha512-7Mb5fGeg/NfoKvZvCQLL+XsuynFZKx328UykPpqcgY7buAbJiTl8dNNncZGH6nC/+fZRf2J9X0EffiKTES78ig==
   dependencies:
-    "@mysten/bcs" "0.0.0-experimental-20230326165705"
+    "@mysten/bcs" "0.7.0"
     "@noble/hashes" "^1.2.0"
     "@noble/secp256k1" "^1.7.1"
     "@scure/bip32" "^1.1.5"

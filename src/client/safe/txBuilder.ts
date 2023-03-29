@@ -1,4 +1,4 @@
-import { Transaction } from "@mysten/sui.js";
+import { TransactionBlock } from "@mysten/sui.js";
 import {
   AuthParam,
   CollectionParam,
@@ -17,7 +17,7 @@ export type AuthParams = GlobalParams & SafeParam & AuthParam;
 export type ColAuthParams = AuthParams & CollectionParam;
 export type NftAuthParams = AuthParam & NftParams;
 
-export type TransactionArgument = {
+export type TransactionBlockArgument = {
   kind: "Input";
   index: number;
   type?: "object" | "pure" | undefined;
@@ -27,11 +27,11 @@ export type TransactionArgument = {
 function txObj(
   fun: string,
   p: GlobalParams,
-  args: TransactionArgument[],
+  args: TransactionBlockArgument[],
   tArgs: string[],
-): Transaction {
+): TransactionBlock {
 
-  const tx = p.transaction ?? new Transaction();
+  const tx = p.transaction ?? new TransactionBlock();
 
   tx.moveCall({
     target: `${p.packageObjectId ?? DEFAULT_PACKAGE_ID}::${p.moduleName ?? DEFAULT_SAFE_MODULE}::${fun}`,
@@ -42,7 +42,7 @@ function txObj(
   return tx;
 }
 
-const t = new Transaction(); // serialization purposes
+const t = new TransactionBlock(); // serialization purposes
 
 function authNftArgs(p: NftParam & AuthParam & SafeParam) {
   return [t.object(p.nft), t.object(p.ownerCap), t.object(p.safe)];
