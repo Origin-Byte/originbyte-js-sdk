@@ -48,7 +48,7 @@ const getEmptyParser = (
 });
 
 const ART_NFT_REGEX =
-  /(0x[a-f0-9]{39,40})::nft::Nft<(0x[a-f0-9]{39,40})::([a-zA-Z]{1,})::([a-zA-Z]{1,})>/;
+  /(0x[a-f0-9]{64})::nft::Nft<(0x[a-f0-9]{64})::([a-zA-Z]{1,})::([a-zA-Z]{1,})>/;
 
 export const ArtNftParser: SuiObjectParser<ArtNftRaw> = {
   parser: (_) => {
@@ -90,7 +90,7 @@ export const ArtNftParser: SuiObjectParser<ArtNftRaw> = {
 };
 
 const COLLECTION_REGEX =
-  /(0x[a-f0-9]{39,40})::collection::Collection<(0x[a-f0-9]{39,40})::([a-zA-Z_]{1,})::([a-zA-Z_]{1,})>/;
+  /(0x[a-f0-9]{64})::collection::Collection<(0x[a-f0-9]{64})::([a-zA-Z_]{1,})::([a-zA-Z_]{1,})>/;
 
 export const CollectionParser: SuiObjectParser<NftCollection> = {
   parser: (_) => {
@@ -124,7 +124,7 @@ export const CollectionParser: SuiObjectParser<NftCollection> = {
 };
 
 const MINT_CAP_REGEX =
-  /(0x[a-f0-9]{39,40})::mint_cap::MintCap<0x[a-f0-9]{39,40}::[a-zA-Z_]{1,}::[a-zA-Z_]{1,}>/;
+  /(0x[a-f0-9]{64})::mint_cap::MintCap<0x[a-f0-9]{64}::[a-zA-Z_]{1,}::[a-zA-Z_]{1,}>/;
 
 export const MintCapParser: SuiObjectParser<MintCap> = {
   parser: (_) => {
@@ -144,13 +144,13 @@ export const MintCapParser: SuiObjectParser<MintCap> = {
 
 const ORDER_BOOK_REGEX =
   // eslint-disable-next-line max-len
-  /(0x[a-f0-9]{39,40})::orderbook::Orderbook<0x[a-f0-9]{39,40}::[a-zA-Z_]{1,}::[a-zA-Z_]{1,}, 0x[a-f0-9]{1,40}::[a-zA-Z_]{1,}::[a-zA-Z_]{1,}>/;
+  /(0x[a-f0-9]{64})::orderbook::Orderbook<0x[a-f0-9]{64}::[a-zA-Z_]{1,}::[a-zA-Z_]{1,}, 0x[a-f0-9]{1,40}::[a-zA-Z_]{1,}::[a-zA-Z_]{1,}>/;
 
 export const OrderbookParser = getEmptyParser(ORDER_BOOK_REGEX);
 
 export const FIXED_PRICE_MARKET_REGEX =
   // eslint-disable-next-line max-len
-  /0x2::dynamic_field::Field<(0x[a-f0-9]{39,40})::utils::Marker<0x[a-f0-9]{39,40}::fixed_price::FixedPriceMarket<0x2::sui::SUI>>, 0x[a-f0-9]{39,40}::fixed_price::FixedPriceMarket<0x2::sui::SUI>>/;
+  /0x2::dynamic_field::Field<(0x[a-f0-9]{64})::utils::Marker<0x[a-f0-9]{64}::fixed_price::FixedPriceMarket<0x2::sui::SUI>>, 0x[a-f0-9]{64}::fixed_price::FixedPriceMarket<0x2::sui::SUI>>/;
 
 export const FixedPriceMarketParser: SuiObjectParser<
   FixedPriceMarket
@@ -180,7 +180,7 @@ export const FixedPriceMarketParser: SuiObjectParser<
 
 export const LIMITED_FIXED_PRICE_MARKET_REGEX =
   // eslint-disable-next-line max-len
-  /0x2::dynamic_field::Field<(0x[a-f0-9]{39,40})::utils::Marker<0x[a-f0-9]{39,40}::limited_fixed_price::LimitedFixedPriceMarket<0x2::sui::SUI>>, 0x[a-f0-9]{39,40}::limited_fixed_price::LimitedFixedPriceMarket<0x2::sui::SUI>>/;
+  /0x2::dynamic_field::Field<(0x[a-f0-9]{64})::utils::Marker<0x[a-f0-9]{64}::limited_fixed_price::LimitedFixedPriceMarket<0x2::sui::SUI>>, 0x[a-f0-9]{64}::limited_fixed_price::LimitedFixedPriceMarket<0x2::sui::SUI>>/;
 
 export const LimitedFixedPriceMarketParser: SuiObjectParser<
   LimitedFixedPriceMarket
@@ -210,7 +210,7 @@ export const LimitedFixedPriceMarketParser: SuiObjectParser<
 };
 
 // eslint-disable-next-line max-len
-export const VENUE_REGEX = /(0x[a-f0-9]{39,40})::venue::Venue/;
+export const VENUE_REGEX = /(0x[a-f0-9]{64})::venue::Venue/;
 
 export const VenueParser: SuiObjectParser<Venue> = {
   parser: (_) => {
@@ -235,7 +235,7 @@ export const VenueParser: SuiObjectParser<Venue> = {
   regex: VENUE_REGEX,
 };
 
-const MARKETPLACE_REGEX = /(0x[a-f0-9]{39,40})::marketplace::Marketplace/;
+const MARKETPLACE_REGEX = /(0x[a-f0-9]{64})::marketplace::Marketplace/;
 export const MarketplaceParser: SuiObjectParser<Marketplace> = {
   parser: (_) => {
     const matches = _.data.type.match(
@@ -264,7 +264,7 @@ export const MarketplaceParser: SuiObjectParser<Marketplace> = {
   regex: MARKETPLACE_REGEX,
 };
 
-const FLAT_FEE_REGEX = /(0x[a-f0-9]{39,40})::flat_fee::FlatFee/;
+const FLAT_FEE_REGEX = /(0x[a-f0-9]{64})::flat_fee::FlatFee/;
 
 export const FlatFeeParser: SuiObjectParser<FlatFee> = {
   parser: (data) => {
@@ -286,7 +286,7 @@ export const FlatFeeParser: SuiObjectParser<FlatFee> = {
   regex: FLAT_FEE_REGEX,
 };
 
-const LISTING_REGEX = /(0x[a-f0-9]{39,40})::listing::Listing/;
+const LISTING_REGEX = /(0x[a-f0-9]{64})::listing::Listing/;
 export const ListingParser: SuiObjectParser<Listing> = {
   parser: (_) => {
     const matches = _.data.type.match(LISTING_REGEX);
@@ -328,7 +328,7 @@ export const DynamicFieldParser: SuiObjectParser<DynamicField> = {
   },
 };
 
-const WAREHOUSE_REGEX = /(0x[a-f0-9]{39,40})::warehouse::Warehouse/;
+const WAREHOUSE_REGEX = /(0x[a-f0-9]{64})::warehouse::Warehouse/;
 
 export const WarehouseParser: SuiObjectParser<Warehouse> =
 {
@@ -341,7 +341,7 @@ export const WarehouseParser: SuiObjectParser<Warehouse> =
 };
 
 const INVENTORY_REGEX =
-  /(0x[a-f0-9]{39,40})::inventory::Inventory<(0x[a-f0-9]{39,40})::([a-zA-Z_]{1,})::([a-zA-Z_]{1,})>/;
+  /(0x[a-f0-9]{64})::inventory::Inventory<(0x[a-f0-9]{64})::([a-zA-Z_]{1,})::([a-zA-Z_]{1,})>/;
 
 export const InventoryParser: SuiObjectParser<Inventory> = {
   regex: INVENTORY_REGEX,
@@ -368,7 +368,7 @@ export const InventoryParser: SuiObjectParser<Inventory> = {
 
 const INVENTORY_DOF_REGEX =
   // eslint-disable-next-line max-len
-  /0x2::dynamic_field::Field<(0x[a-f0-9]{39,40})::utils::Marker<(0x[a-f0-9]{39,40})::warehouse::Warehouse<(0x[a-f0-9]{39,40})::[a-zA-Z_]{1,}::[a-zA-Z_]{1,}>>, (0x[a-f0-9]{39,40})::warehouse::Warehouse<(0x[a-f0-9]{39,40})::[a-zA-Z_]{1,}::[a-zA-Z_]{1,}>>/;
+  /0x2::dynamic_field::Field<(0x[a-f0-9]{64})::utils::Marker<(0x[a-f0-9]{64})::warehouse::Warehouse<(0x[a-f0-9]{64})::[a-zA-Z_]{1,}::[a-zA-Z_]{1,}>>, (0x[a-f0-9]{64})::warehouse::Warehouse<(0x[a-f0-9]{64})::[a-zA-Z_]{1,}::[a-zA-Z_]{1,}>>/;
 
 export const InventoryDofParser: SuiObjectParser<InventoryContent> = {
   regex: INVENTORY_DOF_REGEX,
@@ -380,24 +380,24 @@ export const InventoryDofParser: SuiObjectParser<InventoryContent> = {
   },
 };
 
-const ALLOWLIST_REGEX = /(0x[a-f0-9]{39,40})::transfer_allowlist::Allowlist/;
+const ALLOWLIST_REGEX = /(0x[a-f0-9]{64})::transfer_allowlist::Allowlist/;
 
 export const AllowlistParser = getEmptyParser(ALLOWLIST_REGEX);
 
 /* eslint-disable max-len */
 //
 // const ROYALTY_DOMAIN_BAG_REGEX =
-//   /0x2::dynamic_field::Field<(0x[a-f0-9]{39,40})::utils::Marker<(0x[a-f0-9]{39,40})::royalty::RoyaltyDomain>, (0x[a-f0-9]{39,40})::royalty::RoyaltyDomain>/;
+//   /0x2::dynamic_field::Field<(0x[a-f0-9]{64})::utils::Marker<(0x[a-f0-9]{64})::royalty::RoyaltyDomain>, (0x[a-f0-9]{64})::royalty::RoyaltyDomain>/;
 // const SYMBOL_DOMAIN_BAG_REGEX =
-//   /0x2::dynamic_field::Field<(0x[a-f0-9]{39,40})::utils::Marker<(0x[a-f0-9]{39,40})::display::SymbolDomain>, (0x[a-f0-9]{39,40})::display::SymbolDomain>/;
+//   /0x2::dynamic_field::Field<(0x[a-f0-9]{64})::utils::Marker<(0x[a-f0-9]{64})::display::SymbolDomain>, (0x[a-f0-9]{64})::display::SymbolDomain>/;
 // const URL_DOMAIN_BAG_REGEX =
-//   /0x2::dynamic_field::Field<(0x[a-f0-9]{39,40})::utils::Marker<(0x[a-f0-9]{39,40})::display::UrlDomain>, (0x[a-f0-9]{39,40})::display::UrlDomain>/;
+//   /0x2::dynamic_field::Field<(0x[a-f0-9]{64})::utils::Marker<(0x[a-f0-9]{64})::display::UrlDomain>, (0x[a-f0-9]{64})::display::UrlDomain>/;
 // const DISPLAY_DOMAIN_BAG_REGEX =
-//   /0x2::dynamic_field::Field<(0x[a-f0-9]{39,40})::utils::Marker<(0x[a-f0-9]{39,40})::display::DisplayDomain>, (0x[a-f0-9]{39,40})::display::DisplayDomain>/;
+//   /0x2::dynamic_field::Field<(0x[a-f0-9]{64})::utils::Marker<(0x[a-f0-9]{64})::display::DisplayDomain>, (0x[a-f0-9]{64})::display::DisplayDomain>/;
 // const TAGS_DOMAIN_BAG_REGEX =
-//   /0x2::dynamic_field::Field<(0x[a-f0-9]{39,40})::utils::Marker<(0x[a-f0-9]{39,40})::tags::TagDomain>, (0x[a-f0-9]{39,40})::tags::TagDomain>/;
+//   /0x2::dynamic_field::Field<(0x[a-f0-9]{64})::utils::Marker<(0x[a-f0-9]{64})::tags::TagDomain>, (0x[a-f0-9]{64})::tags::TagDomain>/;
 // const ATTRIBUTES_DOMAIN_BAG_REGEX =
-//   /dynamic_field::Field<(0x[a-f0-9]{39,40})::utils::Marker<(0x[a-f0-9]{39,40})::display::AttributesDomain>, (0x[a-f0-9]{39,40})::display::AttributesDomain>/;
+//   /dynamic_field::Field<(0x[a-f0-9]{64})::utils::Marker<(0x[a-f0-9]{64})::display::AttributesDomain>, (0x[a-f0-9]{64})::display::AttributesDomain>/;
 //
 /* eslint-enable */
 
@@ -406,13 +406,13 @@ const isTypeMatchRegex = (d: SuiObjectResponse, regex: RegExp) => {
 };
 
 /* eslint-disable max-len */
-const ROYALTY_DOMAIN_REGEX = /(0x[a-f0-9]{39,40})::royalty::RoyaltyDomain/;
-const SYMBOL_DOMAIN_REGEX = /(0x[a-f0-9]{39,40})::display::SymbolDomain/;
-const URL_DOMAIN_REGEX = /(0x[a-f0-9]{39,40})::display::UrlDomain/;
-const DISPLAY_DOMAIN_REGEX = /(0x[a-f0-9]{39,40})::display::DisplayDomain/;
-const TAGS_DOMAIN_REGEX = /(0x[a-f0-9]{39,40})::tags::TagDomain/;
+const ROYALTY_DOMAIN_REGEX = /(0x[a-f0-9]{64})::royalty::RoyaltyDomain/;
+const SYMBOL_DOMAIN_REGEX = /(0x[a-f0-9]{64})::display::SymbolDomain/;
+const URL_DOMAIN_REGEX = /(0x[a-f0-9]{64})::display::UrlDomain/;
+const DISPLAY_DOMAIN_REGEX = /(0x[a-f0-9]{64})::display::DisplayDomain/;
+const TAGS_DOMAIN_REGEX = /(0x[a-f0-9]{64})::tags::TagDomain/;
 const ATTRIBUTES_DOMAIN_REGEX =
-  /(0x[a-f0-9]{39,40})::display::AttributesDomain/;
+  /(0x[a-f0-9]{64})::display::AttributesDomain/;
 /* eslint-enable */
 
 export const parseDynamicDomains = (domains: SuiObjectResponse[]) => {
