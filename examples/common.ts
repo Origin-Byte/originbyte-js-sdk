@@ -43,6 +43,7 @@ export const ORDERBOOK_ID = "0x12f05d1dfc8210877ca83ea5b58f2beef992f587"; // Cha
 // Step 8 - Create AllowList
 export const ALLOW_LIST_ID = "0x20c97662993a9ef4ab3b07dd9ed97be182b0ad40"; // Change to your deployed contract
 
+
 export function normalizeMnemonics(mnemonics: string): string {
   return mnemonics
     .trim()
