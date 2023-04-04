@@ -11,6 +11,10 @@ export interface WithPackageObjectId {
   transaction?: TransactionBlock;
 }
 
+export type WithNftType = {
+  nftType: string;
+};
+
 export interface WithId {
   id: string;
 }
@@ -462,7 +466,7 @@ export type NftModuleParams = {
 
 export type BuildBuyNftParams = GlobalParams &
   WithCollectionPackageId &
-  NftModuleParams & {
+  WithNftType & {
     listing: string;
     venue: string;
     coin: string;
@@ -577,6 +581,7 @@ export type BuildInitMarketplaceParams = WithPackageObjectId & {
   admin: string;
   receiver: string;
   defaultFee: string; // Flat fee address
+  feeType?: string;
 };
 
 export type BuildInitListingParams = WithPackageObjectId & {
@@ -591,8 +596,7 @@ export type BuildCreateFixedPriceMarketParams = WithPackageObjectId & {
 };
 
 export type BuildInitVenueParams = BuildCreateFixedPriceMarketParams &
-  WithCollectionPackageId &
-  NftModuleParams & {
+  WithNftType & {
     listing: string;
     isWhitelisted: boolean;
   };
@@ -616,15 +620,14 @@ export type BuildRequestToJoinMarketplaceParams = WithPackageObjectId & {
 export type BuildAcceptListingRequest = BuildRequestToJoinMarketplaceParams;
 
 export type BuildInitWarehouseParams = WithPackageObjectId &
-  NftModuleParams &
-  WithCollectionPackageId & {};
+  WithCollectionPackageId &
+  WithNftType;
 
 export type BuildAddWarehouseToListingParams = WithPackageObjectId &
   WithCollectionPackageId &
-  NftModuleParams & {
+  WithNftType & {
     listing: string;
     warehouse: string;
-    collection: string;
   };
 
 export type VenueWithMarket = Venue & {

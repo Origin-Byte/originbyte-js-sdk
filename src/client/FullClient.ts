@@ -6,6 +6,7 @@ import {
   SignerWithProvider,
   TransactionEffects,
 } from "@mysten/sui.js";
+import { TransactionResult } from "./orderbook/txBuilder";
 import { ReadClient } from "./ReadClient";
 
 export class FullClient extends ReadClient {
@@ -26,26 +27,28 @@ export class FullClient extends ReadClient {
   }
 
   async sendTx(transactionBlock: TransactionBlock) {
-    return this.signer.signAndExecuteTransactionBlock({ transactionBlock });
+    return this.signer.signAndExecuteTransactionBlock({
+      transactionBlock,
+      options: { showEffects: true, showObjectChanges: true },
+    });
   }
 
   async sendTxWaitForEffects(
-    tx: TransactionBlock
+    tx: [TransactionBlock, TransactionResult]
   ): Promise<TransactionEffects> {
+    const [transactionBlock] = tx;
     // there's a bug in the SDKs - the return type doesn't match the actual response
-    const res = (await this.sendTx(tx)) as any;
+    const res = await this.sendTx(transactionBlock);
     if (typeof res !== "object" || !("effects" in res)) {
       throw new Error(
         `Response does not contain effects: ${JSON.stringify(res)}`
       );
     }
 
-    if (res.effects.effects.status.status === "failure") {
-      throw new Error(
-        `Transaction failed: ${res.effects.effects.status.error}`
-      );
+    if (res.effects.status.status === "failure") {
+      throw new Error(`Transaction failed: ${res.effects.status.error}`);
     }
 
-    return res.effects.effects;
+    return res.effects;
   }
 }

@@ -1,4 +1,4 @@
-import { TransactionBlock } from "@mysten/sui.js";
+import { TransactionBlock, TransactionArgument } from "@mysten/sui.js";
 import { DEFAULT_ORDERBOOK_MODULE, DEFAULT_PACKAGE_ID } from "../consts";
 import {
   AllowlistParam,
@@ -22,6 +22,9 @@ import {
   NftsParam,
   CommissionsParams,
 } from "../types";
+import { txObj as txCommon } from "../../transaction";
+
+export type TransactionResult = TransactionArgument & TransactionArgument[];
 
 export type TransactionBlockArgument = {
   kind: "Input";
@@ -33,30 +36,75 @@ export type TransactionBlockArgument = {
 function txObj(
   fun: string,
   p: GlobalParams,
-  args: TransactionBlockArgument[],
+  args: (
+    tx: TransactionBlock
+  ) => (TransactionBlockArgument | TransactionResult)[],
   tArgs: string[]
-): TransactionBlock {
-  const tx = p.transaction ?? new TransactionBlock();
-
-  tx.moveCall({
-    target: `${p.packageObjectId ?? DEFAULT_PACKAGE_ID}::${
-      p.moduleName ?? DEFAULT_ORDERBOOK_MODULE
-    }::${fun}`,
-    typeArguments: tArgs,
-    arguments: args,
-  });
-
-  return tx;
+): [TransactionBlock, TransactionResult] {
+  return txCommon(
+    {
+      packageObjectId: p.packageObjectId ?? DEFAULT_PACKAGE_ID,
+      moduleName: p.moduleName ?? DEFAULT_ORDERBOOK_MODULE,
+      fun,
+      transaction: p.transaction,
+    },
+    args,
+    tArgs
+  );
 }
 
+export type CreateProtectionParams = {
+  buyNft: boolean;
+  cancelAsk: boolean;
+  cancelBid: boolean;
+  createAsk: boolean;
+  createBid: boolean;
+};
+
 export type OrderbookTParams = GlobalParams & CollectionParam & FTParam;
+export type ShareOrderbookParams = OrderbookTParams & {
+  orderbook: TransactionResult;
+};
+export type OrderbookProtectionParams = GlobalParams & CreateProtectionParams;
 export type OrderbookParams = OrderbookTParams & OrderbookParam;
 export type DebitParams = PriceParam & WalletParam;
 
-const t = new TransactionBlock(); // serialization purposes
+export const newOrderbookTx = (
+  p: OrderbookTParams & {
+    protectedActions: TransactionResult;
+  }
+) => {
+  return txObj("new", p, () => [p.protectedActions], [p.collection, p.ft]);
+};
 
-export const createOrderbookTx = (p: OrderbookTParams) => {
-  return txObj("create", p, [], [p.collection, p.ft]);
+export const newUnprotectedOrderbookTx = (p: OrderbookTParams) => {
+  return txObj("new_unprotected", p, () => [], [p.collection, p.ft]);
+};
+
+export const createUnprotectedOrderbookTx = (p: OrderbookTParams) => {
+  return txObj("create_unprotected", p, () => [], [p.collection, p.ft]);
+};
+
+export const shareOrderbookTx = (p: ShareOrderbookParams) => {
+  return txObj("share", p, () => [p.orderbook], [p.collection, p.ft]);
+};
+
+export const createProtectionTx = (p: OrderbookProtectionParams) => {
+  return txObj(
+    "custom_protection",
+    p,
+    (t) => [
+      t.pure(p.buyNft),
+      t.pure(p.cancelAsk),
+      t.pure(p.cancelBid),
+      t.pure(p.createAsk),
+      t.pure(p.createBid),
+    ],
+    []
+  );
+};
+export const createUnprotectedTx = (p: GlobalParams) => {
+  return txObj("no_protection", p, (t) => [], []);
 };
 
 export const createAskTx = (
@@ -65,7 +113,7 @@ export const createAskTx = (
   return txObj(
     "create_ask",
     p,
-    [
+    (t) => [
       t.object(p.orderbook),
       t.pure(String(p.price)),
       t.object(p.transferCap),
@@ -85,7 +133,7 @@ export const createAskWithCommissionTx = (
   return txObj(
     "create_ask_with_commission",
     p,
-    [
+    (t) => [
       t.object(p.orderbook),
       t.pure(String(p.price)),
       t.object(p.transferCap),
@@ -103,7 +151,7 @@ export const listNftTx = (
   return txObj(
     "list_nft",
     p,
-    [
+    (t) => [
       t.object(p.orderbook),
       t.pure(String(p.price)),
       t.object(p.nft),
@@ -125,7 +173,7 @@ export const listNftWithCommissionTx = (
   return txObj(
     "list_nft_with_commission",
     p,
-    [
+    (t) => [
       t.object(p.orderbook),
       t.pure(String(p.price)),
       t.object(p.nft),
@@ -149,7 +197,7 @@ export const listMultipleNftsWithCommissionTx = (
   return txObj(
     "list_multiple_nfts_with_commission",
     p,
-    [
+    (t) => [
       t.object(p.orderbook),
       t.pure(p.prices.map(String)),
       t.pure(p.nfts),
@@ -173,7 +221,7 @@ export const depositAndlistNftTx = (
   return txObj(
     "deposit_and_list_nft",
     p,
-    [
+    (t) => [
       t.object(p.orderbook),
       t.object(p.nft),
       t.pure(String(p.price)),
@@ -196,7 +244,7 @@ export const depositAndListNftWithCommissionTx = (
   return txObj(
     "deposit_and_list_nft_with_commission",
     p,
-    [
+    (t) => [
       t.object(p.orderbook),
       t.object(p.nft),
       t.pure(String(p.price)),
@@ -215,7 +263,7 @@ export const createSafeAndDepositAndListNftTx = (
   return txObj(
     "create_safe_and_deposit_and_list_nft",
     p,
-    [t.object(p.orderbook), t.object(p.nft), t.pure(String(p.price))],
+    (t) => [t.object(p.orderbook), t.object(p.nft), t.pure(String(p.price))],
     [p.nftType, p.collection, p.ft]
   );
 };
@@ -226,7 +274,7 @@ export const createSafeAndDepositAndListNftWithCommissionTx = (
   return txObj(
     "create_safe_and_deposit_and_list_nft_with_commission",
     p,
-    [
+    (t) => [
       t.object(p.orderbook),
       t.object(p.nft),
       t.pure(String(p.price)),
@@ -248,7 +296,7 @@ export const buyNftTx = (
   return txObj(
     "buy_nft",
     p,
-    [
+    (t) => [
       t.object(p.orderbook),
       t.object(p.nft),
       t.pure(String(p.price)),
@@ -267,7 +315,7 @@ export const createSafeAndBuyNftTx = (
   return txObj(
     "create_safe_and_buy_nft",
     p,
-    [
+    (t) => [
       t.object(p.orderbook),
       t.object(p.nft),
       t.pure(String(p.price)),
@@ -285,7 +333,7 @@ export const buyGenericNftTx = (
   return txObj(
     "buy_generic_nft",
     p,
-    [
+    (t) => [
       t.object(p.orderbook),
       t.object(p.nft),
       t.pure(String(p.price)),
@@ -301,7 +349,7 @@ export const cancelAskTx = (p: OrderbookParams & NftParam & PriceParam) => {
   return txObj(
     "cancel_ask",
     p,
-    [t.object(p.orderbook), t.pure(String(p.price)), t.object(p.nft)],
+    (t) => [t.object(p.orderbook), t.pure(String(p.price)), t.object(p.nft)],
     [p.collection, p.ft]
   );
 };
@@ -312,7 +360,7 @@ export const cancelAskAndDiscardTransferCapTx = (
   return txObj(
     "cancel_ask_and_discard_transfer_cap",
     p,
-    [
+    (t) => [
       t.object(p.orderbook),
       t.pure(String(p.price)),
       t.object(p.nft),
@@ -332,7 +380,7 @@ export const editAskTx = (
   return txObj(
     "edit_ask",
     p,
-    [
+    (t) => [
       t.object(p.orderbook),
       t.pure(String(p.oldPrice)),
       t.object(p.nft),
@@ -353,7 +401,7 @@ export const editBidTx = (
   return txObj(
     "edit_bid",
     p,
-    [
+    (t) => [
       t.object(p.orderbook),
       t.object(p.buyerSafe),
       t.pure(String(p.oldPrice)),
@@ -374,7 +422,7 @@ export const finishTradeTx = (
   return txObj(
     "finish_trade",
     p,
-    [
+    (t) => [
       t.object(p.trade),
       t.object(p.sellerSafe),
       t.object(p.buyerSafe),
@@ -390,7 +438,7 @@ export const finishTradeOfGenericNftTx = (
   return txObj(
     "finish_trade_of_generic_nft",
     p,
-    [t.object(p.trade), t.object(p.sellerSafe), t.object(p.buyerSafe)],
+    (t) => [t.object(p.trade), t.object(p.sellerSafe), t.object(p.buyerSafe)],
     [p.collection, p.ft]
   );
 };
@@ -401,7 +449,7 @@ export const createBidTx = (
   return txObj(
     "create_bid",
     p,
-    [
+    (t) => [
       t.object(p.orderbook),
       t.object(p.buyerSafe),
       t.pure(String(p.price)),
@@ -417,7 +465,7 @@ export const createBidWithCommissionTx = (
   return txObj(
     "create_bid_with_commission",
     p,
-    [
+    (t) => [
       t.object(p.orderbook),
       t.object(p.buyerSafe),
       t.pure(String(p.price)),
@@ -435,7 +483,7 @@ export const createSafeAndBidWithCommissionTx = (
   return txObj(
     "create_safe_and_bid_with_commission",
     p,
-    [
+    (t) => [
       t.object(p.orderbook),
       t.pure(String(p.price)),
       t.object(p.beneficiary),
@@ -450,7 +498,7 @@ export const cancelBidTx = (p: OrderbookParams & PriceParam & WalletParam) => {
   return txObj(
     "cancel_bid",
     p,
-    [t.object(p.orderbook), t.pure(String(p.price)), t.object(p.wallet)],
+    (t) => [t.object(p.orderbook), t.pure(String(p.price)), t.object(p.wallet)],
     [p.collection, p.ft]
   );
 };

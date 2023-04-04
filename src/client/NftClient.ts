@@ -33,6 +33,7 @@ import {
   buildMintNftTx,
   buildRequestToJoinMarketplaceTx,
   buildSetLimtitedMarketNewLimitTx,
+  buildDisableSalesTx,
 } from "./txBuilders";
 import {
   ArtNft,
@@ -358,6 +359,8 @@ export class NftClient {
   static buildBuyNft = buildBuyNftTx;
 
   static buildEnableSales = buildEnableSalesTx;
+
+  static buildDisableSales = buildDisableSalesTx;
 
   static buildCreateFlatFee = buildCreateFlatFeeTx;
 
