@@ -48,15 +48,16 @@ export const buildMintNftTx = (
   return tx;
 };
 
-export const buildBuyNftTx = (
-  params: BuildBuyNftParams
-): TransactionBlock => {
+export const buildBuyNftTx = (params: BuildBuyNftParams): TransactionBlock => {
   const tx = params.transaction ?? new TransactionBlock();
 
   tx.moveCall({
-    target: `${params.packageObjectId}::${params.module ?? "fixed_price"}::buy_nft`,
+    target: `${params.packageObjectId}::${
+      params.module ?? "fixed_price"
+    }::buy_nft`,
     typeArguments: [
-      `${params.collectionPackageId ?? params.packageObjectId}::${params.nftModuleName
+      `${params.collectionPackageId ?? params.packageObjectId}::${
+        params.nftModuleName
       }::${params.nftClassName}`,
       params.coinType ?? SUI_TYPE,
     ],
@@ -64,12 +65,11 @@ export const buildBuyNftTx = (
       tx.object(params.listing),
       tx.object(params.venue),
       tx.object(params.coin),
-    ]
-    ,
+    ],
   });
 
   return tx;
-}
+};
 
 export const buildBuyWhitelistedNftTx = (
   params: BuildBuyWhitelistedNftParams
@@ -77,9 +77,12 @@ export const buildBuyWhitelistedNftTx = (
   const tx = params.transaction ?? new TransactionBlock();
 
   tx.moveCall({
-    target: `${params.packageObjectId}::${params.module ?? "fixed_price"}::buy_whitelisted_nft`,
+    target: `${params.packageObjectId}::${
+      params.module ?? "fixed_price"
+    }::buy_whitelisted_nft`,
     typeArguments: [
-      `${params.collectionPackageId ?? params.packageObjectId}::${params.nftModuleName
+      `${params.collectionPackageId ?? params.packageObjectId}::${
+        params.nftModuleName
       }::${params.nftClassName}`,
       params.coinType ?? SUI_TYPE,
     ],
@@ -88,8 +91,7 @@ export const buildBuyWhitelistedNftTx = (
       tx.object(params.venue),
       tx.object(params.coin),
       tx.object(params.whitelistCertificate),
-    ]
-    ,
+    ],
   });
 
   return tx;
@@ -98,12 +100,12 @@ export const buildBuyWhitelistedNftTx = (
 export const buildInitVenueTx = (
   params: BuildInitVenueParams
 ): TransactionBlock => {
-
   const tx = params.transaction ?? new TransactionBlock();
   tx.moveCall({
     target: `${params.packageObjectId}::fixed_price::init_venue`,
     typeArguments: [
-      `${params.collectionPackageId ?? params.packageObjectId}::${params.nftModuleName
+      `${params.collectionPackageId ?? params.packageObjectId}::${
+        params.nftModuleName
       }::${params.nftClassName}`,
       params.coinType ?? SUI_TYPE,
     ],
@@ -121,14 +123,11 @@ export const buildInitVenueTx = (
 export const buildSetLimtitedMarketNewLimitTx = (
   params: BuildSetLimitMarketLimitParams
 ): TransactionBlock => {
-
   const tx = params.transaction ?? new TransactionBlock();
 
   tx.moveCall({
     target: `${params.packageObjectId}::limited_fixed_price::set_limit`,
-    typeArguments: [
-      params.coinType ?? SUI_TYPE,
-    ],
+    typeArguments: [params.coinType ?? SUI_TYPE],
     arguments: [
       tx.object(params.listing),
       tx.object(params.venue),
@@ -147,7 +146,8 @@ export const buildInitLimitedVenueTx = (
   tx.moveCall({
     target: `${params.packageObjectId}::limited_fixed_price::init_venue`,
     typeArguments: [
-      `${params.collectionPackageId ?? params.packageObjectId}::${params.nftModuleName
+      `${params.collectionPackageId ?? params.packageObjectId}::${
+        params.nftModuleName
       }::${params.nftClassName}`,
       params.coinType ?? SUI_TYPE,
     ],
@@ -171,10 +171,7 @@ export const buildRequestToJoinMarketplaceTx = (
 
   tx.moveCall({
     target: `${params.packageObjectId}::listing::request_to_join_marketplace`,
-    arguments: [
-      tx.object(params.marketplace),
-      tx.object(params.listing),
-    ],
+    arguments: [tx.object(params.marketplace), tx.object(params.listing)],
   });
 
   return tx;
@@ -187,14 +184,11 @@ export const buildAcceptListingRequestTx = (
 
   tx.moveCall({
     target: `${params.packageObjectId}::listing::accept_listing_request`,
-    arguments: [
-      tx.object(params.marketplace),
-      tx.object(params.listing),
-    ],
+    arguments: [tx.object(params.marketplace), tx.object(params.listing)],
   });
 
   return tx;
-}
+};
 
 export const buildEnableSalesTx = (
   params: BuildEnableSalesParams
@@ -203,14 +197,11 @@ export const buildEnableSalesTx = (
 
   tx.moveCall({
     target: `${params.packageObjectId}::listing::enable_sales`,
-    arguments: [
-      tx.object(params.listing),
-      tx.object(params.venue),
-    ],
+    arguments: [tx.object(params.listing), tx.object(params.venue)],
   });
 
   return tx;
-}
+};
 
 export const buildCreateFlatFeeTx = (
   params: BuildCreateFlatFeeParams
@@ -219,9 +210,7 @@ export const buildCreateFlatFeeTx = (
 
   tx.moveCall({
     target: `${params.packageObjectId}::flat_fee::init_fee`,
-    arguments: [
-      tx.pure(params.rate),
-    ],
+    arguments: [tx.pure(params.rate)],
   });
 
   return tx;
@@ -243,7 +232,7 @@ export const buildInitMarketplaceTx = (
   });
 
   return tx;
-}
+};
 
 export const buildInitListingTx = (
   params: BuildInitListingParams
@@ -252,14 +241,11 @@ export const buildInitListingTx = (
 
   tx.moveCall({
     target: `${params.packageObjectId}::listing::init_listing`,
-    arguments: [
-      tx.object(params.listingAdmin),
-      tx.object(params.receiver),
-    ],
+    arguments: [tx.object(params.listingAdmin), tx.object(params.receiver)],
   });
 
   return tx;
-}
+};
 
 export const buildInitWarehouseTx = (
   params: BuildInitWarehouseParams
@@ -269,13 +255,14 @@ export const buildInitWarehouseTx = (
   tx.moveCall({
     target: `${params.packageObjectId}::warehouse::init_warehouse`,
     typeArguments: [
-      `${params.collectionPackageId ?? params.packageObjectId}::${params.nftModuleName
+      `${params.collectionPackageId ?? params.packageObjectId}::${
+        params.nftModuleName
       }::${params.nftClassName}`,
     ],
   });
 
   return tx;
-}
+};
 
 export const buildAddWarehouseToListingTx = (
   params: BuildAddWarehouseToListingParams
@@ -285,7 +272,8 @@ export const buildAddWarehouseToListingTx = (
   tx.moveCall({
     target: `${params.packageObjectId}::listing::add_warehouse`,
     typeArguments: [
-      `${params.collectionPackageId ?? params.packageObjectId}::${params.nftModuleName
+      `${params.collectionPackageId ?? params.packageObjectId}::${
+        params.nftModuleName
       }::${params.nftClassName}`,
     ],
     arguments: [
@@ -296,7 +284,7 @@ export const buildAddWarehouseToListingTx = (
   });
 
   return tx;
-}
+};
 
 export const buildIssueWhitelistCertificateTx = (
   params: BuildIsueWhitelistCertificateParams
@@ -313,4 +301,4 @@ export const buildIssueWhitelistCertificateTx = (
   });
 
   return tx;
-}
+};

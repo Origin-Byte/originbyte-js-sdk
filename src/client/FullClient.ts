@@ -4,7 +4,7 @@ import {
   JsonRpcProvider,
   RawSigner,
   SignerWithProvider,
-  TransactionEffects
+  TransactionEffects,
 } from "@mysten/sui.js";
 import { ReadClient } from "./ReadClient";
 
@@ -18,13 +18,14 @@ export class FullClient extends ReadClient {
     signer.connect(this.provider);
   }
 
-  public static fromKeypair(keypair: Ed25519Keypair, provider?: JsonRpcProvider) {
+  public static fromKeypair(
+    keypair: Ed25519Keypair,
+    provider?: JsonRpcProvider
+  ) {
     return new FullClient(new RawSigner(keypair, provider));
   }
 
-  async sendTx(
-    transactionBlock: TransactionBlock
-  ) {
+  async sendTx(transactionBlock: TransactionBlock) {
     return this.signer.signAndExecuteTransactionBlock({ transactionBlock });
   }
 

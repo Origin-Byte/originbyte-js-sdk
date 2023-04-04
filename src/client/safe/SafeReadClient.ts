@@ -4,10 +4,7 @@ import {
   SuiAddress,
   TransactionEffects,
 } from "@mysten/sui.js";
-import {
-  DEFAULT_PACKAGE_ID,
-  DEFAULT_SAFE_MODULE,
-} from "../consts";
+import { DEFAULT_PACKAGE_ID, DEFAULT_SAFE_MODULE } from "../consts";
 import { ReadClient } from "../ReadClient";
 import { GlobalParams } from "../types";
 import { parseObjectOwner } from "../utils";
@@ -93,7 +90,6 @@ export class SafeReadClient {
     return this.opts.moduleName ?? DEFAULT_SAFE_MODULE;
   }
 
-
   public async fetchOwnerCapsIds(
     user: SuiAddress,
     p: Partial<GlobalParams> = {}
@@ -102,7 +98,9 @@ export class SafeReadClient {
       p.moduleName || this.module
     }::OwnerCap`;
     const objs = await this.client.getObjects(user);
-    return objs.filter((o) => o.data.type === ownerCapType).map((o) => o.data.objectId);
+    return objs
+      .filter((o) => o.data.type === ownerCapType)
+      .map((o) => o.data.objectId);
   }
 
   public async fetchAllOwnerCapsByUser(user: SuiAddress) {

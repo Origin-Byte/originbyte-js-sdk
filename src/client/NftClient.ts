@@ -312,17 +312,17 @@ export class NftClient {
 
     const bags = resolveBags
       ? await Promise.all(
-        nfts.map(async (_) => {
-          const content = _.bagId
-            ? await this.getBagContent(_.bagId)
-            : await this.getDynamicFields(_.id);
+          nfts.map(async (_) => {
+            const content = _.bagId
+              ? await this.getBagContent(_.bagId)
+              : await this.getDynamicFields(_.id);
 
-          return {
-            nftId: _.id,
-            content: parseDynamicDomains(content),
-          };
-        })
-      )
+            return {
+              nftId: _.id,
+              content: parseDynamicDomains(content),
+            };
+          })
+        )
       : [];
     const bagsByNftId = toMap(bags, (_) => _.nftId);
 

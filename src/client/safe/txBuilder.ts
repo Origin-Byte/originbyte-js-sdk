@@ -7,10 +7,7 @@ import {
   SafeParam,
   TransferCapParam,
 } from "../types";
-import {
-  DEFAULT_PACKAGE_ID,
-  DEFAULT_SAFE_MODULE,
-} from "../consts";
+import { DEFAULT_PACKAGE_ID, DEFAULT_SAFE_MODULE } from "../consts";
 
 export type NftParams = GlobalParams & NftParam & SafeParam;
 export type AuthParams = GlobalParams & SafeParam & AuthParam;
@@ -22,21 +19,22 @@ export type TransactionBlockArgument = {
   index: number;
   type?: "object" | "pure" | undefined;
   value?: any;
-}
+};
 
 function txObj(
   fun: string,
   p: GlobalParams,
   args: TransactionBlockArgument[],
-  tArgs: string[],
+  tArgs: string[]
 ): TransactionBlock {
-
   const tx = p.transaction ?? new TransactionBlock();
 
   tx.moveCall({
-    target: `${p.packageObjectId ?? DEFAULT_PACKAGE_ID}::${p.moduleName ?? DEFAULT_SAFE_MODULE}::${fun}`,
+    target: `${p.packageObjectId ?? DEFAULT_PACKAGE_ID}::${
+      p.moduleName ?? DEFAULT_SAFE_MODULE
+    }::${fun}`,
     typeArguments: tArgs,
-    arguments: args
+    arguments: args,
   });
 
   return tx;
@@ -53,29 +51,59 @@ export const createSafeForSenderTx = (p: GlobalParams) => {
 };
 
 export const restrictDepositsTx = (p: AuthParams) => {
-  return txObj("restrict_deposits", p, [t.object(p.ownerCap), t.object(p.safe)], []);
+  return txObj(
+    "restrict_deposits",
+    p,
+    [t.object(p.ownerCap), t.object(p.safe)],
+    []
+  );
 };
 
 export const enableAnyDepositTx = (p: AuthParams) => {
-  return txObj("enable_any_deposit", p, [t.object(p.ownerCap), t.object(p.safe)], []);
+  return txObj(
+    "enable_any_deposit",
+    p,
+    [t.object(p.ownerCap), t.object(p.safe)],
+    []
+  );
 };
 
 export const enableDepositsOfCollectionTx = (p: ColAuthParams) => {
   const fun = "enable_deposits_of_collection";
-  return txObj(fun, p, [t.object(p.ownerCap), t.object(p.safe)], [p.collection]);
+  return txObj(
+    fun,
+    p,
+    [t.object(p.ownerCap), t.object(p.safe)],
+    [p.collection]
+  );
 };
 
 export const disableDepositsOfCollectionTx = (p: ColAuthParams) => {
   const fun = "disable_deposits_of_collection";
-  return txObj(fun, p, [t.object(p.ownerCap), t.object(p.safe)], [p.collection]);
+  return txObj(
+    fun,
+    p,
+    [t.object(p.ownerCap), t.object(p.safe)],
+    [p.collection]
+  );
 };
 
 export const depositNftTx = (p: NftParams & CollectionParam) => {
-  return txObj("deposit_nft", p, [t.object(p.nft), t.object(p.safe)], [p.collection]);
+  return txObj(
+    "deposit_nft",
+    p,
+    [t.object(p.nft), t.object(p.safe)],
+    [p.collection]
+  );
 };
 
 export const depositGenericNftTx = (p: NftParams & CollectionParam) => {
-  return txObj("deposit_generic_nft", p, [t.object(p.nft), t.object(p.safe)], [p.collection]);
+  return txObj(
+    "deposit_generic_nft",
+    p,
+    [t.object(p.nft), t.object(p.safe)],
+    [p.collection]
+  );
 };
 
 export const depositNftPrivilegedTx = (p: ColAuthParams & NftParam) => {
@@ -104,5 +132,10 @@ export const delistNftTx = (p: NftAuthParams) => {
 export const burnTransferCapTx = (
   p: GlobalParams & TransferCapParam & SafeParam
 ) => {
-  return txObj("burn_transfer_cap", p, [t.object(p.transferCap), t.object(p.safe)], []);
+  return txObj(
+    "burn_transfer_cap",
+    p,
+    [t.object(p.transferCap), t.object(p.safe)],
+    []
+  );
 };

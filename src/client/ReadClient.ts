@@ -29,8 +29,10 @@ export class ReadClient {
   }
 
   public async getObject(id: ObjectId) {
-    const { data } = await this.provider.getObject({ id, options: { showContent: true } });
-
+    const { data } = await this.provider.getObject({
+      id,
+      options: { showContent: true },
+    });
 
     return data;
   }

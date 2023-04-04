@@ -1,8 +1,5 @@
 import { TransactionBlock } from "@mysten/sui.js";
-import {
-  DEFAULT_ORDERBOOK_MODULE,
-  DEFAULT_PACKAGE_ID,
-} from "../consts";
+import { DEFAULT_ORDERBOOK_MODULE, DEFAULT_PACKAGE_ID } from "../consts";
 import {
   AllowlistParam,
   BuyerSafeParam,
@@ -26,28 +23,27 @@ import {
   CommissionsParams,
 } from "../types";
 
-
-
 export type TransactionBlockArgument = {
   kind: "Input";
   index: number;
   type?: "object" | "pure" | undefined;
   value?: any;
-}
+};
 
 function txObj(
   fun: string,
   p: GlobalParams,
   args: TransactionBlockArgument[],
-  tArgs: string[],
+  tArgs: string[]
 ): TransactionBlock {
-
   const tx = p.transaction ?? new TransactionBlock();
 
   tx.moveCall({
-    target: `${p.packageObjectId ?? DEFAULT_PACKAGE_ID}::${p.moduleName ?? DEFAULT_ORDERBOOK_MODULE}::${fun}`,
+    target: `${p.packageObjectId ?? DEFAULT_PACKAGE_ID}::${
+      p.moduleName ?? DEFAULT_ORDERBOOK_MODULE
+    }::${fun}`,
     typeArguments: tArgs,
-    arguments: args
+    arguments: args,
   });
 
   return tx;
@@ -69,7 +65,12 @@ export const createAskTx = (
   return txObj(
     "create_ask",
     p,
-    [t.object(p.orderbook), t.pure(String(p.price)), t.object(p.transferCap), t.object(p.sellerSafe)],
+    [
+      t.object(p.orderbook),
+      t.pure(String(p.price)),
+      t.object(p.transferCap),
+      t.object(p.sellerSafe),
+    ],
     [p.collection, p.ft]
   );
 };
@@ -102,7 +103,13 @@ export const listNftTx = (
   return txObj(
     "list_nft",
     p,
-    [t.object(p.orderbook), t.pure(String(p.price)), t.object(p.nft), t.object(p.ownerCap), t.object(p.sellerSafe)],
+    [
+      t.object(p.orderbook),
+      t.pure(String(p.price)),
+      t.object(p.nft),
+      t.object(p.ownerCap),
+      t.object(p.sellerSafe),
+    ],
     [p.collection, p.ft]
   );
 };
@@ -208,11 +215,7 @@ export const createSafeAndDepositAndListNftTx = (
   return txObj(
     "create_safe_and_deposit_and_list_nft",
     p,
-    [
-      t.object(p.orderbook),
-      t.object(p.nft),
-      t.pure(String(p.price)),
-    ],
+    [t.object(p.orderbook), t.object(p.nft), t.pure(String(p.price))],
     [p.nftType, p.collection, p.ft]
   );
 };
@@ -298,11 +301,7 @@ export const cancelAskTx = (p: OrderbookParams & NftParam & PriceParam) => {
   return txObj(
     "cancel_ask",
     p,
-    [
-      t.object(p.orderbook),
-      t.pure(String(p.price)),
-      t.object(p.nft),
-    ],
+    [t.object(p.orderbook), t.pure(String(p.price)), t.object(p.nft)],
     [p.collection, p.ft]
   );
 };
@@ -391,11 +390,7 @@ export const finishTradeOfGenericNftTx = (
   return txObj(
     "finish_trade_of_generic_nft",
     p,
-    [
-      t.object(p.trade),
-      t.object(p.sellerSafe),
-      t.object(p.buyerSafe),
-    ],
+    [t.object(p.trade), t.object(p.sellerSafe), t.object(p.buyerSafe)],
     [p.collection, p.ft]
   );
 };
@@ -455,11 +450,7 @@ export const cancelBidTx = (p: OrderbookParams & PriceParam & WalletParam) => {
   return txObj(
     "cancel_bid",
     p,
-    [
-      t.object(p.orderbook),
-      t.pure(String(p.price)),
-      t.object(p.wallet),
-    ],
+    [t.object(p.orderbook), t.pure(String(p.price)), t.object(p.wallet)],
     [p.collection, p.ft]
   );
 };

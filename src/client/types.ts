@@ -1,9 +1,14 @@
 /* eslint-disable camelcase */
-import { ObjectId, SuiAddress, SuiObjectResponse, TransactionBlock } from "@mysten/sui.js";
+import {
+  ObjectId,
+  SuiAddress,
+  SuiObjectResponse,
+  TransactionBlock,
+} from "@mysten/sui.js";
 
 export interface WithPackageObjectId {
   packageObjectId: ObjectId;
-  transaction?: TransactionBlock
+  transaction?: TransactionBlock;
 }
 
 export interface WithId {
@@ -17,8 +22,7 @@ export interface WithOwner {
 export type EmptyRpcResponse = {};
 export type EmptyModel = WithPackageObjectId & WithOwner & WithId & {};
 
-export interface GlobalParams
-  extends Partial<WithPackageObjectId> {
+export interface GlobalParams extends Partial<WithPackageObjectId> {
   moduleName?: string;
   transaction?: TransactionBlock;
 }
@@ -300,8 +304,8 @@ export type Venue = WithRawResponse &
 
 export interface FixedPriceMarket
   extends WithRawResponse,
-  WithId,
-  WithPackageObjectId {
+    WithId,
+    WithPackageObjectId {
   price: string;
   inventoryId: string;
   marketType: "fixed_price" | "limited_fixed_price";
@@ -328,8 +332,8 @@ export interface MarketplaceRpcResponse {
 
 export interface Marketplace
   extends WithId,
-  WithPackageObjectId,
-  WithRawResponse {
+    WithPackageObjectId,
+    WithRawResponse {
   owner: string;
   admin: string;
   receiver: string;
@@ -416,15 +420,15 @@ export interface GetNftsParams extends WithIds {
   resolveBags?: boolean;
 }
 
-export interface GetCollectionsParams extends WithIds { }
+export interface GetCollectionsParams extends WithIds {}
 
 export interface GetCollectionDomainsParams {
   domainsBagId: string;
 }
 
-export interface GetMintCapsParams extends WithIds { }
+export interface GetMintCapsParams extends WithIds {}
 
-export interface GetVenuesParams extends WithIds { }
+export interface GetVenuesParams extends WithIds {}
 
 export type DynamicFieldRpcResponse = {
   id: ID;
@@ -597,13 +601,12 @@ export type BuildInitLimitedVenueParams = BuildInitVenueParams & {
   limit: number;
 };
 
-export type BuildSetLimitMarketLimitParams = WithPackageObjectId &
-  {
-    coinType?: string; // SUI by default
-    listing: string;
-    venue: string;
-    newLimit: number;
-  };
+export type BuildSetLimitMarketLimitParams = WithPackageObjectId & {
+  coinType?: string; // SUI by default
+  listing: string;
+  venue: string;
+  newLimit: number;
+};
 
 export type BuildRequestToJoinMarketplaceParams = WithPackageObjectId & {
   marketplace: string;
