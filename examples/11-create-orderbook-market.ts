@@ -35,7 +35,6 @@ export const createOrderbookMarket = async () => {
   });
 
   console.log("OrderBook creation result:", orderbookResult);
-
 };
 
 createOrderbookMarket();
