@@ -1,7 +1,7 @@
 import {
   Ed25519Keypair,
   ObjectId,
-  Provider,
+  JsonRpcProvider,
   SuiAddress,
   TransactionEffects,
 } from "@mysten/sui.js";
@@ -18,7 +18,7 @@ import {
   createAskWithCommissionTx,
   createBidTx,
   createBidWithCommissionTx,
-  createOrderbookTx,
+  newOrderbookTx,
   finishTradeOfGenericNftTx,
   finishTradeTx,
   listNftTx,
@@ -33,6 +33,11 @@ import {
   listMultipleNftsWithCommissionTx,
   editBidTx,
   createSafeAndBidWithCommissionTx,
+  createProtectionTx,
+  CreateProtectionParams,
+  createUnprotectedOrderbookTx,
+  createUnprotectedTx,
+  shareOrderbookTx,
 } from "./txBuilder";
 
 export class OrderbookFullClient extends OrderbookReadClient {
@@ -46,7 +51,7 @@ export class OrderbookFullClient extends OrderbookReadClient {
 
   public static fromKeypair(
     keypair: Ed25519Keypair,
-    provider?: Provider,
+    provider?: JsonRpcProvider,
     opts?: Partial<GlobalParams>
   ) {
     return new OrderbookFullClient(
@@ -55,7 +60,15 @@ export class OrderbookFullClient extends OrderbookReadClient {
     );
   }
 
-  static createOrderbookTx = createOrderbookTx;
+  static newOrderbookTx = newOrderbookTx;
+
+  static createUnprotectedOrderbookTx = createUnprotectedOrderbookTx;
+
+  static createUnprotectedTx = createUnprotectedTx;
+
+  static shareOrderbookTx = shareOrderbookTx;
+
+  static createProtectionTx = createProtectionTx;
 
   static createAskTx = createAskTx;
 
@@ -102,9 +115,9 @@ export class OrderbookFullClient extends OrderbookReadClient {
 
   static cancelBidTx = cancelBidTx;
 
-  public async createOrderbook(p: { collection: string; ft: string }) {
+  public async createProtection(p: CreateProtectionParams) {
     const effects = await this.client.sendTxWaitForEffects(
-      createOrderbookTx({
+      createProtectionTx({
         ...this.opts,
         ...p,
       })

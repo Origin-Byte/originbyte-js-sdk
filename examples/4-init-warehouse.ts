@@ -1,13 +1,15 @@
 import { NftClient } from "../src";
-import { LISTING_ID, PACKAGE_OBJECT_ID, signer } from "./common";
+import { PACKAGE_OBJECT_ID, signer, NFT_TYPE } from "./common";
 
 export const initInventory = async () => {
-  const transaction = NftClient.buildInitWarehouse({
+  const [transactionBlock] = NftClient.buildInitWarehouse({
     packageObjectId: PACKAGE_OBJECT_ID,
-    nftModuleName: "suimarines",
-    nftClassName: "SUIMARINES",
+    nftType: NFT_TYPE,
   });
-  const initWarehouseResult = await signer.executeMoveCall(transaction);
+  const initWarehouseResult = await signer.signAndExecuteTransactionBlock({
+    transactionBlock,
+    options: { showEffects: true, showObjectChanges: true },
+  });
   console.log("initWarehouseResult", JSON.stringify(initWarehouseResult));
 };
 

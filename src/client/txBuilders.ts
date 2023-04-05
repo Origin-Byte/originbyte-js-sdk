@@ -1,27 +1,25 @@
-import { MoveCallTransaction } from "@mysten/sui.js";
+import { txObj } from "../transaction";
 import {
-  BuildBuyNftParams,
-  BuildInitWarehouseParams,
-  BuildCreateFlatFeeParams,
-  BuildEnableSalesParams,
-  BuildInitMarketplaceParams,
-  BuildInitListingParams,
-  BuildMintNftParams,
-  BuildInitVenueParams,
-  BuildRequestToJoinMarketplaceParams,
   BuildAcceptListingRequest,
   BuildAddWarehouseToListingParams,
-  BuildInitLimitedVenueParams,
-  BuildSetLimitMarketLimitParams,
-  BuildIsueWhitelistCertificateParams,
+  BuildBuyNftParams,
   BuildBuyWhitelistedNftParams,
+  BuildCreateFlatFeeParams,
+  BuildEnableSalesParams,
+  BuildInitLimitedVenueParams,
+  BuildInitListingParams,
+  BuildInitMarketplaceParams,
+  BuildInitVenueParams,
+  BuildInitWarehouseParams,
+  BuildIsueWhitelistCertificateParams,
+  BuildMintNftParams,
+  BuildRequestToJoinMarketplaceParams,
+  BuildSetLimitMarketLimitParams,
 } from "./types";
 
 const SUI_TYPE = "0x2::sui::SUI";
 
-export const buildMintNftTx = (
-  params: BuildMintNftParams
-): MoveCallTransaction => {
+export const buildMintNftTx = (params: BuildMintNftParams) => {
   const keys: string[] = [];
   const values: string[] = [];
   const { attributes } = params;
@@ -30,218 +28,253 @@ export const buildMintNftTx = (
     values.push(attributes[key]);
   });
 
-  return {
-    packageObjectId: params.packageObjectId,
-    module: params.moduleName,
-    function: "mint_nft",
-    typeArguments: [],
-    arguments: [
-      params.name,
-      params.description,
-      params.url,
-      keys,
-      values,
-      params.mintCap,
-      params.warehouseId,
+  return txObj(
+    {
+      packageObjectId: params.packageObjectId,
+      moduleName: params.moduleName,
+      fun: "mint_nft",
+      transaction: params.transaction,
+    },
+    (tx) => [
+      tx.pure(params.name),
+      tx.pure(params.description),
+      tx.pure(params.url),
+      tx.pure(keys),
+      tx.pure(values),
+      tx.object(params.mintCap),
+      tx.object(params.warehouseId),
     ],
-    gasBudget: params.gasBudget ?? 10000,
-  };
+    []
+  );
 };
 
-export const buildBuyNftTx = (
-  params: BuildBuyNftParams
-): MoveCallTransaction => ({
-  packageObjectId: params.packageObjectId,
-  module: params.module ?? "fixed_price",
-  function: "buy_nft",
-  typeArguments: [
-    `${params.collectionPackageId ?? params.packageObjectId}::${
-      params.nftModuleName
-    }::${params.nftClassName}`,
-    SUI_TYPE,
-  ],
-  arguments: [params.listing, params.venue, params.coin],
-  gasBudget: params.gasBudget ?? 5000,
-});
+export const buildBuyNftTx = (params: BuildBuyNftParams) => {
+  return txObj(
+    {
+      packageObjectId: params.collectionPackageId ?? params.packageObjectId,
+      moduleName: params.module ?? "fixed_price",
+      fun: "buy_nft",
+      transaction: params.transaction,
+    },
+    (tx) => [
+      tx.object(params.listing),
+      tx.object(params.venue),
+      tx.object(params.coin),
+    ],
+    [params.nftType, params.coinType ?? SUI_TYPE]
+  );
+};
 
 export const buildBuyWhitelistedNftTx = (
   params: BuildBuyWhitelistedNftParams
-): MoveCallTransaction => ({
-  packageObjectId: params.packageObjectId,
-  module: params.module ?? "fixed_price",
-  function: "buy_whitelisted_nft",
-  typeArguments: [
-    `${params.collectionPackageId ?? params.packageObjectId}::${
-      params.nftModuleName
-    }::${params.nftClassName}`,
-    SUI_TYPE,
-  ],
-  arguments: [
-    params.listing,
-    params.venue,
-    params.coin,
-    params.whitelistCertificate,
-  ],
-  gasBudget: params.gasBudget ?? 5000,
-});
+) => {
+  return txObj(
+    {
+      packageObjectId: params.collectionPackageId ?? params.packageObjectId,
+      moduleName: params.module ?? "fixed_price",
+      fun: "buy_whitelisted_nft",
+      transaction: params.transaction,
+    },
+    (tx) => [
+      tx.object(params.listing),
+      tx.object(params.venue),
+      tx.object(params.coin),
+      tx.object(params.whitelistCertificate),
+    ],
+    [params.nftType, params.coinType ?? SUI_TYPE]
+  );
+};
 
-export const buildInitVenueTx = (
-  params: BuildInitVenueParams
-): MoveCallTransaction => ({
-  packageObjectId: params.packageObjectId,
-  module: "fixed_price",
-  function: "init_venue",
-  typeArguments: [
-    `${params.collectionPackageId ?? params.packageObjectId}::${
-      params.nftModuleName
-    }::${params.nftClassName}`,
-    params.coinType ?? SUI_TYPE,
-  ],
-  arguments: [
-    params.listing,
-    params.inventory,
-    params.isWhitelisted,
-    params.price.toFixed(0),
-  ],
-  gasBudget: 5000,
-});
+export const buildInitVenueTx = (params: BuildInitVenueParams) => {
+  return txObj(
+    {
+      packageObjectId: params.packageObjectId,
+      moduleName: "fixed_price",
+      fun: "init_venue",
+      transaction: params.transaction,
+    },
+    (tx) => [
+      tx.object(params.listing),
+      tx.object(params.inventory),
+      tx.pure(params.isWhitelisted),
+      tx.pure(params.price),
+    ],
+    [params.nftType, params.coinType ?? SUI_TYPE]
+  );
+};
 
 export const buildSetLimtitedMarketNewLimitTx = (
   params: BuildSetLimitMarketLimitParams
-): MoveCallTransaction => ({
-  packageObjectId: params.packageObjectId,
-  module: "limited_fixed_price",
-  function: "set_limit",
-  typeArguments: [params.coinType ?? SUI_TYPE],
-  arguments: [params.listing, params.venue, params.newLimit.toFixed(0)],
-  gasBudget: params.gasBudget ?? 5000,
-});
+) => {
+  return txObj(
+    {
+      packageObjectId: params.packageObjectId,
+      moduleName: "limited_fixed_price",
+      fun: "set_limit",
+      transaction: params.transaction,
+    },
+    (tx) => [
+      tx.object(params.listing),
+      tx.object(params.venue),
+      tx.pure(params.newLimit),
+    ],
+    [params.coinType ?? SUI_TYPE]
+  );
+};
 
 export const buildInitLimitedVenueTx = (
   params: BuildInitLimitedVenueParams
-): MoveCallTransaction => ({
-  packageObjectId: params.packageObjectId,
-  module: "limited_fixed_price",
-  function: "init_venue",
-  typeArguments: [
-    `${params.collectionPackageId ?? params.packageObjectId}::${
-      params.nftModuleName
-    }::${params.nftClassName}`,
-    params.coinType ?? SUI_TYPE,
-  ],
-  arguments: [
-    params.listing,
-    params.inventory,
-    params.isWhitelisted,
-    params.limit.toFixed(0),
-    params.price.toFixed(0),
-  ],
-  gasBudget: 5000,
-});
+) => {
+  return txObj(
+    {
+      packageObjectId: params.packageObjectId,
+      moduleName: "limited_fixed_price",
+      fun: "init_venue",
+      transaction: params.transaction,
+    },
+    (tx) => [
+      tx.object(params.listing),
+      tx.object(params.inventory),
+      tx.pure(params.isWhitelisted),
+      tx.pure(params.limit),
+      tx.pure(params.price),
+    ],
+    [params.nftType, params.coinType ?? SUI_TYPE]
+  );
+};
 
 export const buildRequestToJoinMarketplaceTx = (
   params: BuildRequestToJoinMarketplaceParams
-): MoveCallTransaction => ({
-  packageObjectId: params.packageObjectId,
-  module: "listing",
-  function: "request_to_join_marketplace",
-  typeArguments: [],
-  arguments: [params.marketplace, params.listing],
-  gasBudget: 5000,
-});
+) => {
+  return txObj(
+    {
+      packageObjectId: params.packageObjectId,
+      moduleName: "listing",
+      fun: "request_to_join_marketplace",
+    },
+    (tx) => [tx.object(params.marketplace), tx.object(params.listing)],
+    []
+  );
+};
 
 export const buildAcceptListingRequestTx = (
   params: BuildAcceptListingRequest
-): MoveCallTransaction => ({
-  packageObjectId: params.packageObjectId,
-  module: "listing",
-  function: "accept_listing_request",
-  typeArguments: [],
-  arguments: [params.marketplace, params.listing],
-  gasBudget: 5000,
-});
+) => {
+  return txObj(
+    {
+      packageObjectId: params.packageObjectId,
+      moduleName: "listing",
+      fun: "accept_listing_request",
+    },
+    (tx) => [tx.object(params.marketplace), tx.object(params.listing)],
+    []
+  );
+};
 
-export const buildEnableSalesTx = (
-  params: BuildEnableSalesParams
-): MoveCallTransaction => ({
-  packageObjectId: params.packageObjectId,
-  module: "listing",
-  function: "sale_on",
-  typeArguments: [],
-  arguments: [params.listing, params.venue],
-  gasBudget: 5000,
-});
+export const buildEnableSalesTx = (params: BuildEnableSalesParams) => {
+  return txObj(
+    {
+      packageObjectId: params.packageObjectId,
+      moduleName: "listing",
+      fun: "sale_on",
+    },
+    (tx) => [tx.object(params.listing), tx.object(params.venue)],
+    []
+  );
+};
 
-export const buildCreateFlatFeeTx = (
-  params: BuildCreateFlatFeeParams
-): MoveCallTransaction => ({
-  packageObjectId: params.packageObjectId,
-  module: "flat_fee",
-  function: "init_fee",
-  typeArguments: [],
-  arguments: [params.rate.toFixed(0)],
-  gasBudget: 5000,
-});
+export const buildDisableSalesTx = (params: BuildEnableSalesParams) => {
+  return txObj(
+    {
+      packageObjectId: params.packageObjectId,
+      moduleName: "listing",
+      fun: "sale_off",
+    },
+    (tx) => [tx.object(params.listing), tx.object(params.venue)],
+    []
+  );
+};
 
-export const buildInitMarketplaceTx = (
-  params: BuildInitMarketplaceParams
-): MoveCallTransaction => ({
-  packageObjectId: params.packageObjectId,
-  module: "marketplace",
-  function: "init_marketplace",
-  typeArguments: [`${params.packageObjectId}::flat_fee::FlatFee`],
-  arguments: [params.admin, params.receiver, params.defaultFee],
-  gasBudget: 5000,
-});
+export const buildCreateFlatFeeTx = (params: BuildCreateFlatFeeParams) => {
+  return txObj(
+    {
+      packageObjectId: params.packageObjectId,
+      moduleName: "flat_fee",
+      fun: "init_fee",
+    },
+    (tx) => [tx.pure(params.rate)],
+    []
+  );
+};
 
-export const buildInitListingTx = (
-  params: BuildInitListingParams
-): MoveCallTransaction => ({
-  packageObjectId: params.packageObjectId,
-  module: "listing",
-  function: "init_listing",
-  typeArguments: [],
-  arguments: [params.listingAdmin, params.receiver],
-  gasBudget: 5000,
-});
+export const buildInitMarketplaceTx = (params: BuildInitMarketplaceParams) => {
+  return txObj(
+    {
+      packageObjectId: params.packageObjectId,
+      moduleName: "marketplace",
+      fun: "init_marketplace",
+    },
+    (tx) => [
+      tx.object(params.admin),
+      tx.object(params.receiver),
+      tx.object(params.defaultFee),
+    ],
+    [params.feeType ?? `${params.packageObjectId}::flat_fee::FlatFee`]
+  );
+};
 
-export const buildInitWarehouseTx = (
-  params: BuildInitWarehouseParams
-): MoveCallTransaction => ({
-  packageObjectId: params.packageObjectId,
-  module: "warehouse",
-  function: "init_warehouse",
-  typeArguments: [
-    `${params.collectionPackageId ?? params.packageObjectId}::${
-      params.nftModuleName
-    }::${params.nftClassName}`,
-  ],
-  arguments: [],
-  gasBudget: 5000,
-});
+export const buildInitListingTx = (params: BuildInitListingParams) => {
+  return txObj(
+    {
+      packageObjectId: params.packageObjectId,
+      moduleName: "listing",
+      fun: "init_listing",
+    },
+    (tx) => [tx.object(params.listingAdmin), tx.object(params.receiver)],
+    []
+  );
+};
+
+export const buildInitWarehouseTx = (params: BuildInitWarehouseParams) => {
+  return txObj(
+    {
+      packageObjectId: params.packageObjectId,
+      moduleName: "warehouse",
+      fun: "init_warehouse",
+    },
+    () => [],
+    [params.nftType]
+  );
+};
 
 export const buildAddWarehouseToListingTx = (
   params: BuildAddWarehouseToListingParams
-): MoveCallTransaction => ({
-  packageObjectId: params.packageObjectId,
-  module: "listing",
-  function: "add_warehouse",
-  typeArguments: [
-    `${params.collectionPackageId ?? params.packageObjectId}::${
-      params.nftModuleName
-    }::${params.nftClassName}`,
-  ],
-  arguments: [params.listing, params.collection, params.warehouse],
-  gasBudget: 50000,
-});
+) => {
+  return txObj(
+    {
+      packageObjectId: params.packageObjectId,
+      moduleName: "listing",
+      fun: "add_warehouse",
+    },
+    (tx) => [tx.object(params.listing), tx.object(params.warehouse)],
+    [params.nftType]
+  );
+};
 
 export const buildIssueWhitelistCertificateTx = (
   params: BuildIsueWhitelistCertificateParams
-): MoveCallTransaction => ({
-  packageObjectId: params.packageObjectId,
-  module: "market_whitelist",
-  function: "issue",
-  typeArguments: [],
-  arguments: [params.listing, params.venue, params.recipient],
-  gasBudget: 50000,
-});
+) => {
+  return txObj(
+    {
+      packageObjectId: params.packageObjectId,
+      moduleName: "market_whitelist",
+      fun: "issue",
+    },
+    (tx) => [
+      tx.object(params.listing),
+      tx.object(params.venue),
+      tx.object(params.recipient),
+    ],
+    []
+  );
+};

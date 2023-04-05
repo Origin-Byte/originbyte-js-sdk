@@ -1,18 +1,40 @@
-import { SUI_TYPE_ARG } from "@mysten/sui.js";
-import { COLLECTION_TYPE, orderbookClient } from "./common";
+import { OrderbookFullClient } from "../src";
+import { NFT_TYPE, PACKAGE_OBJECT_ID, signer } from "./common";
 
 export const createOrderbookMarket = async () => {
-  const { orderbook } = await orderbookClient.createOrderbook({
-    collection: COLLECTION_TYPE,
-    ft: SUI_TYPE_ARG,
+  const [protectionTx, protection] = OrderbookFullClient.createProtectionTx({
+    packageObjectId: PACKAGE_OBJECT_ID,
+    buyNft: false,
+    cancelAsk: false,
+    cancelBid: false,
+    createAsk: false,
+    createBid: false,
   });
 
-  console.log("Orderbook: ", JSON.stringify(orderbook));
+  const [obTx, orderbook] = OrderbookFullClient.newOrderbookTx({
+    transaction: protectionTx,
+    packageObjectId: PACKAGE_OBJECT_ID,
+    collection: NFT_TYPE,
+    protectedActions: protection,
+    ft: "0x2::sui::SUI",
+  });
 
-  // Orderbook 0xf6d4e442cb228b9322b5c64c4e8fe0b1323af55d
-  const state = await orderbookClient.fetchOrderbook(orderbook);
+  const [shareOb] = OrderbookFullClient.shareOrderbookTx({
+    transaction: obTx,
+    orderbook,
+    collection: NFT_TYPE,
+    packageObjectId: PACKAGE_OBJECT_ID,
+    ft: "0x2::sui::SUI",
+  });
 
-  console.log("State: ", JSON.stringify(state));
+  shareOb.setGasBudget(1000000);
+
+  const orderbookResult = await signer.signAndExecuteTransactionBlock({
+    transactionBlock: shareOb,
+    options: { showEffects: true, showObjectChanges: true },
+  });
+
+  console.log("OrderBook creation result:", orderbookResult);
 };
 
 createOrderbookMarket();

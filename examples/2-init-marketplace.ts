@@ -3,13 +3,16 @@ import { FEE_OBJECT_ID, PACKAGE_OBJECT_ID, signer } from "./common";
 
 export const initMarketplace = async () => {
   const pubKey = await signer.getAddress();
-  const transaction = NftClient.buildInitMarketplace({
+  const [transactionBlock] = NftClient.buildInitMarketplace({
     packageObjectId: PACKAGE_OBJECT_ID,
-    admin: `0x${pubKey}`, // launchpad admin,
-    receiver: `0x${pubKey}`, // launchpad receiver
+    admin: pubKey, // launchpad admin,
+    receiver: pubKey, // launchpad receiver
     defaultFee: FEE_OBJECT_ID,
   });
-  const initMarketplaceResult = await signer.executeMoveCall(transaction);
+  const initMarketplaceResult = await signer.signAndExecuteTransactionBlock({
+    transactionBlock,
+    options: { showEffects: true, showObjectChanges: true },
+  });
   console.log("initMarketplaceResult", JSON.stringify(initMarketplaceResult));
 };
 

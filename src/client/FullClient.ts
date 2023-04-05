@@ -1,13 +1,12 @@
 import {
   Ed25519Keypair,
-  ExecuteTransactionRequestType,
-  MoveCallTransaction,
-  Provider,
+  TransactionBlock,
+  JsonRpcProvider,
   RawSigner,
   SignerWithProvider,
-  SuiExecuteTransactionResponse,
   TransactionEffects,
 } from "@mysten/sui.js";
+import { TransactionResult } from "./orderbook/txBuilder";
 import { ReadClient } from "./ReadClient";
 
 export class FullClient extends ReadClient {
@@ -20,34 +19,36 @@ export class FullClient extends ReadClient {
     signer.connect(this.provider);
   }
 
-  public static fromKeypair(keypair: Ed25519Keypair, provider?: Provider) {
+  public static fromKeypair(
+    keypair: Ed25519Keypair,
+    provider?: JsonRpcProvider
+  ) {
     return new FullClient(new RawSigner(keypair, provider));
   }
 
-  async sendTx(
-    tx: MoveCallTransaction,
-    requestType?: ExecuteTransactionRequestType
-  ): Promise<SuiExecuteTransactionResponse> {
-    return this.signer.executeMoveCall(tx, requestType);
+  async sendTx(transactionBlock: TransactionBlock) {
+    return this.signer.signAndExecuteTransactionBlock({
+      transactionBlock,
+      options: { showEffects: true, showObjectChanges: true },
+    });
   }
 
   async sendTxWaitForEffects(
-    tx: MoveCallTransaction
+    tx: [TransactionBlock, TransactionResult]
   ): Promise<TransactionEffects> {
+    const [transactionBlock] = tx;
     // there's a bug in the SDKs - the return type doesn't match the actual response
-    const res = (await this.sendTx(tx, "WaitForEffectsCert")) as any;
+    const res = await this.sendTx(transactionBlock);
     if (typeof res !== "object" || !("effects" in res)) {
       throw new Error(
         `Response does not contain effects: ${JSON.stringify(res)}`
       );
     }
 
-    if (res.effects.effects.status.status === "failure") {
-      throw new Error(
-        `Transaction failed: ${res.effects.effects.status.error}`
-      );
+    if (res.effects.status.status === "failure") {
+      throw new Error(`Transaction failed: ${res.effects.status.error}`);
     }
 
-    return res.effects.effects;
+    return res.effects;
   }
 }

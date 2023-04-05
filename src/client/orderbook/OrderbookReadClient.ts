@@ -1,10 +1,11 @@
 import {
   EventId,
   ObjectId,
-  Provider,
+  JsonRpcProvider,
   SubscriptionId,
   SuiAddress,
-  SuiEventEnvelope,
+  CheckpointedObjectId,
+  PaginatedEvents,
 } from "@mysten/sui.js";
 import { DEFAULT_ORDERBOOK_MODULE, DEFAULT_PAGINATION_LIMIT } from "../consts";
 import { ReadClient } from "../ReadClient";
@@ -103,15 +104,12 @@ export function parseCommission(fields: any): AskCommissionState | undefined {
       };
 }
 
-function parseOrderbookEvent({
-  txDigest,
-  event,
-}: SuiEventEnvelope): OrderbookEvent | null {
-  if (!("moveEvent" in event)) {
-    return null;
-  }
+type Unpacked<T> = T extends (infer U)[] ? U : T;
 
-  const { type, fields } = event.moveEvent;
+type Envelope = Unpacked<PaginatedEvents["data"]>;
+
+function parseOrderbookEvent(e: Envelope): OrderbookEvent | null {
+  const { type, parsedJson: fields } = e;
 
   if (type.endsWith("BidCreatedEvent")) {
     return {
@@ -163,7 +161,7 @@ function parseOrderbookEvent({
   }
 
   // eslint-disable-next-line no-console
-  console.warn(`Unknown orderbook event in tx '${txDigest}'`);
+  console.warn(`Unknown orderbook event in tx '${e.id}'`);
   return null;
 }
 
@@ -173,7 +171,7 @@ export class OrderbookReadClient {
     //
   }
 
-  public static fromProvider(provider: Provider) {
+  public static fromProvider(provider: JsonRpcProvider) {
     return new OrderbookReadClient(new ReadClient(provider));
   }
 
@@ -281,7 +279,7 @@ export class OrderbookReadClient {
   public async fetchEvents(p: {
     packageId: ObjectId;
     module?: string;
-    cursor?: EventId;
+    cursor?: CheckpointedObjectId | ObjectId | null;
     limit?: number; // or DEFAULT_PAGINATION_LIMIT
     order?: "ascending" | "descending";
   }): Promise<{
@@ -291,23 +289,23 @@ export class OrderbookReadClient {
     }>;
     nextCursor: EventId | null;
   }> {
-    const { data, nextCursor } = await this.client.provider.getEvents(
-      {
+    const { data, nextCursor } = await this.client.provider.queryEvents({
+      query: {
         MoveModule: {
           package: p.packageId,
           module: p.module || DEFAULT_ORDERBOOK_MODULE,
         },
       },
-      p.cursor || null,
-      p.limit || DEFAULT_PAGINATION_LIMIT,
-      p.order || "ascending"
-    );
+      cursor: p.cursor || null,
+      limit: p.limit || DEFAULT_PAGINATION_LIMIT,
+      order: p.order || "ascending",
+    });
 
     return {
       events: data
         .map((envelope) => {
           return {
-            txDigest: envelope.txDigest,
+            txDigest: envelope.id.txDigest,
             data: parseOrderbookEvent(envelope),
           };
         })
@@ -321,20 +319,24 @@ export class OrderbookReadClient {
     // eslint-disable-next-line
     cb: (event: OrderbookEvent) => void
   ): Promise<SubscriptionId> {
-    return this.client.provider.subscribeEvent(
-      {
+    return this.client.provider.subscribeEvent({
+      filter: {
         All: [
-          { Package: p.packageId },
-          { Module: p.module || DEFAULT_ORDERBOOK_MODULE },
-          { EventType: "MoveEvent" },
+          {
+            MoveModule: {
+              package: p.packageId,
+              module: p.module || DEFAULT_ORDERBOOK_MODULE,
+            },
+          },
+          { MoveEventType: "MoveEvent" },
         ],
       },
-      (envelope) => {
+      onMessage: (envelope) => {
         const parsedEvent = parseOrderbookEvent(envelope);
         if (parsedEvent) {
           cb(parsedEvent);
         }
-      }
-    );
+      },
+    });
   }
 }

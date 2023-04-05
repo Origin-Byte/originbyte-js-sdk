@@ -1,67 +1,59 @@
-import {
-  GetObjectDataResponse,
-  is,
-  SuiObject,
-  JsonRpcProvider,
-  Connection,
-} from "@mysten/sui.js";
-import {
-  buildBuyNftTx,
-  buildMintNftTx,
-  buildEnableSalesTx,
-  buildCreateFlatFeeTx,
-  buildInitMarketplaceTx,
-  buildInitListingTx,
-  buildInitWarehouseTx,
-  buildInitVenueTx,
-  buildRequestToJoinMarketplaceTx,
-  buildAcceptListingRequestTx,
-  buildAddWarehouseToListingTx,
-  buildInitLimitedVenueTx,
-  buildSetLimtitedMarketNewLimitTx,
-  buildBuyWhitelistedNftTx,
-  buildIssueWhitelistCertificateTx,
-} from "./txBuilders";
+import { Connection, JsonRpcProvider, SuiObjectResponse } from "@mysten/sui.js";
 import { toMap } from "../utils";
+import { TESTNET_URL } from "./consts";
 import {
-  MarketplaceParser,
   ArtNftParser,
   CollectionParser,
-  VenueParser,
-  MintCapParser,
-  parseBagDomains,
-  parseTags,
-  FlatFeeParser,
-  ListingParser,
-  WarehouseParser,
-  MoveObject,
-  parseDynamicDomains,
   FixedPriceMarketParser,
-  InventoryParser,
+  FlatFeeParser,
   InventoryDofParser,
+  InventoryParser,
   LimitedFixedPriceMarketParser,
+  ListingParser,
+  MarketplaceParser,
+  MintCapParser,
+  parseDynamicDomains,
+  parseTags,
+  VenueParser,
+  WarehouseParser,
 } from "./parsers";
 import {
-  GetMintCapsParams,
+  buildAcceptListingRequestTx,
+  buildAddWarehouseToListingTx,
+  buildBuyNftTx,
+  buildBuyWhitelistedNftTx,
+  buildCreateFlatFeeTx,
+  buildEnableSalesTx,
+  buildInitLimitedVenueTx,
+  buildInitListingTx,
+  buildInitMarketplaceTx,
+  buildInitVenueTx,
+  buildInitWarehouseTx,
+  buildIssueWhitelistCertificateTx,
+  buildMintNftTx,
+  buildRequestToJoinMarketplaceTx,
+  buildSetLimtitedMarketNewLimitTx,
+  buildDisableSalesTx,
+} from "./txBuilders";
+import {
+  ArtNft,
+  DefaultFeeBoxRpcResponse,
+  GetCollectionDomainsParams,
   GetCollectionsParams,
+  GetInventoryParams,
+  GetListingParams,
+  GetMarketplaceParams,
+  GetMintCapsParams,
   GetNftsParams,
-  SuiObjectParser,
+  GetVenuesParams,
+  GetWarehouseParams,
+  Inventory,
   MintCap,
   NftCollection,
-  GetVenuesParams,
-  GetMarketplaceParams,
-  GetCollectionDomainsParams,
-  DefaultFeeBoxRpcResponse,
-  GetWarehouseParams,
-  GetListingParams,
-  ArtNft,
-  VenueWithMarket,
-  GetInventoryParams,
-  Inventory,
+  SuiObjectParser,
   Venue,
+  VenueWithMarket,
 } from "./types";
-import { isObjectExists } from "./utils";
-import { TESTNET_URL } from "./consts";
 
 export class NftClient {
   private provider: JsonRpcProvider;
@@ -72,58 +64,52 @@ export class NftClient {
     this.provider = _provider;
   }
 
-  private fetchObjectIdsForAddress = async <RpcResponse, DataModel>(
-    address: string,
-    parser: SuiObjectParser<RpcResponse, DataModel>
+  private fetchObjectIdsForAddress = async <DataModel>(
+    owner: string,
+    parser: SuiObjectParser<DataModel>
   ): Promise<string[]> => {
-    const objectsForWallet = await this.provider.getObjectsOwnedByAddress(
-      address
-    );
+    const objectsForWallet = await this.provider.getOwnedObjects({ owner });
 
-    return objectsForWallet
-      .filter((_) => _.type.match(parser.regex))
-      .map(({ objectId }) => objectId);
+    return objectsForWallet.data
+      .filter((_) => _.data.type.match(parser.regex))
+      .map((_) => _.data.objectId);
   };
 
-  parseObjects = async <RpcResponse, DataModel>(
-    objects: GetObjectDataResponse[],
-    parser: SuiObjectParser<RpcResponse, DataModel>
+  parseObjects = async <DataModel>(
+    objects: SuiObjectResponse[],
+    parser: SuiObjectParser<DataModel>
   ): Promise<DataModel[]> => {
     const parsedObjects = objects
-      .filter(isObjectExists)
       .map((_) => {
-        if (
-          is(_.details, SuiObject) &&
-          is(_.details.data, MoveObject) &&
-          _.details.data.type.match(parser.regex)
-        ) {
-          return parser.parser(
-            _.details.data.fields as RpcResponse,
-            _.details,
-            _
-          );
-        }
-        return undefined;
+        return parser.parser(_);
       })
       .filter((_): _ is DataModel => !!_);
 
     return parsedObjects;
   };
 
-  fetchAndParseObjectsById = async <RpcResponse, DataModel>(
+  fetchAndParseObjectsById = async <DataModel>(
     ids: string[],
-    parser: SuiObjectParser<RpcResponse, DataModel>
+    parser: SuiObjectParser<DataModel>
   ): Promise<DataModel[]> => {
     if (ids.length === 0) {
       return [];
     }
-    const objects = await this.provider.getObjectBatch(ids);
+    const objects = await this.provider.multiGetObjects({
+      ids,
+      options: {
+        showContent: true,
+        showDisplay: true,
+        showType: true,
+        showOwner: true,
+      },
+    });
     return this.parseObjects(objects, parser);
   };
 
-  fetchAndParseObjectsForAddress = async <RpcResponse, DataModel>(
+  fetchAndParseObjectsForAddress = async <DataModel>(
     address: string,
-    parser: SuiObjectParser<RpcResponse, DataModel>
+    parser: SuiObjectParser<DataModel>
   ) => {
     const objectIds = await this.fetchObjectIdsForAddress(address, parser);
     return this.fetchAndParseObjectsById(objectIds, parser);
@@ -177,26 +163,44 @@ export class NftClient {
     );
   };
 
-  getDynamicFields = async (parentdId: string) => {
-    const objects = await this.provider.getDynamicFields(parentdId);
-    const objectIds = objects.data.map((_) => _.objectId);
-    return this.provider.getObjectBatch(objectIds);
+  getDynamicFields = async (parentId: string) => {
+    const objects = await this.provider.getDynamicFields({ parentId });
+    const ids = objects.data.map((_) => _.objectId);
+    return this.provider.multiGetObjects({
+      ids,
+      options: {
+        showContent: true,
+        showType: true,
+        showDisplay: true,
+        showOwner: true,
+      },
+    });
   };
 
   getBagContent = async (bagId: string) => {
-    const bagObjects = await this.provider.getDynamicFields(bagId);
+    const bagObjects = await this.provider.getDynamicFields({
+      parentId: bagId,
+    });
     let objectIds: string[];
     if (Array.isArray(bagObjects)) {
       objectIds = bagObjects.map(({ objectId }) => objectId);
     } else {
       objectIds = bagObjects.data.map(({ objectId }) => objectId);
     }
-    return this.provider.getObjectBatch(objectIds);
+    return this.provider.multiGetObjects({
+      ids: objectIds,
+      options: {
+        showContent: true,
+        showType: true,
+        showDisplay: true,
+        showOwner: true,
+      },
+    });
   };
 
-  getAndParseBagContent = async <RpcResponse, DataModel>(
+  getAndParseBagContent = async <DataModel>(
     bagId: string,
-    parser: SuiObjectParser<RpcResponse, DataModel>
+    parser: SuiObjectParser<DataModel>
   ) => {
     const bagObjects = await this.getBagContent(bagId);
     return this.parseObjects(bagObjects, parser);
@@ -205,7 +209,7 @@ export class NftClient {
   getCollectionDomains = async (params: GetCollectionDomainsParams) => {
     const domains = await this.getBagContent(params.domainsBagId);
 
-    const parsedDomains = parseBagDomains(domains);
+    const parsedDomains = parseDynamicDomains(domains);
 
     if (parsedDomains.tagsBagId) {
       const t = await this.getBagContent(parsedDomains.tagsBagId);
@@ -250,8 +254,9 @@ export class NftClient {
       return marketplace;
     }
     const fee = fees[0];
-    if (is(fee.details, SuiObject) && is(fee.details.data, MoveObject)) {
-      const feeBox = fee.details.data.fields as DefaultFeeBoxRpcResponse;
+
+    if ("fields" in fee.data.content) {
+      const feeBox = fee.data.content.fields as DefaultFeeBoxRpcResponse;
       const feeData = await this.fetchAndParseObjectsById(
         [feeBox.value],
         FlatFeeParser
@@ -261,6 +266,7 @@ export class NftClient {
         return { ...marketplace, defaultFee: feeData[0] };
       }
     }
+
     return marketplace;
   };
 
@@ -281,6 +287,7 @@ export class NftClient {
     if (!params.resolveBags) {
       return { ...listing, venues: NO_VENUES, inventories: NO_INVENTORIES };
     }
+
     const [inventories, venues] = await Promise.all([
       listing.inventoriesBagId
         ? this.getAndParseBagContent(listing.inventoriesBagId, InventoryParser)
@@ -330,9 +337,7 @@ export class NftClient {
 
             return {
               nftId: _.id,
-              content: _.bagId
-                ? parseBagDomains(content)
-                : parseDynamicDomains(content),
+              content: parseDynamicDomains(content),
             };
           })
         )
@@ -371,6 +376,8 @@ export class NftClient {
   static buildBuyNft = buildBuyNftTx;
 
   static buildEnableSales = buildEnableSalesTx;
+
+  static buildDisableSales = buildDisableSalesTx;
 
   static buildCreateFlatFee = buildCreateFlatFeeTx;
 

@@ -1,7 +1,7 @@
 import {
   Ed25519Keypair,
   ObjectId,
-  Provider,
+  JsonRpcProvider,
   TransactionEffects,
 } from "@mysten/sui.js";
 import { FullClient } from "../FullClient";
@@ -38,7 +38,7 @@ export class SafeFullClient extends SafeReadClient {
 
   public static fromKeypair(
     keypair: Ed25519Keypair,
-    provider?: Provider,
+    provider?: JsonRpcProvider,
     opts?: Partial<GlobalParams>
   ) {
     return new SafeFullClient(FullClient.fromKeypair(keypair, provider), opts);

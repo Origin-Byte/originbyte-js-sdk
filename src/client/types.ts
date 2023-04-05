@@ -1,18 +1,19 @@
 /* eslint-disable camelcase */
 import {
-  GetObjectDataResponse,
   ObjectId,
   SuiAddress,
-  SuiObject,
+  SuiObjectResponse,
+  TransactionBlock,
 } from "@mysten/sui.js";
-
-export type WithGasBudget = {
-  gasBudget?: number;
-};
 
 export interface WithPackageObjectId {
   packageObjectId: ObjectId;
+  transaction?: TransactionBlock;
 }
+
+export type WithNftType = {
+  nftType: string;
+};
 
 export interface WithId {
   id: string;
@@ -25,10 +26,9 @@ export interface WithOwner {
 export type EmptyRpcResponse = {};
 export type EmptyModel = WithPackageObjectId & WithOwner & WithId & {};
 
-export interface GlobalParams
-  extends WithGasBudget,
-    Partial<WithPackageObjectId> {
+export interface GlobalParams extends Partial<WithPackageObjectId> {
   moduleName?: string;
+  transaction?: TransactionBlock;
 }
 
 export type WithCollectionPackageId = {
@@ -247,7 +247,7 @@ export interface Listing extends WithPackageObjectId, WithId {
   inventoriesBagId?: string;
   venuesBagId?: string;
   qtSold: number;
-  rawResponse: GetObjectDataResponse;
+  rawResponse: SuiObjectResponse;
 }
 
 export interface FlatFeeRfcRpcResponse {
@@ -261,7 +261,7 @@ export type FlatFee = WithPackageObjectId & {
 };
 
 export interface WithRawResponse {
-  rawResponse: GetObjectDataResponse;
+  rawResponse: SuiObjectResponse;
 }
 
 export type WarehouseRpcResponse = {};
@@ -357,7 +357,7 @@ export interface ArtNftRpcResponse {
 
 export interface NftCollection extends ProtocolData, WithId {
   domainsBagId: string;
-  rawResponse: GetObjectDataResponse;
+  rawResponse: SuiObjectResponse;
   nftProtocolPackageObjectId: string;
 }
 
@@ -466,11 +466,12 @@ export type NftModuleParams = {
 
 export type BuildBuyNftParams = GlobalParams &
   WithCollectionPackageId &
-  NftModuleParams & {
+  WithNftType & {
     listing: string;
     venue: string;
     coin: string;
     module?: "fixed_price" | "limited_fixed_price";
+    coinType?: string;
   };
 
 export type BuildBuyWhitelistedNftParams = BuildBuyNftParams & {
@@ -482,14 +483,12 @@ export interface BuildEnableSalesParams extends WithPackageObjectId {
   venue: string;
 }
 
-export type FetchFnParser<RpcResponse, DataModel> = (
-  typedData: RpcResponse,
-  suiObject: SuiObject,
-  rpcResponse: GetObjectDataResponse
+export type FetchFnParser<DataModel> = (
+  data: SuiObjectResponse
 ) => DataModel | undefined;
 
-export interface SuiObjectParser<RpcResponse, DataModel> {
-  parser: FetchFnParser<RpcResponse, DataModel>;
+export interface SuiObjectParser<DataModel> {
+  parser: FetchFnParser<DataModel>;
   regex: RegExp;
 }
 
@@ -582,6 +581,7 @@ export type BuildInitMarketplaceParams = WithPackageObjectId & {
   admin: string;
   receiver: string;
   defaultFee: string; // Flat fee address
+  feeType?: string;
 };
 
 export type BuildInitListingParams = WithPackageObjectId & {
@@ -596,8 +596,7 @@ export type BuildCreateFixedPriceMarketParams = WithPackageObjectId & {
 };
 
 export type BuildInitVenueParams = BuildCreateFixedPriceMarketParams &
-  WithCollectionPackageId &
-  NftModuleParams & {
+  WithNftType & {
     listing: string;
     isWhitelisted: boolean;
   };
@@ -606,13 +605,12 @@ export type BuildInitLimitedVenueParams = BuildInitVenueParams & {
   limit: number;
 };
 
-export type BuildSetLimitMarketLimitParams = WithPackageObjectId &
-  WithGasBudget & {
-    coinType?: string; // SUI by default
-    listing: string;
-    venue: string;
-    newLimit: number;
-  };
+export type BuildSetLimitMarketLimitParams = WithPackageObjectId & {
+  coinType?: string; // SUI by default
+  listing: string;
+  venue: string;
+  newLimit: number;
+};
 
 export type BuildRequestToJoinMarketplaceParams = WithPackageObjectId & {
   marketplace: string;
@@ -622,15 +620,14 @@ export type BuildRequestToJoinMarketplaceParams = WithPackageObjectId & {
 export type BuildAcceptListingRequest = BuildRequestToJoinMarketplaceParams;
 
 export type BuildInitWarehouseParams = WithPackageObjectId &
-  NftModuleParams &
-  WithCollectionPackageId & {};
+  WithCollectionPackageId &
+  WithNftType;
 
 export type BuildAddWarehouseToListingParams = WithPackageObjectId &
   WithCollectionPackageId &
-  NftModuleParams & {
+  WithNftType & {
     listing: string;
     warehouse: string;
-    collection: string;
   };
 
 export type VenueWithMarket = Venue & {
