@@ -92,7 +92,7 @@ export const ArtNftParser: SuiObjectParser<ArtNftRaw> = {
 };
 
 const COLLECTION_REGEX =
-  /(0x[a-f0-9]{63,64})::collection::Collection<(0x[a-f0-9]{63,64})::([a-zA-Z_]{1,})::([a-zA-Z_]{1,})>/;
+  /(0x[a-f0-9]{63,64})::collection::Collection<(0x[a-f0-9]{63,64})::([a-zA-Z_]{1,})::([a-zA-Z_]{1,})(.*)>/;
 
 export const CollectionParser: SuiObjectParser<NftCollection> = {
   parser: (_) => {
@@ -109,7 +109,7 @@ export const CollectionParser: SuiObjectParser<NftCollection> = {
       const { fields } = _.data.content;
       return {
         domainsBagId: fields.domains?.fields.id.id,
-        id: fields.reference.objectId,
+        id: _.data.objectId,
         nftProtocolPackageObjectId,
         packageObjectId,
         packageModule,
@@ -337,7 +337,7 @@ export const WarehouseParser: SuiObjectParser<Warehouse> = {
 };
 
 const INVENTORY_REGEX =
-  /(0x[a-f0-9]{63,64})::inventory::Inventory<(0x[a-f0-9]{63,64})::([a-zA-Z_]{1,})::([a-zA-Z_]{1,})>/;
+  /(0x[a-f0-9]{63,64})::inventory::Inventory<(0x[a-f0-9]{63,64})::([a-zA-Z_]{1,})::([a-zA-Z_]{1,})(.*)>/;
 
 export const InventoryParser: SuiObjectParser<Inventory> = {
   regex: INVENTORY_REGEX,
@@ -417,10 +417,10 @@ export const parseDynamicDomains = (domains: SuiObjectResponse[]) => {
   if (royaltyDomain && "fields" in royaltyDomain.data.content) {
     const { fields } = royaltyDomain.data.content;
     response.royaltyAggregationBagId = (
-      fields.fields as RoyaltyDomain
+      fields as RoyaltyDomain
     ).value.fields.aggregations.id;
     response.royaltyStrategiesBagId = (
-      fields.fields as RoyaltyDomain
+      fields as RoyaltyDomain
     ).value.fields.aggregations.id;
   }
 

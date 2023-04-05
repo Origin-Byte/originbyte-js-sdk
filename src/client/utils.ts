@@ -18,5 +18,6 @@ export const parseObjectOwner = (
     }
   }
 
+  console.warn("Unexpected owner type", owner);
   throw new Error("Unexpected owner type");
 };

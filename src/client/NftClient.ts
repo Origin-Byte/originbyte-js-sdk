@@ -166,7 +166,15 @@ export class NftClient {
   getDynamicFields = async (parentId: string) => {
     const objects = await this.provider.getDynamicFields({ parentId });
     const ids = objects.data.map((_) => _.objectId);
-    return this.provider.multiGetObjects({ ids });
+    return this.provider.multiGetObjects({
+      ids,
+      options: {
+        showContent: true,
+        showType: true,
+        showDisplay: true,
+        showOwner: true,
+      },
+    });
   };
 
   getBagContent = async (bagId: string) => {
@@ -179,7 +187,15 @@ export class NftClient {
     } else {
       objectIds = bagObjects.data.map(({ objectId }) => objectId);
     }
-    return this.provider.multiGetObjects({ ids: objectIds });
+    return this.provider.multiGetObjects({
+      ids: objectIds,
+      options: {
+        showContent: true,
+        showType: true,
+        showDisplay: true,
+        showOwner: true,
+      },
+    });
   };
 
   getAndParseBagContent = async <DataModel>(
@@ -271,6 +287,7 @@ export class NftClient {
     if (!params.resolveBags) {
       return { ...listing, venues: NO_VENUES, inventories: NO_INVENTORIES };
     }
+
     const [inventories, venues] = await Promise.all([
       listing.inventoriesBagId
         ? this.getAndParseBagContent(listing.inventoriesBagId, InventoryParser)

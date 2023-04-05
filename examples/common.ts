@@ -43,7 +43,6 @@ export const ORDERBOOK_ID = "0x12f05d1dfc8210877ca83ea5b58f2beef992f587"; // Cha
 // Step 8 - Create AllowList
 export const ALLOW_LIST_ID = "0x20c97662993a9ef4ab3b07dd9ed97be182b0ad40"; // Change to your deployed contract
 
-
 export function normalizeMnemonics(mnemonics: string): string {
   return mnemonics
     .trim()
@@ -55,7 +54,8 @@ export function normalizeMnemonics(mnemonics: string): string {
 export const keypair = Ed25519Keypair.deriveKeypair(mnemonic);
 
 export const provider = new JsonRpcProvider(
-  new Connection({ fullnode: "https://fullnode.devnet.sui.io" })
+  // new Connection({ fullnode: "https://fullnode.devnet.sui.io" })
+  new Connection({ fullnode: "https://explorer-rpc.devnet.sui.io/" })
 );
 export const signer = new RawSigner(keypair, provider);
 export const client = new NftClient(provider);
@@ -74,24 +74,12 @@ export const user = keypair.getPublicKey().toSuiAddress();
 
 export const feeCollectorAddress = "0x29c8227d3c77ead5816b243be14dc53f09b59c09";
 
-export async function getGas() {
-  const coins = await provider.getCoinBalancesOwnedByAddress(user);
-
-  if (coins.length === 0) {
-    throw new Error(`No gas object for user '${user}'`);
-  }
-  const coin = coins[0].details;
-  if (typeof coin !== "object" || !("data" in coin)) {
-    throw new Error(`Unexpected coin type: ${JSON.stringify(coin)}`);
-  }
-
-  return coin.reference.objectId;
-}
-
 export async function fetchNfts() {
   const objs = await safeClient.client.getObjects(user);
   // console.log("objs: ", objs)
-  return objs.filter((o) => o.type === NFT_TYPE).map((o) => o.objectId);
+  return objs
+    .filter((o) => o.data?.type === NFT_TYPE)
+    .map((o) => o.data?.objectId);
 }
 
 export async function getSafeAndOwnerCap() {

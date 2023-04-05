@@ -49,11 +49,9 @@ const useParsers = async () => {
   );
   console.log("venue.packageObjectId", venue.packageObjectId);
 
-  const marketObj = await provider.getObject(
-    {
-      id: "0xc22904b27db6a160640bfb81d95319d2cab341ea",
-    }
-  );
+  const marketObj = await provider.getObject({
+    id: "0xc22904b27db6a160640bfb81d95319d2cab341ea",
+  });
   const [openMarket] = await client.parseObjects(
     [marketObj],
     FixedPriceMarketParser

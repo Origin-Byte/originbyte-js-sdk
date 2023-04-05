@@ -6,7 +6,7 @@ export const initInventory = async () => {
     packageObjectId: PACKAGE_OBJECT_ID,
     nftType: NFT_TYPE,
   });
-  const initWarehouseResult =  await signer.signAndExecuteTransactionBlock({
+  const initWarehouseResult = await signer.signAndExecuteTransactionBlock({
     transactionBlock,
     options: { showEffects: true, showObjectChanges: true },
   });
