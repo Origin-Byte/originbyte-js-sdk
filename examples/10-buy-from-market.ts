@@ -1,26 +1,28 @@
 import { NftClient } from "../src";
-import { LISTING_ID, PACKAGE_OBJECT_ID, signer, VENUE_ID } from "./common";
+import {
+  LISTING_ID,
+  NFT_TYPE,
+  PACKAGE_OBJECT_ID,
+  signer,
+  VENUE_ID,
+} from "./common";
 
 const buyFromLaunchpad = async () => {
-  // const markets = await client.getMarketsByParams({ objectIds: [LAUNCHPAD_ID] });
-  // if (markets[0]) {
-  //   const market = markets[0];
-  //   if (!market.data.live) {
-  //     throw new Error('Market is not live yet');
-  //   }
-  //   if (!market.data.sales.find((s) => s.nfts.length > 0)) {
-  //     throw new Error('Market has no sales');
-  //   }
-
-  const buyCertificateTransaction = NftClient.buildBuyNft({
+  console.log("Address", await signer.getAddress());
+  const [buyCertificateTransaction] = NftClient.buildBuyNft({
     packageObjectId: PACKAGE_OBJECT_ID,
-    nftModuleName: "suimarines",
-    nftClassName: "SUIMARINES",
-    coin: "0x00e2c8d1b8d37e74d926bdf305130eebd14f2ec8",
+    nftType: NFT_TYPE,
+    coin: "0x12ddc56e41944a83893ef99df474b2f0d249e05f9ff9593f1254624d5794d9a8",
     listing: LISTING_ID,
     venue: VENUE_ID,
   });
-  const buyResult = await signer.executeMoveCall(buyCertificateTransaction);
+
+  buyCertificateTransaction.setGasBudget(20000);
+  const buyResult = await signer.signAndExecuteTransactionBlock({
+    transactionBlock: buyCertificateTransaction,
+    options: { showEffects: true },
+  });
+
   console.log("buyResult", JSON.stringify(buyResult));
 };
 

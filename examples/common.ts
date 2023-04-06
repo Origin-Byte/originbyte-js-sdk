@@ -19,9 +19,11 @@ export const mnemonic =
  */
 // Step 0 - Publish
 
-export const PACKAGE_OBJECT_ID = "0x52f6dee1b2a9b63d448e1e3956199a1625c63a3c"; // Change to your deployed contract
-export const COLLECTION_ID = "0x80b392f50d194f6bd20da7b12b250a66eb539be"; // Change to your deployed contract
-export const COLLECTION_ID_NAME = `${COLLECTION_ID}::suim::SUIM`;
+export const PACKAGE_OBJECT_ID =
+  "0x30ac932177f6c7bb1ee142838f0faa8b0ac65f250455567c761c39d84c02082d"; // Change to your deployed contract
+export const COLLECTION_ID =
+  "0x8be1aceaa7d4ebf1db11382d4ca1c4c8a358fe08771244f85ce62202ec28b68f"; // Change to your deployed contract
+export const COLLECTION_ID_NAME = `${COLLECTION_ID}::suitraders::SUITRADERS`;
 export const COLLECTION_TYPE = `${PACKAGE_OBJECT_ID}::collection::Collection<${COLLECTION_ID_NAME}>`;
 export const NFT_TYPE = `${PACKAGE_OBJECT_ID}::nft::Nft<${COLLECTION_ID_NAME}>`;
 
@@ -31,13 +33,15 @@ export const FEE_OBJECT_ID = "0x2a78356fdb1d91dca38b2ab47082aca02bfd4efb"; // Ch
 // Step 2 - Init marketplace
 export const MARKETPLACE_ID = "0x717aae68dfc03479818c2c550832c6d2668fe87d"; // Change to your deployed contract
 // Step 3 - Init Listing
-export const LISTING_ID = "0xd73d1e1f01be135a22777e77326e032892c660fe"; // Change to your deployed contract
+export const LISTING_ID =
+  "0x5cceb918d7f98f5536c8727b1165f8130633c13f19d7e1b462245ec9a8a3a856"; // Change to your deployed contract
 // Step 4 - Create Warehouse
 export const WAREHOUSE_ID = "0xa3f7cfc3124b7e65de6a0f9444b5299f2691f0ab"; // Change to your deployed contract
 // Step 5 - Add inventory to listing
 export const INVENTORY_ID = "0x940bf37390b0b5a7ce10d0b433e39faddae3d136"; // Change to your deployed contract
 // Step 6 - Create Market
-export const VENUE_ID = "0x58ec0c2f48efaedeed4d62feb2f9adffab701521"; // Change to your deployed contract
+export const VENUE_ID =
+  "0x52c63cb8018fecbc2c3ce8806757d79f27569001f182c3eabfa1c59e4abbcd05"; // Change to your deployed contract
 // Step 7 - Create Orderbook
 export const ORDERBOOK_ID = "0x12f05d1dfc8210877ca83ea5b58f2beef992f587"; // Change to your deployed contract
 // Step 8 - Create AllowList

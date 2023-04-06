@@ -355,9 +355,10 @@ export interface ArtNftRpcResponse {
   bag?: Bag;
 }
 
-export interface NftCollection extends ProtocolData, WithId {
+export interface NftCollection extends WithId {
   domainsBagId: string;
   rawResponse: SuiObjectResponse;
+  collectionNftType: string;
   nftProtocolPackageObjectId: string;
 }
 

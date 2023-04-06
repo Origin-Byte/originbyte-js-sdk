@@ -92,18 +92,17 @@ export const ArtNftParser: SuiObjectParser<ArtNftRaw> = {
 };
 
 const COLLECTION_REGEX =
-  /(0x[a-f0-9]{63,64})::collection::Collection<(0x[a-f0-9]{63,64})::([a-zA-Z_]{1,})::([a-zA-Z_]{1,})(.*)>/;
+  /(0x[a-f0-9]{63,64})::collection::Collection<(0x[a-f0-9]{63,64}::[a-zA-Z_]{1,}::[a-zA-Z_]{1,}(.*))>/;
 
 export const CollectionParser: SuiObjectParser<NftCollection> = {
   parser: (_) => {
     const matches = _.data.type.match(COLLECTION_REGEX);
+
     if (!matches) {
       return undefined;
     }
     const nftProtocolPackageObjectId = matches[1];
-    const packageObjectId = matches[2];
-    const packageModule = matches[3];
-    const packageModuleClassName = matches[4];
+    const collectionNftType = matches[2];
 
     if ("fields" in _.data.content) {
       const { fields } = _.data.content;
@@ -111,9 +110,7 @@ export const CollectionParser: SuiObjectParser<NftCollection> = {
         domainsBagId: fields.domains?.fields.id.id,
         id: _.data.objectId,
         nftProtocolPackageObjectId,
-        packageObjectId,
-        packageModule,
-        packageModuleClassName,
+        collectionNftType,
         rawResponse: _,
       };
     }
