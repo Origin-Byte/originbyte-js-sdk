@@ -53,7 +53,7 @@ const getEmptyParser = (regex: RegExp): SuiObjectParser<EmptyModel> => ({
 });
 
 const ART_NFT_REGEX =
-  /(0x[a-f0-9]{63,64})::nft::Nft<(0x[a-f0-9]{63,64})::([a-zA-Z]{1,})::([a-zA-Z]{1,})>/;
+  /^(0x[a-f0-9]{63,64})::nft::Nft<(0x[a-f0-9]{63,64})::([a-zA-Z]{1,})::([a-zA-Z]{1,})>$/;
 
 export const ArtNftParser: SuiObjectParser<ArtNftRaw> = {
   parser: (_) => {
@@ -82,11 +82,11 @@ export const ArtNftParser: SuiObjectParser<ArtNftRaw> = {
         rawResponse: _,
         logicalOwner: content.fields.logical_owner,
         bagId: content.fields.bag?.fields.id.id,
-        url: display?.url,
-        name: display?.name,
+        url: display?.url ?? content.fields.url,
+        name: display?.name ?? content.fields.name,
       };
 
-      if (!result.name || !result.url) {
+      if (!result.url) {
         return undefined;
       }
       return result;
@@ -97,7 +97,7 @@ export const ArtNftParser: SuiObjectParser<ArtNftRaw> = {
 };
 
 const COLLECTION_REGEX =
-  /(0x[a-f0-9]{63,64})::collection::Collection<(0x[a-f0-9]{63,64}::[a-zA-Z_]{1,}::[a-zA-Z_]{1,}(.*))>/;
+  /^(0x[a-f0-9]{63,64})::collection::Collection<(0x[a-f0-9]{63,64}::[a-zA-Z_]{1,}::[a-zA-Z_]{1,}(.*))>$/;
 
 export const CollectionParser: SuiObjectParser<NftCollection> = {
   parser: (_) => {
@@ -126,7 +126,7 @@ export const CollectionParser: SuiObjectParser<NftCollection> = {
 };
 
 const MINT_CAP_REGEX =
-  /(0x[a-f0-9]{63,64})::mint_cap::MintCap<0x[a-f0-9]{63,64}::[a-zA-Z_]{1,}::[a-zA-Z_]{1,}>/;
+  /^(0x[a-f0-9]{63,64})::mint_cap::MintCap<0x[a-f0-9]{63,64}::[a-zA-Z_]{1,}::[a-zA-Z_]{1,}>$/;
 
 export const MintCapParser: SuiObjectParser<MintCap> = {
   parser: (_) => {
@@ -146,7 +146,7 @@ export const MintCapParser: SuiObjectParser<MintCap> = {
 
 const ORDER_BOOK_REGEX =
   // eslint-disable-next-line max-len
-  /(0x[a-f0-9]{63,64})::orderbook::Orderbook<0x[a-f0-9]{63,64}::[a-zA-Z_]{1,}::[a-zA-Z_]{1,}, 0x[a-f0-9]{1,40}::[a-zA-Z_]{1,}::[a-zA-Z_]{1,}>/;
+  /^(0x[a-f0-9]{63,64})::orderbook::Orderbook<0x[a-f0-9]{63,64}::[a-zA-Z_]{1,}::[a-zA-Z_]{1,}, 0x[a-f0-9]{1,40}::[a-zA-Z_]{1,}::[a-zA-Z_]{1,}>$/;
 
 export const OrderbookParser = getEmptyParser(ORDER_BOOK_REGEX);
 

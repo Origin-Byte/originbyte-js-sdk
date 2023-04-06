@@ -2,10 +2,11 @@ import { CollectionParser } from "../src";
 import { client, provider } from "./common";
 
 const fetchNft = async () => {
-  const collection = await client.getCollectionsById({
+  const collection = await client.getNftsById({
     objectIds: [
-      "0xede9e7dffa0181ca4f3d68d8b2ae0ab20a648df2e00b40881b32887092cdd0a0",
+      "0xa0ecd09477e0da36b67e3b3718473f146d233b69b348b9d644a79848587178fe",
     ],
+    resolveBags: true,
   });
 
   console.log("collection", collection);
