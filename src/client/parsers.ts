@@ -70,7 +70,7 @@ export const ArtNftParser: SuiObjectParser<ArtNftRaw> = {
       const packageModule = matches[3];
       const packageModuleClassName = matches[4];
 
-      return {
+      const result = {
         owner,
         ownerAddress: parseObjectOwner(owner),
         type: _.data.type,
@@ -85,6 +85,11 @@ export const ArtNftParser: SuiObjectParser<ArtNftRaw> = {
         url: display?.url,
         name: display?.name,
       };
+
+      if (!result.name || !result.url) {
+        return undefined;
+      }
+      return result;
     }
     return undefined;
   },
@@ -176,30 +181,30 @@ export const LIMITED_FIXED_PRICE_MARKET_REGEX =
   /0x2::dynamic_field::Field<(0x[a-f0-9]{63,64})::utils::Marker<0x[a-f0-9]{63,64}::limited_fixed_price::LimitedFixedPriceMarket<0x2::sui::SUI>>, 0x[a-f0-9]{63,64}::limited_fixed_price::LimitedFixedPriceMarket<0x2::sui::SUI>>/;
 
 export const LimitedFixedPriceMarketParser: SuiObjectParser<LimitedFixedPriceMarket> =
-  {
-    parser: (_) => {
-      const matches = _.data.type.match(LIMITED_FIXED_PRICE_MARKET_REGEX);
-      if (!matches) {
-        return undefined;
-      }
-      const packageObjectId = matches[1];
-      if ("fields" in _.data.content) {
-        const { fields } = _.data.content;
-        return {
-          id: _.data.objectId,
-          packageObjectId,
-          rawResponse: _,
-          price: fields.fields.price,
-          inventoryId: fields.fields.inventory_id,
-          limit: parseFloat(fields.fields.limit),
-          addresses: fields.value.fields.addresses,
-          marketType: "limited_fixed_price",
-        };
-      }
+{
+  parser: (_) => {
+    const matches = _.data.type.match(LIMITED_FIXED_PRICE_MARKET_REGEX);
+    if (!matches) {
       return undefined;
-    },
-    regex: LIMITED_FIXED_PRICE_MARKET_REGEX,
-  };
+    }
+    const packageObjectId = matches[1];
+    if ("fields" in _.data.content) {
+      const { fields } = _.data.content;
+      return {
+        id: _.data.objectId,
+        packageObjectId,
+        rawResponse: _,
+        price: fields.fields.price,
+        inventoryId: fields.fields.inventory_id,
+        limit: parseFloat(fields.fields.limit),
+        addresses: fields.value.fields.addresses,
+        marketType: "limited_fixed_price",
+      };
+    }
+    return undefined;
+  },
+  regex: LIMITED_FIXED_PRICE_MARKET_REGEX,
+};
 
 // eslint-disable-next-line max-len
 export const VENUE_REGEX = /(0x[a-f0-9]{63,64})::venue::Venue/;
