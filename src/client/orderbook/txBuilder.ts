@@ -55,8 +55,6 @@ function txObj(
 
 export type CreateProtectionParams = {
   buyNft: boolean;
-  cancelAsk: boolean;
-  cancelBid: boolean;
   createAsk: boolean;
   createBid: boolean;
 };
@@ -95,8 +93,6 @@ export const createProtectionTx = (p: OrderbookProtectionParams) => {
     p,
     (t) => [
       t.pure(p.buyNft),
-      t.pure(p.cancelAsk),
-      t.pure(p.cancelBid),
       t.pure(p.createAsk),
       t.pure(p.createBid),
     ],
