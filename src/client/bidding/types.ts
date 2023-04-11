@@ -1,3 +1,6 @@
+import { ObjectId } from "@mysten/sui.js";
+import { BuyersKioskParam, CommissionParams, FTParam, GlobalParams, NftParam, PriceParam, SellersKioskParam, WalletParam } from "../types";
+
 export interface BidCommission {
   beneficiary: string;
   amount: string;
@@ -12,31 +15,15 @@ export interface Bid {
     commission?: BidCommission;
 }
 
-export interface CreateBidInput {
-    buyersKiosk: string,
-    nft: string,
-    price: string,
-    wallet: string
+export interface CreateBidInput extends GlobalParams, FTParam, BuyersKioskParam, NftParam, WalletParam, PriceParam {}
+
+export interface CreateBidWithCommissionInput 
+extends GlobalParams, FTParam, NftParam, WalletParam, BuyersKioskParam, CommissionParams, PriceParam {}
+
+export interface SellNftFromKiosk extends GlobalParams, FTParam, SellersKioskParam, BuyersKioskParam, NftParam {
+    bid: ObjectId,
 }
 
-export interface CreateBidWithCommissionInput {
-    buyersKiosk: string,
-    nft: string,
-    price: string,
-    beneficiary: string,
-    commission: string,
-    wallet: string
-}
-
-export interface SellNftFromKiosk {
-    bidId: string,
-    sellersKiosk: string,
-    buyersKiosk: string,
-    nftId: string
-}
-
-export interface SellNft {
-    bidId: string,
-    buyersKiosk: string,
-    nft: string
+export interface SellNft extends GlobalParams, FTParam, NftParam, BuyersKioskParam {
+    bid: ObjectId
 }
