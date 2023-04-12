@@ -68,7 +68,7 @@ export class NftClient {
     owner: string,
     parser: SuiObjectParser<DataModel>
   ): Promise<string[]> => {
-    const objectsForWallet = await this.provider.getOwnedObjects({ owner });
+    const objectsForWallet = await this.provider.getOwnedObjects({ owner, options: {showType: true} });
 
     return objectsForWallet.data
       .filter((_) => _.data.type.match(parser.regex))

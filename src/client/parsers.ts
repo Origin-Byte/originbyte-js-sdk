@@ -431,33 +431,33 @@ export const parseDynamicDomains = (domains: SuiObjectResponse[]) => {
   if (symbolDomain && "fields" in royaltyDomain.data.content) {
     const { fields } = royaltyDomain.data.content;
     response.symbol = (
-      fields.fields as SymbolDomainBagRpcResponse
+      fields as SymbolDomainBagRpcResponse
     ).value.fields.symbol;
   }
 
   if (urlDomain && "fields" in urlDomain.data.content) {
     const { fields } = urlDomain.data.content;
-    response.url = (fields.fields as UrlDomain).url;
+    response.url = (fields as UrlDomain).url;
   }
 
   if (displayDomain && "fields" in displayDomain.data.content) {
     const { fields } = displayDomain.data.content;
     response.description = (
-      fields.fields as DisplayDomainBagRpcResponse
+      fields as DisplayDomainBagRpcResponse
     ).value.fields.description;
     response.name = (
-      fields.fields as DisplayDomainBagRpcResponse
+      fields as DisplayDomainBagRpcResponse
     ).value.fields.name;
   }
   if (tagsDomain && "fields" in tagsDomain.data.content) {
     const { fields } = tagsDomain.data.content;
-    response.tagsBagId = (fields.fields as TagsDomain).value.fields.id.id;
+    response.tagsBagId = (fields as TagsDomain).value.fields.id.id;
   }
 
   if (attributesDomain && "fields" in attributesDomain.data.content) {
     const { fields } = attributesDomain.data.content;
     const royalties = (
-      fields.fields as AttributionDomainBagRpcResponse
+      fields as AttributionDomainBagRpcResponse
     ).value.fields.map.fields.contents.reduce(
       (acc, c) => ({ ...acc, [c.fields.key]: c.fields.value }),
       {}
