@@ -53,7 +53,7 @@ const getEmptyParser = (regex: RegExp): SuiObjectParser<EmptyModel> => ({
 });
 
 const ART_NFT_REGEX =
-  /^(0x[a-f0-9]{63,64})::nft::Nft<(0x[a-f0-9]{63,64})::([a-zA-Z]{1,})::([a-zA-Z]{1,})>$/;
+  /^(0x[a-f0-9]{63,64})::([a-zA-Z]{1,})::([a-zA-Z]{1,})$/;
 
 export const ArtNftParser: SuiObjectParser<ArtNftRaw> = {
   parser: (_) => {
@@ -82,7 +82,7 @@ export const ArtNftParser: SuiObjectParser<ArtNftRaw> = {
         rawResponse: _,
         logicalOwner: content.fields.logical_owner,
         bagId: content.fields.bag?.fields.id.id,
-        url: display?.url ?? content.fields.url,
+        url: display?.image_url ?? content.fields.url,
         name: display?.name ?? content.fields.name,
       };
 
@@ -339,7 +339,7 @@ export const WarehouseParser: SuiObjectParser<Warehouse> = {
 };
 
 const INVENTORY_REGEX =
-  /(0x[a-f0-9]{63,64})::inventory::Inventory<(0x[a-f0-9]{63,64})::([a-zA-Z_]{1,})::([a-zA-Z_]{1,})(.*)>/;
+  /(0x[a-f0-9]{63,64})::inventory::Inventory<((0x[a-f0-9]{63,64})::([a-zA-Z_]{1,})::([a-zA-Z_]{1,})(.*))>/;
 
 export const InventoryParser: SuiObjectParser<Inventory> = {
   regex: INVENTORY_REGEX,
@@ -349,12 +349,14 @@ export const InventoryParser: SuiObjectParser<Inventory> = {
     if (!matches) {
       return undefined;
     }
+    // console.log("matches", matches);
     if ("fields" in _.data.content) {
       return {
         id: _.data.objectId,
-        collectionContractPackageId: matches[2],
-        packageModule: matches[3],
-        packageModuleClassName: matches[4],
+        nftType: matches[2],
+        collectionContractPackageId: matches[3],
+        packageModule: matches[4],
+        packageModuleClassName: matches[5],
         packageObjectId: matches[1],
         rawResponse: _,
         owner: parseObjectOwner(_.data.owner),

@@ -276,6 +276,7 @@ export type Inventory = EmptyModel &
   WithRawResponse &
   ProtocolData & {
     collectionContractPackageId: string;
+    nftType: string;
   };
 
 export type InventoryDofRpcResponse = {
