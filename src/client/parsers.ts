@@ -349,7 +349,6 @@ export const InventoryParser: SuiObjectParser<Inventory> = {
     if (!matches) {
       return undefined;
     }
-    // console.log("matches", matches);
     if ("fields" in _.data.content) {
       return {
         id: _.data.objectId,
@@ -374,7 +373,7 @@ export const InventoryDofParser: SuiObjectParser<InventoryContent> = {
   regex: INVENTORY_DOF_REGEX,
   parser: (_) => {
     return {
-      nfts: "fields" in _.data.content ? _.data.content.fields.nfts : [],
+      nfts: "fields" in _.data.content ? _.data.content.fields.value.fields.nfts : [],
       id: _.data.objectId,
     };
   },
