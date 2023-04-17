@@ -20,7 +20,6 @@ const buyFromLaunchpad = async () => {
   const tx = new TransactionBlock();
   const coinCreationResult = tx.splitCoins(tx.object(coin.id), [tx.pure(1_000_000)]);
   const createdCoin = coinCreationResult[0]
-  const transferRes = tx.transferObjects([createdCoin], tx.pure(pubkeyAddress));
 
   const args = {
     packageObjectId: PACKAGE_OBJECT_ID,
@@ -34,11 +33,10 @@ const buyFromLaunchpad = async () => {
   tx.moveCall({
     target: `${args.packageObjectId}::${"fixed_price"}::${"buy_nft"}`,
     typeArguments: [args.nftType, SUI_TYPE],
-    // arguments: [tx.object(args.listing), tx.object(args.venue), tx.object(coin.id)], // this one works perfectly
     arguments: [tx.object(args.listing), tx.object(args.venue), createdCoin],
-
   });
 
+  const transferRes = tx.transferObjects([createdCoin], tx.pure(pubkeyAddress));
   tx.setGasBudget(200_000_000);
 
   const buyResult = await signer.signAndExecuteTransactionBlock({
