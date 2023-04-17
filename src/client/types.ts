@@ -567,6 +567,14 @@ export interface BuyerSafeParam {
   buyerSafe: ObjectId;
 }
 
+export interface BuyersKioskParam {
+  buyersKiosk: ObjectId;
+}
+
+export interface SellersKioskParam {
+  sellersKiosk: ObjectId;
+}
+
 export interface AllowlistParam {
   allowlist: ObjectId;
 }
