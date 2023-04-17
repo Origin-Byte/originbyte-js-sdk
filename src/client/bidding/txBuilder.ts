@@ -65,7 +65,7 @@ export const sellNftFromKiosk = (p: SellNftFromKiosk) => {
             tx.object(p.buyersKiosk),
             tx.object(p.nft)
         ],
-        [p.ft]
+        [p.ft, p.nft]
     );
 };
 
@@ -78,6 +78,6 @@ export const sellNft = (p: SellNft) => {
             tx.object(p.buyersKiosk),
             tx.object(p.nft)
         ],
-        [p.ft]
+        [p.ft, p.nft]
     );
 };
