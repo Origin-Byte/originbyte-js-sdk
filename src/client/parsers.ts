@@ -82,8 +82,8 @@ export const ArtNftParser: SuiObjectParser<ArtNftRaw> = {
         rawResponse: _,
         logicalOwner: content.fields.logical_owner,
         bagId: content.fields.bag?.fields.id.id,
-        url: display?.url ?? content.fields.url,
-        name: display?.name ?? content.fields.name,
+        url: (display as any).url ?? content.fields.url,
+        name: (display as any).name ?? content.fields.name,
       };
 
       if (!result.url) {
