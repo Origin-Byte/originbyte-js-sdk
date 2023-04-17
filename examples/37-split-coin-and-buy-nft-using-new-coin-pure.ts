@@ -15,16 +15,16 @@ const buyFromLaunchpad = async () => {
   const pubkeyAddress = await signer.getAddress()
   console.log("Address: ", pubkeyAddress);
 
-  const coin = { id: "0x5a3577670a95e163ae24888de8a8c4a28d167b81a3571553618a4e7fb7cbea82" }
+  const coin = { id: "0x020db9452bbe3ca36f6869bfb93d42135f80818cbe31edf63b19178f0b711459" }
 
   const tx = new TransactionBlock();
-  const coinCreationResult = tx.splitCoins(tx.object(coin.id), [tx.pure(1_000_000)]);
+  const coinCreationResult = tx.splitCoins(tx.gas, [tx.pure(100_000_000)]);
   const createdCoin = coinCreationResult[0]
 
   const args = {
     packageObjectId: PACKAGE_OBJECT_ID,
     nftType: COLLECTION_ID_NAME,
-    coin: coinCreationResult,
+    coin: createdCoin,
     listing: LISTING_ID,
     venue: VENUE_ID,
     transaction: tx,
@@ -37,7 +37,7 @@ const buyFromLaunchpad = async () => {
   });
 
   const transferRes = tx.transferObjects([createdCoin], tx.pure(pubkeyAddress));
-  tx.setGasBudget(200_000_000);
+  tx.setGasBudget(250_000_000);
 
   const buyResult = await signer.signAndExecuteTransactionBlock({
     transactionBlock: tx,
