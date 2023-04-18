@@ -53,7 +53,7 @@ const getEmptyParser = (regex: RegExp): SuiObjectParser<EmptyModel> => ({
 });
 
 const ART_NFT_REGEX =
-  /^(0x[a-f0-9]{63,64})::nft::Nft<(0x[a-f0-9]{63,64})::([a-zA-Z]{1,})::([a-zA-Z]{1,})>$/;
+  /^(0x[a-f0-9]{63,64})::([a-zA-Z]{1,})::([a-zA-Z]{1,})$/;
 
 export const ArtNftParser: SuiObjectParser<ArtNftRaw> = {
   parser: (_) => {
@@ -82,8 +82,8 @@ export const ArtNftParser: SuiObjectParser<ArtNftRaw> = {
         rawResponse: _,
         logicalOwner: content.fields.logical_owner,
         bagId: content.fields.bag?.fields.id.id,
-        url: (display as any).url ?? content.fields.url,
-        name: (display as any).name ?? content.fields.name,
+        url: (display as any)?.image_url ?? content.fields.url,
+        name: (display as any)?.name ?? content.fields.name,
       };
 
       if (!result.url) {
@@ -339,7 +339,7 @@ export const WarehouseParser: SuiObjectParser<Warehouse> = {
 };
 
 const INVENTORY_REGEX =
-  /(0x[a-f0-9]{63,64})::inventory::Inventory<(0x[a-f0-9]{63,64})::([a-zA-Z_]{1,})::([a-zA-Z_]{1,})(.*)>/;
+  /(0x[a-f0-9]{63,64})::inventory::Inventory<((0x[a-f0-9]{63,64})::([a-zA-Z_]{1,})::([a-zA-Z_]{1,})(.*))>/;
 
 export const InventoryParser: SuiObjectParser<Inventory> = {
   regex: INVENTORY_REGEX,
@@ -352,9 +352,10 @@ export const InventoryParser: SuiObjectParser<Inventory> = {
     if ("fields" in _.data.content) {
       return {
         id: _.data.objectId,
-        collectionContractPackageId: matches[2],
-        packageModule: matches[3],
-        packageModuleClassName: matches[4],
+        nftType: matches[2],
+        collectionContractPackageId: matches[3],
+        packageModule: matches[4],
+        packageModuleClassName: matches[5],
         packageObjectId: matches[1],
         rawResponse: _,
         owner: parseObjectOwner(_.data.owner),
@@ -372,7 +373,7 @@ export const InventoryDofParser: SuiObjectParser<InventoryContent> = {
   regex: INVENTORY_DOF_REGEX,
   parser: (_) => {
     return {
-      nfts: "fields" in _.data.content ? _.data.content.fields.nfts : [],
+      nfts: "fields" in _.data.content ? _.data.content.fields.value.fields.nfts : [],
       id: _.data.objectId,
     };
   },
@@ -429,33 +430,33 @@ export const parseDynamicDomains = (domains: SuiObjectResponse[]) => {
   if (symbolDomain && "fields" in royaltyDomain.data.content) {
     const { fields } = royaltyDomain.data.content;
     response.symbol = (
-      fields.fields as SymbolDomainBagRpcResponse
+      fields as SymbolDomainBagRpcResponse
     ).value.fields.symbol;
   }
 
   if (urlDomain && "fields" in urlDomain.data.content) {
     const { fields } = urlDomain.data.content;
-    response.url = (fields.fields as UrlDomain).url;
+    response.url = (fields as UrlDomain).url;
   }
 
   if (displayDomain && "fields" in displayDomain.data.content) {
     const { fields } = displayDomain.data.content;
     response.description = (
-      fields.fields as DisplayDomainBagRpcResponse
+      fields as DisplayDomainBagRpcResponse
     ).value.fields.description;
     response.name = (
-      fields.fields as DisplayDomainBagRpcResponse
+      fields as DisplayDomainBagRpcResponse
     ).value.fields.name;
   }
   if (tagsDomain && "fields" in tagsDomain.data.content) {
     const { fields } = tagsDomain.data.content;
-    response.tagsBagId = (fields.fields as TagsDomain).value.fields.id.id;
+    response.tagsBagId = (fields as TagsDomain).value.fields.id.id;
   }
 
   if (attributesDomain && "fields" in attributesDomain.data.content) {
     const { fields } = attributesDomain.data.content;
     const royalties = (
-      fields.fields as AttributionDomainBagRpcResponse
+      fields as AttributionDomainBagRpcResponse
     ).value.fields.map.fields.contents.reduce(
       (acc, c) => ({ ...acc, [c.fields.key]: c.fields.value }),
       {}

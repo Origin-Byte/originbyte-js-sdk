@@ -5,6 +5,7 @@ import {
   SuiObjectResponse,
   TransactionBlock,
 } from "@mysten/sui.js";
+import { TransactionResult } from "../transaction";
 
 export interface WithPackageObjectId {
   packageObjectId: ObjectId;
@@ -277,6 +278,7 @@ export type Inventory = EmptyModel &
   WithRawResponse &
   ProtocolData & {
     collectionContractPackageId: string;
+    nftType: string;
   };
 
 export type InventoryDofRpcResponse = {
@@ -471,7 +473,9 @@ export type BuildBuyNftParams = GlobalParams &
   WithNftType & {
     listing: string;
     venue: string;
-    coin: string;
+    coin:
+      | string
+      | TransactionResult
     module?: "fixed_price" | "limited_fixed_price";
     coinType?: string;
   };

@@ -59,7 +59,7 @@ export const buildBuyNftTx = (params: BuildBuyNftParams) => {
     (tx) => [
       tx.object(params.listing),
       tx.object(params.venue),
-      tx.object(params.coin),
+      typeof params.coin ==="string" ? tx.object(params.coin) : params.coin
     ],
     [params.nftType, params.coinType ?? SUI_TYPE]
   );
@@ -78,7 +78,7 @@ export const buildBuyWhitelistedNftTx = (
     (tx) => [
       tx.object(params.listing),
       tx.object(params.venue),
-      tx.object(params.coin),
+      typeof params.coin ==="string" ? tx.object(params.coin) : params.coin,
       tx.object(params.whitelistCertificate),
     ],
     [params.nftType, params.coinType ?? SUI_TYPE]
@@ -269,6 +269,7 @@ export const buildIssueWhitelistCertificateTx = (
       packageObjectId: params.packageObjectId,
       moduleName: "market_whitelist",
       fun: "issue",
+      transaction: params.transaction,
     },
     (tx) => [
       tx.object(params.listing),
