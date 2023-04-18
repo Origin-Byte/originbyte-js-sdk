@@ -269,6 +269,7 @@ export const buildIssueWhitelistCertificateTx = (
       packageObjectId: params.packageObjectId,
       moduleName: "market_whitelist",
       fun: "issue",
+      transaction: params.transaction,
     },
     (tx) => [
       tx.object(params.listing),
