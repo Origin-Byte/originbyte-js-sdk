@@ -296,7 +296,7 @@ export class OrderbookReadClient {
           module: p.module || DEFAULT_ORDERBOOK_MODULE,
         },
       },
-      cursor: p.cursor || null,
+      cursor: p.cursor || null as any,
       limit: p.limit || DEFAULT_PAGINATION_LIMIT,
       order: p.order || "ascending",
     });

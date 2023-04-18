@@ -27,6 +27,7 @@ export type EmptyRpcResponse = {};
 export type EmptyModel = WithPackageObjectId & WithOwner & WithId & {};
 
 export interface GlobalParams extends Partial<WithPackageObjectId> {
+  packageObjectId?: any;
   moduleName?: string;
   transaction?: TransactionBlock;
 }
