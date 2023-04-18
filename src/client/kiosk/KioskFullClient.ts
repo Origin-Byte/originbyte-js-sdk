@@ -22,6 +22,8 @@ export class KioskFullClient extends KioskReadClient {
     return new KioskFullClient(FullClient.fromKeypair(keypair, provider), opts);
   }
 
+  static createKioskTx = createKioskTx;
+
   public createKiosk(params: GlobalParams) {
     return this.client.sendTxWaitForEffects(createKioskTx({
       ...this.opts,
