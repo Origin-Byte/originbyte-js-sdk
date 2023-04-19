@@ -6,6 +6,7 @@ export const placeBid = async () => {
     const nftId = "0xb94dc94b2bb353dbc8230ab87f56c8db571c0431d66d762b9b316423002a8e4f";
     const transaction = new TransactionBlock();
     const kioskId = await kioskClient.getWalletKioskId(user);
+    console.log("user", user);
     let kioskIdTransaction;
     const coin = transaction.splitCoins(transaction.gas, [transaction.pure(2_000_000_000)]);
     if(!kioskId) {
@@ -16,7 +17,7 @@ export const placeBid = async () => {
     BiddingContractClient.createBidTx({
         transaction,
         nft: nftId,
-        buyersKiosk: kioskId || kioskIdTransaction,
+        buyersKiosk: "0xd060cc88e01a12d96810791b266e570616a001363ddffa70643bf1f32c1312b1",
         ft: SUI_TYPE_ARG,
         wallet: coin,
         price: 1

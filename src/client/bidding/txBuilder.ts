@@ -2,7 +2,7 @@ import { TransactionBlock } from "@mysten/sui.js";
 import { TransactionBlockArgument, TransactionResult, txObj as txCommon } from "../../transaction";
 import { GlobalParams } from "../types";
 import { DEFAULT_BIDDING_MODULE, DEFAULT_PACKAGE_ID } from "../consts";
-import { CreateBidInput, CreateBidWithCommissionInput, SellNft, SellNftFromKiosk } from "./types";
+import { CloseBidParams, CreateBidInput, CreateBidWithCommissionInput, SellNft, SellNftFromKiosk } from "./types";
 
 const txObj = (
   fun: string,
@@ -30,8 +30,8 @@ export const createBidTx = (p: CreateBidInput) => {
         "create_bid",
         p,
         (tx) => [
-            typeof p.buyersKiosk === "string" ? tx.object(p.buyersKiosk) : p.buyersKiosk,
             tx.object(p.nft),
+            typeof p.buyersKiosk === "string" ? tx.object(p.buyersKiosk) : p.buyersKiosk,
             tx.pure(String(p.price)),
             typeof p.wallet === "string" ? tx.object(p.wallet) : p.wallet
         ],
@@ -65,7 +65,7 @@ export const sellNftFromKiosk = (p: SellNftFromKiosk) => {
             typeof p.buyersKiosk === "string" ? tx.object(p.buyersKiosk) : p.buyersKiosk,
             tx.object(p.nft)
         ],
-        [p.ft, p.nft]
+        [p.ft, p.nftType]
     );
 };
 
@@ -78,6 +78,18 @@ export const sellNft = (p: SellNft) => {
             typeof p.buyersKiosk === "string" ? tx.object(p.buyersKiosk) : p.buyersKiosk,
             tx.object(p.nft)
         ],
-        [p.ft, p.nft]
+        [p.ft, p.nftType]
     );
 };
+
+export const closeBidTx = (p: CloseBidParams) => {
+    return txObj(
+        "close_bid",
+        p,
+        (tx) => [
+            tx.object(p.bid),
+            tx.object(p.kioskId) // TODO remove it on the next contract deployment
+        ],
+        [p.nftType]
+    )
+}

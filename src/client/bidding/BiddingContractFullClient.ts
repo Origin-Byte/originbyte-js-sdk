@@ -2,15 +2,18 @@ import { Ed25519Keypair, JsonRpcProvider } from "@mysten/sui.js";
 import { CreateBidInput } from "./types";
 import { GlobalParams } from "../types";
 import { FullClient } from "../FullClient";
-import { createBidTx, createBidWithCommissionTx, sellNft, sellNftFromKiosk } from "./txBuilder";
+import { closeBidTx, createBidTx, createBidWithCommissionTx, sellNft, sellNftFromKiosk } from "./txBuilder";
+import { BiddingContractReadClient } from "./BiddingContractReadClient";
 
-export class BiddingContractClient {
+export class BiddingContractClient extends BiddingContractReadClient {
     // eslint-disable-next-line no-useless-constructor
     constructor(
         public client: FullClient,
-        private opts: Partial<GlobalParams>
+        public opts: Partial<GlobalParams>
     // eslint-disable-next-line no-empty-function
-    ) {}
+    ) {
+        super(client, opts);
+    }
 
     public static fromKeypair(
         keypair: Ed25519Keypair,
@@ -30,6 +33,8 @@ export class BiddingContractClient {
     static sellNftFromKiosk = sellNftFromKiosk;
 
     static sellNft = sellNft;
+
+    static closeBid = closeBidTx;
 
     async createBid(p: CreateBidInput): Promise<any> {
         const effect = await this.client.sendTxWaitForEffects(

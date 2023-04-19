@@ -564,6 +564,10 @@ export interface WalletParam {
   wallet: ObjectId | TransactionResult;
 }
 
+export interface KioskParam {
+  kiosk: ObjectId | TransactionResult;
+}
+
 export interface SellerSafeParam {
   sellerSafe: ObjectId;
 }
@@ -587,6 +591,11 @@ export interface AllowlistParam {
 export interface TradeParam {
   trade: ObjectId;
 }
+
+export interface BidParam {
+  bid: string;
+}
+
 export type BuildCreateFlatFeeParams = WithPackageObjectId & {
   rate: number;
 };
