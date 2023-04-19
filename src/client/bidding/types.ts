@@ -1,5 +1,16 @@
 import { ObjectId } from "@mysten/sui.js";
-import { BidParam, BuyersKioskParam, CommissionParams, FTParam, GlobalParams, NftParam, NftTypeParam, PriceParam, SellersKioskParam, WalletParam } from "../types";
+import { 
+    BidParam, 
+    BuyersKioskParam, 
+    CommissionParams, 
+    FTParam, 
+    GlobalParams, 
+    NftParam, 
+    NftTypeParam, 
+    PriceParam, 
+    SellersKioskParam, 
+    WalletParam 
+} from "../types";
 
 export interface BidCommission {
   beneficiary: string;

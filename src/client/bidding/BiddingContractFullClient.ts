@@ -2,7 +2,7 @@ import { Ed25519Keypair, JsonRpcProvider } from "@mysten/sui.js";
 import { CreateBidInput } from "./types";
 import { GlobalParams } from "../types";
 import { FullClient } from "../FullClient";
-import { closeBidTx, createBidTx, createBidWithCommissionTx, sellNft, sellNftFromKiosk } from "./txBuilder";
+import { closeBidTx, createBidTx, createBidWithCommissionTx, sellNftFromKioskTx, sellNftTx } from "./txBuilder";
 import { BiddingContractReadClient } from "./BiddingContractReadClient";
 
 export class BiddingContractClient extends BiddingContractReadClient {
@@ -30,9 +30,9 @@ export class BiddingContractClient extends BiddingContractReadClient {
 
     static createBidWithCommissionTx = createBidWithCommissionTx;
 
-    static sellNftFromKiosk = sellNftFromKiosk;
+    static sellNftFromKioskTx = sellNftFromKioskTx;
 
-    static sellNft = sellNft;
+    static sellNftTx = sellNftTx;
 
     static closeBid = closeBidTx;
 

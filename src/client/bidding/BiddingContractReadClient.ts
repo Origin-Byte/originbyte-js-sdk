@@ -1,4 +1,4 @@
-import { JsonRpcProvider, ObjectId, SuiAddress } from "@mysten/sui.js";
+import { JsonRpcProvider } from "@mysten/sui.js";
 import { ReadClient } from "../ReadClient";
 import { GlobalParams } from "../types";
 import { DEFAULT_KIOSK_MODULE, DEFAULT_PACKAGE_ID } from "../consts";
@@ -28,23 +28,6 @@ export class BiddingContractReadClient {
 
   public get module() {
     return this.opts.moduleName ?? DEFAULT_KIOSK_MODULE;
-  }
-
-  public async fetchOwnerTokens(
-    user: SuiAddress,
-    p: Partial<GlobalParams> = {}
-  ): Promise<any[]> {
-    const ownerTokenType = `${p.packageObjectId || this.package}::${
-      p.moduleName || this.module
-    }::OwnerToken`;
-    const objs = (await this.client.getObjects(user, {
-      showType: true,
-      showContent: true
-    }, {
-      Package: this.package
-    }));
-    console.log("all objects", objs);
-    return objs;
   }
 
 }

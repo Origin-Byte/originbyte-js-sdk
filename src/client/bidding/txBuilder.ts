@@ -55,7 +55,7 @@ export const createBidWithCommissionTx = async (p: CreateBidWithCommissionInput)
     );
 };
 
-export const sellNftFromKiosk = (p: SellNftFromKiosk) => {
+export const sellNftFromKioskTx = (p: SellNftFromKiosk) => {
     return txObj(
         "sell_nft_from_kiosk",
         p,
@@ -69,7 +69,7 @@ export const sellNftFromKiosk = (p: SellNftFromKiosk) => {
     );
 };
 
-export const sellNft = (p: SellNft) => {
+export const sellNftTx = (p: SellNft) => {
     return txObj(
         "sell_nft",
         p,

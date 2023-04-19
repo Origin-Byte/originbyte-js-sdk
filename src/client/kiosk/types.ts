@@ -1,6 +1,6 @@
 /* eslint-disable camelcase */
 import { ObjectId, SuiAddress } from "@mysten/sui.js";
-import { GlobalParams, KioskParam, NftParam, NftTypeParam, WithNftType } from "../types";
+import { GlobalParams, KioskParam, NftParam, WithNftType } from "../types";
 
 export interface OwnerToken {
     id: ObjectId,
