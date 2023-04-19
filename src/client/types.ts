@@ -561,7 +561,7 @@ export interface NewPriceParam {
 }
 
 export interface WalletParam {
-  wallet: ObjectId;
+  wallet: ObjectId | TransactionResult;
 }
 
 export interface SellerSafeParam {
@@ -573,7 +573,7 @@ export interface BuyerSafeParam {
 }
 
 export interface BuyersKioskParam {
-  buyersKiosk: ObjectId;
+  buyersKiosk: ObjectId | TransactionResult;
 }
 
 export interface SellersKioskParam {

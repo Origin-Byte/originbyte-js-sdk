@@ -7,7 +7,7 @@ import { createBidTx, createBidWithCommissionTx, sellNft, sellNftFromKiosk } fro
 export class BiddingContractClient {
     // eslint-disable-next-line no-useless-constructor
     constructor(
-        private client: FullClient,
+        public client: FullClient,
         private opts: Partial<GlobalParams>
     // eslint-disable-next-line no-empty-function
     ) {}
@@ -38,6 +38,7 @@ export class BiddingContractClient {
                 ...p
             })
         );
+        
         return effect;
     }
 

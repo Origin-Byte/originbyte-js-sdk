@@ -30,26 +30,26 @@ export const createBidTx = (p: CreateBidInput) => {
         "create_bid",
         p,
         (tx) => [
-            tx.object(p.buyersKiosk),
+            typeof p.buyersKiosk === "string" ? tx.object(p.buyersKiosk) : p.buyersKiosk,
             tx.object(p.nft),
             tx.pure(String(p.price)),
-            tx.object(p.wallet)
+            typeof p.wallet === "string" ? tx.object(p.wallet) : p.wallet
         ],
         [p.ft]
     );
 };
 
-export const createBidWithCommissionTx = (p: CreateBidWithCommissionInput) => {
+export const createBidWithCommissionTx = async (p: CreateBidWithCommissionInput) => {
     return txObj(
         "create_bid_with_commission",
         p,
         (tx) => [
-            tx.object(p.buyersKiosk),
+            typeof p.buyersKiosk === "string" ? tx.object(p.buyersKiosk) : p.buyersKiosk,
             tx.object(p.nft),
             tx.pure(String(p.price)),
             tx.object(p.beneficiary),
             tx.pure(String(p.commission)),
-            tx.object(p.wallet)
+            typeof p.wallet === "string" ? tx.object(p.wallet) : p.wallet
         ],
         [p.ft]
     );
@@ -62,7 +62,7 @@ export const sellNftFromKiosk = (p: SellNftFromKiosk) => {
         (tx) => [
             tx.object(p.bid),
             tx.object(p.sellersKiosk),
-            tx.object(p.buyersKiosk),
+            typeof p.buyersKiosk === "string" ? tx.object(p.buyersKiosk) : p.buyersKiosk,
             tx.object(p.nft)
         ],
         [p.ft, p.nft]
@@ -75,7 +75,7 @@ export const sellNft = (p: SellNft) => {
         p,
         (tx) => [
             tx.object(p.bid),
-            tx.object(p.buyersKiosk),
+            typeof p.buyersKiosk === "string" ? tx.object(p.buyersKiosk) : p.buyersKiosk,
             tx.object(p.nft)
         ],
         [p.ft, p.nft]
