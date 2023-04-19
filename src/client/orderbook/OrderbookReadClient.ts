@@ -4,7 +4,6 @@ import {
   JsonRpcProvider,
   SubscriptionId,
   SuiAddress,
-  CheckpointedObjectId,
   PaginatedEvents,
 } from "@mysten/sui.js";
 import { DEFAULT_ORDERBOOK_MODULE, DEFAULT_PAGINATION_LIMIT } from "../consts";
@@ -279,7 +278,7 @@ export class OrderbookReadClient {
   public async fetchEvents(p: {
     packageId: ObjectId;
     module?: string;
-    cursor?: CheckpointedObjectId | ObjectId | null;
+    cursor?: PaginatedEvents["nextCursor"];
     limit?: number; // or DEFAULT_PAGINATION_LIMIT
     order?: "ascending" | "descending";
   }): Promise<{

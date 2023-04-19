@@ -1,6 +1,6 @@
 {
   "name": "@originbyte/js-sdk",
-  "version": "0.29.36",
+  "version": "0.29.37",
   "keywords": [
     "originbyte",
     "sdk",
@@ -57,7 +57,7 @@
     "typescript-eslint-parser": "^22.0.0"
   },
   "dependencies": {
-    "@mysten/sui.js": "0.30.0",
+    "@mysten/sui.js": "0.32.1",
     "superstruct": "^1.0.3"
   }
 }
