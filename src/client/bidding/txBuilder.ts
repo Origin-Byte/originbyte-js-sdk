@@ -65,7 +65,7 @@ export const sellNftFromKioskTx = (p: SellNftFromKiosk) => {
             typeof p.buyersKiosk === "string" ? tx.object(p.buyersKiosk) : p.buyersKiosk,
             tx.object(p.nft)
         ],
-        [p.ft, p.nftType]
+        [p.nftType, p.ft]
     );
 };
 
@@ -78,7 +78,7 @@ export const sellNftTx = (p: SellNft) => {
             typeof p.buyersKiosk === "string" ? tx.object(p.buyersKiosk) : p.buyersKiosk,
             tx.object(p.nft)
         ],
-        [p.ft, p.nftType]
+        [p.nftType, p.ft]
     );
 };
 
@@ -90,6 +90,6 @@ export const closeBidTx = (p: CloseBidParams) => {
             tx.object(p.bid),
             tx.object(p.kioskId) // TODO remove it on the next contract deployment
         ],
-        [p.nftType]
+        [p.ft]
     )
 }

@@ -3,7 +3,7 @@ import { BiddingContractClient, KioskFullClient } from "../src";
 import { kioskClient, signer, user } from "./common";
 
 export const placeBid = async () => {
-    const nftId = "0xb94dc94b2bb353dbc8230ab87f56c8db571c0431d66d762b9b316423002a8e4f";
+    const nftId = "0x0626c9b4e068346891791d7e0c64aa83136fca111d0f8a229641dd4928af9ae8";
     const transaction = new TransactionBlock();
     const kioskId = await kioskClient.getWalletKioskId(user);
     console.log("user", user);
@@ -17,7 +17,7 @@ export const placeBid = async () => {
     BiddingContractClient.createBidTx({
         transaction,
         nft: nftId,
-        buyersKiosk: "0xd060cc88e01a12d96810791b266e570616a001363ddffa70643bf1f32c1312b1",
+        buyersKiosk: kioskIdTransaction || kioskId,
         ft: SUI_TYPE_ARG,
         wallet: coin,
         price: 1
