@@ -19,6 +19,7 @@ import {
   TransferSignedProps, 
   WithDrawNftProps 
 } from "./types";
+import { wrapToObject } from "../utils";
 
 
 function txObj(
@@ -70,7 +71,7 @@ export const depositTx = (params: DepositProps): [TransactionBlock, TransactionR
       "deposit",
       params,
       (tx) => [
-        typeof params.kiosk === "string" ? tx.object(params.kiosk) : params.kiosk,
+        wrapToObject(tx, params.kiosk),
         tx.object(params.nftType)
       ], [params.nftType]);
 }
@@ -88,7 +89,7 @@ export const authTransferTx = (params: AuthTransferProps) => {
     "auth_transfer",
     params,
     (tx) => [
-      typeof params.kiosk === "string" ? tx.object(params.kiosk) : params.kiosk,
+      wrapToObject(tx, params.kiosk),
       tx.object(params.nft),
       tx.pure(params.entity)
     ],
@@ -109,7 +110,7 @@ export const authExclusiveTransferTx = (params: AuthExclusiveTransferProps) => {
     "auth_exclusive_transfer",
     params,
     (tx) => [
-      typeof params.kiosk === "string" ? tx.object(params.kiosk) : params.kiosk,
+      wrapToObject(tx, params.kiosk),
       tx.object(params.nft),
       tx.object(params.entity)
     ],
@@ -181,7 +182,7 @@ export const withdrawNftTx = (params: WithDrawNftProps): [TransactionBlock, Tran
       "withdraw_nft",
       params,
       (tx) => [
-        typeof params.kiosk === "string" ? tx.object(params.kiosk) : params.kiosk,
+        wrapToObject(tx, params.kiosk),
         tx.object(params.nft),
         tx.pure(params.entityId)
       ], [
@@ -210,7 +211,7 @@ export const delistNftAsOwnerTx = (params: DelistNftAsOwnerInputProps): [Transac
     "delist_nft_as_owner",
     params,
     (tx) => [
-      typeof params.kiosk === "string" ? tx.object(params.kiosk) : params.kiosk
+      wrapToObject(tx, params.kiosk)
     ],
     []
   )
@@ -223,7 +224,7 @@ export const removeAuthTransferTx = (params: RemoveAuthTransferProps): [Transact
     "remove_auth_transfer",
     params,
     (tx) => [
-      typeof params.kiosk === "string" ? tx.object(params.kiosk) : params.kiosk,
+      wrapToObject(tx, params.kiosk),
       tx.object(params.nft),
       tx.pure(params.entity)
     ],
@@ -239,7 +240,7 @@ export const removeAuthTransferAsOwnerTx = (params: RemoveAuthTransferAsOwnerPro
     "remove_auth_transfer_as_owner",
     params,
     (tx) => [
-      typeof params.kiosk === "string" ? tx.object(params.kiosk) : params.kiosk,
+      wrapToObject(tx, params.kiosk),
       tx.object(params.nft),
       tx.pure(params.entity)
     ],
@@ -255,7 +256,7 @@ export const restrictDepositsTx = (params: RestrictDepositsProps): [TransactionB
     "restrict_deposits",
     params,
     (tx) => [
-      typeof params.kiosk === "string" ? tx.object(params.kiosk) : params.kiosk
+      wrapToObject(tx, params.kiosk),
     ],
     []
   )
@@ -268,7 +269,7 @@ export const enableAnyDepositTx = (params: EnableAnyDepositProps): [TransactionB
     "enable_any_deposit",
     params,
     (tx) => [
-      typeof params.kiosk === "string" ? tx.object(params.kiosk) : params.kiosk
+      wrapToObject(tx, params.kiosk),
     ],
     []
   )
@@ -285,7 +286,7 @@ export const disableDepositsOfCollectionTx = (params: DisableDepositsOfCollectio
     "disable_deposits_of_collection",
     params,
     (tx) => [
-      typeof params.kiosk === "string" ? tx.object(params.kiosk) : params.kiosk
+      wrapToObject(tx, params.kiosk),
     ],
     [
       params.collectionType
@@ -304,7 +305,7 @@ export const enableDespositsOfCollectionTx = (params: EnableDepositsOfCollection
     "enable_deposits_of_collection",
     params,
     (tx) => [
-      typeof params.kiosk === "string" ? tx.object(params.kiosk) : params.kiosk
+      wrapToObject(tx, params.kiosk),
     ],
     [params.collectionType]
   )

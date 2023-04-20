@@ -3,6 +3,7 @@ import { TransactionBlockArgument, TransactionResult, txObj as txCommon } from "
 import { GlobalParams } from "../types";
 import { DEFAULT_BIDDING_MODULE, DEFAULT_PACKAGE_ID } from "../consts";
 import { CloseBidParams, CreateBidInput, CreateBidWithCommissionInput, SellNft, SellNftFromKiosk } from "./types";
+import { wrapToObject } from "../utils";
 
 const txObj = (
   fun: string,
@@ -33,7 +34,7 @@ export const createBidTx = (p: CreateBidInput) => {
             tx.object(p.nft), // The parameters are reversed because of a smart contract bug, change it when the fixed version will deployed
             typeof p.buyersKiosk === "string" ? tx.object(p.buyersKiosk) : p.buyersKiosk,
             tx.pure(String(p.price)),
-            typeof p.wallet === "string" ? tx.object(p.wallet) : p.wallet
+            wrapToObject(tx, p.wallet)
         ],
         [p.ft]
     );
@@ -49,7 +50,7 @@ export const createBidWithCommissionTx = async (p: CreateBidWithCommissionInput)
             tx.pure(String(p.price)),
             tx.object(p.beneficiary),
             tx.pure(String(p.commission)),
-            typeof p.wallet === "string" ? tx.object(p.wallet) : p.wallet
+            wrapToObject(tx, p.wallet)
         ],
         [p.ft]
     );
@@ -62,7 +63,7 @@ export const sellNftFromKioskTx = (p: SellNftFromKiosk) => {
         (tx) => [
             tx.object(p.bid),
             tx.object(p.sellersKiosk),
-            typeof p.buyersKiosk === "string" ? tx.object(p.buyersKiosk) : p.buyersKiosk,
+            wrapToObject(tx, p.buyersKiosk),
             tx.object(p.nft)
         ],
         [p.nftType, p.ft]
@@ -75,7 +76,7 @@ export const sellNftTx = (p: SellNft) => {
         p,
         (tx) => [
             tx.object(p.bid),
-            typeof p.buyersKiosk === "string" ? tx.object(p.buyersKiosk) : p.buyersKiosk,
+            wrapToObject(tx, p.buyersKiosk),
             tx.object(p.nft)
         ],
         [p.nftType, p.ft]
