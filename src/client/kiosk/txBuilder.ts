@@ -2,7 +2,7 @@ import { TransactionBlock } from "@mysten/sui.js";
 import { TransactionBlockArgument, TransactionResult , txObj as txCommon } from "../../transaction";
 import { GlobalParams, KioskParam } from "../types";
 import { DEFAULT_KIOSK_MODULE, DEFAULT_PACKAGE_ID, DEFAULT_SUI_PACKAGE_ID, DEFAULT_SUI_TRANSFER_MODULE } from "../consts";
-import { 
+import {
   AuthExclusiveTransferProps, 
   AuthTransferProps, 
   DelistNftAsOwnerInputProps, 
@@ -10,7 +10,6 @@ import {
   DisableDepositsOfCollectionProps, 
   EnableAnyDepositProps, 
   EnableDepositsOfCollectionProps, 
-  Kiosk, 
   RemoveAuthTransferAsOwnerProps, 
   RemoveAuthTransferProps, 
   RestrictDepositsProps, 
