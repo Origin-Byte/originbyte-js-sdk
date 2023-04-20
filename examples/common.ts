@@ -3,8 +3,9 @@ import {
   Ed25519Keypair,
   JsonRpcProvider,
   RawSigner,
+  SUI_TYPE_ARG,
 } from "@mysten/sui.js";
-import { NftClient, OrderbookFullClient, SafeFullClient } from "../src";
+import { BiddingContractClient, KioskFullClient, NftClient, OrderbookFullClient, SafeFullClient } from "../src";
 
 // export const mnemonic = 'muffin tuition fit fish average true slender tower salmon artist song biology';
 export const mnemonic =
@@ -20,7 +21,7 @@ export const mnemonic =
 // Step 0 - Publish
 
 export const PACKAGE_OBJECT_ID =
-  "0x30ac932177f6c7bb1ee142838f0faa8b0ac65f250455567c761c39d84c02082d"; // Change to your deployed contract
+  "0x86ed6bc882fa476f20db8d21256a20cc7c841b9e1a37c356daa5406f92412f3c"; // Change to your deployed contract
 export const COLLECTION_ID =
   "0x8be1aceaa7d4ebf1db11382d4ca1c4c8a358fe08771244f85ce62202ec28b68f"; // Change to your deployed contract
 export const COLLECTION_ID_NAME = `${COLLECTION_ID}::suitraders::SUITRADERS`;
@@ -55,15 +56,51 @@ export function normalizeMnemonics(mnemonics: string): string {
     .join(" ");
 }
 
-export const keypair = Ed25519Keypair.deriveKeypair(mnemonic);
+function hexStringToUint8Array(hexStr: string) {
+  if (hexStr.length % 2 !== 0) {
+    throw new Error("Invalid hex string length.");
+  }
+
+  const byteValues: number[] = [];
+
+  for (let i = 0; i < hexStr.length; i += 2) {
+    const byte: number = parseInt(hexStr.slice(i, i + 2), 16);
+
+    if (Number.isNaN(byte)) {
+      throw new Error(`Invalid hex value at position ${i}: ${hexStr.slice(i, i + 2)}`);
+    }
+
+    byteValues.push(byte);
+  }
+
+  return new Uint8Array(byteValues);
+}
+
+
+// eslint-disable-next-line max-len
+export const keypair = process.env.WALLET_PK ? Ed25519Keypair.fromSecretKey(hexStringToUint8Array(process.env.WALLET_PK)) : Ed25519Keypair.deriveKeypair(mnemonic);
 
 export const provider = new JsonRpcProvider(
   // new Connection({ fullnode: "https://fullnode.devnet.sui.io" })
-  new Connection({ fullnode: "https://explorer-rpc.devnet.sui.io/" })
+  new Connection({ fullnode: "https://explorer-rpc.testnet.sui.io/" })
 );
 export const signer = new RawSigner(keypair, provider);
 export const client = new NftClient(provider);
 export const orderbookClient = OrderbookFullClient.fromKeypair(
+  keypair,
+  provider,
+  {
+    packageObjectId: PACKAGE_OBJECT_ID,
+  }
+);
+export const kioskClient = KioskFullClient.fromKeypair(
+  keypair,
+  provider,
+  {
+    packageObjectId: PACKAGE_OBJECT_ID,
+  }
+);
+export const biddingClient = BiddingContractClient.fromKeypair(
   keypair,
   provider,
   {
@@ -84,6 +121,19 @@ export async function fetchNfts() {
   return objs
     .filter((o) => o.data?.type === NFT_TYPE)
     .map((o) => o.data?.objectId);
+}
+
+export async function getGas() {
+  const coins = (await provider.getCoins({owner: user, coinType: SUI_TYPE_ARG})).data;
+  if (coins.length === 0) {
+    throw new Error(`No gas object for user '${user}'`);
+  }
+  const coin = coins[0];
+  if (typeof coin !== "object") {
+    throw new Error(`Unexpected coin type: ${JSON.stringify(coin)}`);
+  }
+
+  return coin.coinObjectId;
 }
 
 export async function getSafeAndOwnerCap() {

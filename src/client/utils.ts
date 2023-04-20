@@ -1,4 +1,5 @@
-import { ObjectOwner } from "@mysten/sui.js";
+import { ObjectOwner, TransactionBlock } from "@mysten/sui.js";
+import { TransactionResult } from "../transaction";
 
 export const parseObjectOwner = (
   owner: ObjectOwner
@@ -21,3 +22,6 @@ export const parseObjectOwner = (
   console.warn("Unexpected owner type", owner);
   throw new Error("Unexpected owner type");
 };
+
+export const wrapToObject = (tx: TransactionBlock, objectRef: string | TransactionResult) => 
+  typeof objectRef === "string" ? tx.object(objectRef) : objectRef;
