@@ -80,6 +80,7 @@ export class NftClient {
     parser: SuiObjectParser<DataModel>
   ): Promise<DataModel[]> => {
     const parsedObjects = objects
+      .filter((_) => !!_.data)
       .map((_) => {
         return parser.parser(_);
       })
