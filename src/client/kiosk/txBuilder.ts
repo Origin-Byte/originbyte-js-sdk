@@ -1,7 +1,7 @@
 import { TransactionBlock } from "@mysten/sui.js";
 import { TransactionBlockArgument, TransactionResult , txObj as txCommon } from "../../transaction";
-import { GlobalParams } from "../types";
-import { DEFAULT_KIOSK_MODULE, DEFAULT_PACKAGE_ID } from "../consts";
+import { GlobalParams, KioskParam } from "../types";
+import { DEFAULT_KIOSK_MODULE, DEFAULT_PACKAGE_ID, DEFAULT_SUI_PACKAGE_ID, DEFAULT_SUI_TRANSFER_MODULE } from "../consts";
 import { 
   AuthExclusiveTransferProps, 
   AuthTransferProps, 
@@ -10,6 +10,7 @@ import {
   DisableDepositsOfCollectionProps, 
   EnableAnyDepositProps, 
   EnableDepositsOfCollectionProps, 
+  Kiosk, 
   RemoveAuthTransferAsOwnerProps, 
   RemoveAuthTransferProps, 
   RestrictDepositsProps, 
@@ -43,11 +44,50 @@ function txObj(
   );
 }
 
+function suiTxObj(
+  fun: string,
+  p: GlobalParams,
+  args: (
+    tx: TransactionBlock
+  ) => (TransactionBlockArgument | TransactionResult)[],
+  tArgs: string[]
+): [TransactionBlock, TransactionResult] {
+  // eslint-disable-next-line no-undef
+  return txCommon(
+    {
+      packageObjectId: p.packageObjectId ?? DEFAULT_SUI_PACKAGE_ID,
+      moduleName: p.moduleName ?? DEFAULT_SUI_TRANSFER_MODULE,
+      fun,
+      transaction: p.transaction,
+    },
+    args,
+    tArgs
+  );
+}
+
 export const createKioskTx = (params: GlobalParams): [TransactionBlock, TransactionResult] => {
     return txObj(
       "create_for_sender",
       params,
       () => [], []);
+}
+
+export const newKioskTx = (params: GlobalParams): [TransactionBlock, TransactionResult] => {
+    return txObj(
+      "new",
+      params,
+      () => [], []);
+}
+
+export const shareKioskTx = (params: GlobalParams & KioskParam): [TransactionBlock, TransactionResult] => {
+  return suiTxObj(
+    "public_share_object",
+    params,
+    (tx) => [
+      wrapToObject(tx, params.kiosk)
+    ],
+    ["0x2::kiosk::Kiosk"]
+  );
 }
 
 export const setPermissionLessToPermissioned = (params: SetPermissionlessToPermissionedProps) => {
