@@ -65,17 +65,15 @@ export const ArtNftParser: SuiObjectParser<ArtNftRaw> = {
         return undefined;
       }
 
-      const packageObjectId = matches[1];
-      const collectionPackageObjectId = matches[2];
-      const packageModule = matches[3];
-      const packageModuleClassName = matches[4];
+      const collectionPackageObjectId = matches[1];
+      const packageModule = matches[2];
+      const packageModuleClassName = matches[3];
 
       const result = {
         owner,
         ownerAddress: parseObjectOwner(owner),
         type: _.data.type,
         id: _.data.objectId,
-        packageObjectId,
         collectionPackageObjectId,
         packageModule,
         packageModuleClassName,
