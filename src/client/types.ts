@@ -473,9 +473,7 @@ export type BuildBuyNftParams = GlobalParams &
   WithNftType & {
     listing: string;
     venue: string;
-    coin:
-      | string
-      | TransactionResult
+    coin: string | TransactionResult;
     module?: "fixed_price" | "limited_fixed_price";
     coinType?: string;
   };
