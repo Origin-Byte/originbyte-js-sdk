@@ -319,7 +319,7 @@ export interface FixedPriceMarket
 
 export type LimitedFixedPriceMarket = FixedPriceMarket & {
   limit: number;
-  addresses: Record<string, string>;
+  addresses: Map<string, number>;
 };
 
 export interface MarketplaceRpcResponse {
