@@ -16,7 +16,17 @@ export interface Kiosk {
    allow_extensions: boolean 
 }
 
-export interface DepositProps extends KioskParam, WithNftType, GlobalParams {}
+export interface KioskNftItem {
+    name: {
+        type: string,
+        value: {
+            id: string
+        }
+    },
+    value: any
+}
+
+export interface DepositProps extends KioskParam, NftParam, WithNftType, GlobalParams {}
 export interface SetPermissionlessToPermissionedProps extends GlobalParams, KioskParam {
     user: string
 }

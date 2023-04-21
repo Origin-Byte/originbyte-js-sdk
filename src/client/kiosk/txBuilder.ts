@@ -1,7 +1,7 @@
 import { TransactionBlock } from "@mysten/sui.js";
 import { TransactionBlockArgument, TransactionResult , txObj as txCommon } from "../../transaction";
 import { GlobalParams, KioskParam } from "../types";
-import { DEFAULT_KIOSK_MODULE, DEFAULT_PACKAGE_ID, DEFAULT_SUI_PACKAGE_ID, DEFAULT_SUI_TRANSFER_MODULE } from "../consts";
+import { DEFAULT_KIOSK_MODULE, DEFAULT_PACKAGE_ID } from "../consts";
 import {
   AuthExclusiveTransferProps, 
   AuthTransferProps, 
@@ -20,6 +20,7 @@ import {
   WithDrawNftProps 
 } from "./types";
 import { wrapToObject } from "../utils";
+import { SuiContractFullClient } from "../sui-contract/SuiContractFullClient";
 
 
 function txObj(
@@ -43,27 +44,6 @@ function txObj(
   );
 }
 
-function suiTxObj(
-  fun: string,
-  p: GlobalParams,
-  args: (
-    tx: TransactionBlock
-  ) => (TransactionBlockArgument | TransactionResult)[],
-  tArgs: string[]
-): [TransactionBlock, TransactionResult] {
-  // eslint-disable-next-line no-undef
-  return txCommon(
-    {
-      packageObjectId: p.packageObjectId ?? DEFAULT_SUI_PACKAGE_ID,
-      moduleName: p.moduleName ?? DEFAULT_SUI_TRANSFER_MODULE,
-      fun,
-      transaction: p.transaction,
-    },
-    args,
-    tArgs
-  );
-}
-
 export const createKioskTx = (params: GlobalParams): [TransactionBlock, TransactionResult] => {
     return txObj(
       "create_for_sender",
@@ -79,14 +59,19 @@ export const newKioskTx = (params: GlobalParams): [TransactionBlock, Transaction
 }
 
 export const shareKioskTx = (params: GlobalParams & KioskParam): [TransactionBlock, TransactionResult] => {
-  return suiTxObj(
-    "public_share_object",
-    params,
-    (tx) => [
-      wrapToObject(tx, params.kiosk)
-    ],
-    ["0x2::kiosk::Kiosk"]
-  );
+  return SuiContractFullClient.publicShareObject({
+    transaction: params.transaction,
+    value: params.kiosk,
+    type: "0x2::kiosk::Kiosk"
+  });
+}
+
+export const getObjectIdTx = (params: GlobalParams & KioskParam): [TransactionBlock, TransactionResult] => {
+  return SuiContractFullClient.getId({
+    transaction: params.transaction,
+    value: params.kiosk,
+    type: "0x2::kiosk::Kiosk"
+  });
 }
 
 export const setPermissionLessToPermissioned = (params: SetPermissionlessToPermissionedProps) => {
@@ -111,7 +96,7 @@ export const depositTx = (params: DepositProps): [TransactionBlock, TransactionR
       params,
       (tx) => [
         wrapToObject(tx, params.kiosk),
-        tx.object(params.nftType)
+        tx.object(params.nft)
       ], [params.nftType]);
 }
 

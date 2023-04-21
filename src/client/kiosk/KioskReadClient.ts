@@ -2,7 +2,7 @@ import { JsonRpcProvider, ObjectId, SuiAddress } from "@mysten/sui.js";
 import { ReadClient } from "../ReadClient";
 import { GlobalParams } from "../types";
 import { DEFAULT_KIOSK_MODULE, DEFAULT_PACKAGE_ID } from "../consts";
-import { Kiosk, OwnerToken } from "./types";
+import { Kiosk, KioskNftItem, OwnerToken } from "./types";
 
 export class KioskReadClient {
   // eslint-disable-next-line
@@ -72,6 +72,24 @@ export class KioskReadClient {
       return ownerTokens[0].kiosk;
     }
     return undefined;
+  }
+
+  /*
+  Returns all the nfts for a specific kiosks 
+  */
+  public async getKioskNfts(kioskId: ObjectId, p: Partial<GlobalParams> = {}) {
+    const kiosk = await this.client.getDynamicFields(kioskId);
+    return kiosk.filter((item) => 
+      item.name.type === "0x2::kiosk::Item"
+    ).map((item) => ({kioskId, nft: item.name.value.id}));
+  }
+
+  /*
+  Returns all the nfts that are contained in every kiosk connected to a specific address
+  */
+  public async getAllNftKioskAssociations(user: SuiAddress) {
+    const kiosks = await this.getWalletKiosks(user);
+    return (await Promise.all(kiosks.map((kiosk) => this.getKioskNfts((kiosk.id as any).id)))).flat();
   }
 
   public async fetchKiosk(kioskId: ObjectId): Promise<Kiosk> {

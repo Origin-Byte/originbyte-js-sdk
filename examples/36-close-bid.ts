@@ -9,7 +9,7 @@ const closeBid = async () => {
     if(!kioskId) throw new Error("Use KioskId env variable to provide a bid id");
     const transaction = new TransactionBlock();
     transaction.setGasBudget(2_000_000_000);
-    BiddingContractClient.closeBid({bid: bidId, nftType: SUI_TYPE_ARG, kioskId, transaction});
+    BiddingContractClient.closeBid({bid: bidId, ft: SUI_TYPE_ARG, kioskId, transaction});
     await signer.signAndExecuteTransactionBlock({
         transactionBlock: transaction,
         options: {

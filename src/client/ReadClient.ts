@@ -57,4 +57,11 @@ export class ReadClient {
 
     return data;
   }
+
+  public async getDynamicFields(id: ObjectId) {
+    const {data} = await this.provider.getDynamicFields({
+      parentId: id,
+    });
+    return data;
+  }
 }
