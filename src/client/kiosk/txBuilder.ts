@@ -1,7 +1,7 @@
 import { TransactionBlock } from "@mysten/sui.js";
 import { TransactionBlockArgument, TransactionResult , txObj as txCommon } from "../../transaction";
 import { GlobalParams, KioskParam } from "../types";
-import { DEFAULT_KIOSK_MODULE, DEFAULT_PACKAGE_ID } from "../consts";
+import { DEFAULT_KIOSK_MODULE, DEFAULT_PACKAGE_ID, DEFAULT_SUI_PACKAGE_ID, DEFAULT_SUI_TRANSFER_MODULE } from "../consts";
 import {
   AuthExclusiveTransferProps, 
   AuthTransferProps, 

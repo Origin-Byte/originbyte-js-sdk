@@ -311,8 +311,8 @@ export type Venue = WithRawResponse &
 
 export interface FixedPriceMarket
   extends WithRawResponse,
-    WithId,
-    WithPackageObjectId {
+  WithId,
+  WithPackageObjectId {
   price: string;
   inventoryId: string;
   marketType: "fixed_price" | "limited_fixed_price";
@@ -339,8 +339,8 @@ export interface MarketplaceRpcResponse {
 
 export interface Marketplace
   extends WithId,
-    WithPackageObjectId,
-    WithRawResponse {
+  WithPackageObjectId,
+  WithRawResponse {
   owner: string;
   admin: string;
   receiver: string;
@@ -365,7 +365,7 @@ export interface NftCollection extends WithId {
   nftProtocolPackageObjectId: string;
 }
 
-export interface ArtNftRaw extends ProtocolData, WithRawResponse, WithId {
+interface ArtNftFull extends ProtocolData, WithRawResponse, WithId {
   logicalOwner: string;
   collectionPackageObjectId: string;
   bagId?: string;
@@ -374,13 +374,10 @@ export interface ArtNftRaw extends ProtocolData, WithRawResponse, WithId {
   url?: string;
 }
 
-export interface ArtNft extends ProtocolData, WithRawResponse, WithId {
-  logicalOwner: string;
-  name?: string;
+export type ArtNftRaw = Omit<ArtNftFull, "packageObjectId">;
+
+export type ArtNft = ArtNftRaw &  {
   description?: string;
-  collectionPackageObjectId: string;
-  url?: string;
-  ownerAddress: string;
   attributes: { [c: string]: string };
 }
 
@@ -428,15 +425,15 @@ export interface GetNftsParams extends WithIds {
   resolveBags?: boolean;
 }
 
-export interface GetCollectionsParams extends WithIds {}
+export interface GetCollectionsParams extends WithIds { }
 
 export interface GetCollectionDomainsParams {
   domainsBagId: string;
 }
 
-export interface GetMintCapsParams extends WithIds {}
+export interface GetMintCapsParams extends WithIds { }
 
-export interface GetVenuesParams extends WithIds {}
+export interface GetVenuesParams extends WithIds { }
 
 export type DynamicFieldRpcResponse = {
   id: ID;
@@ -473,9 +470,7 @@ export type BuildBuyNftParams = GlobalParams &
   WithNftType & {
     listing: string;
     venue: string;
-    coin:
-      | string
-      | TransactionResult
+    coin: string | TransactionResult;
     module?: "fixed_price" | "limited_fixed_price";
     coinType?: string;
   };

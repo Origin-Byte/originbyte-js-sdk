@@ -15,7 +15,10 @@ import {
   BuildMintNftParams,
   BuildRequestToJoinMarketplaceParams,
   BuildSetLimitMarketLimitParams,
+  BuyersKioskParam,
 } from "./types";
+import { wrapToObject } from "./utils";
+
 
 const SUI_TYPE = "0x2::sui::SUI";
 
@@ -59,7 +62,25 @@ export const buildBuyNftTx = (params: BuildBuyNftParams) => {
     (tx) => [
       tx.object(params.listing),
       tx.object(params.venue),
-      typeof params.coin ==="string" ? tx.object(params.coin) : params.coin
+      wrapToObject(tx, params.coin),
+    ],
+    [params.nftType, params.coinType ?? SUI_TYPE]
+  );
+};
+
+export const buildBuyNftIntoKioskTx = (params: BuildBuyNftParams & BuyersKioskParam) => {
+  return txObj(
+    {
+      packageObjectId: params.collectionPackageId ?? params.packageObjectId,
+      moduleName: params.module ?? "fixed_price",
+      fun: "buy_nft_into_kiosk",
+      transaction: params.transaction,
+    },
+    (tx) => [
+      tx.object(params.listing),
+      tx.object(params.venue),
+      wrapToObject(tx, params.coin),
+      wrapToObject(tx, params.buyersKiosk),
     ],
     [params.nftType, params.coinType ?? SUI_TYPE]
   );
@@ -78,7 +99,28 @@ export const buildBuyWhitelistedNftTx = (
     (tx) => [
       tx.object(params.listing),
       tx.object(params.venue),
-      typeof params.coin ==="string" ? tx.object(params.coin) : params.coin,
+      wrapToObject(tx, params.coin),
+      tx.object(params.whitelistCertificate),
+    ],
+    [params.nftType, params.coinType ?? SUI_TYPE]
+  );
+};
+
+export const buildBuyWhitelistedNftIntoKioskTx = (
+  params: BuildBuyWhitelistedNftParams & BuyersKioskParam
+) => {
+  return txObj(
+    {
+      packageObjectId: params.collectionPackageId ?? params.packageObjectId,
+      moduleName: params.module ?? "fixed_price",
+      fun: "buy_whitelisted_nft_into_kiosk",
+      transaction: params.transaction,
+    },
+    (tx) => [
+      tx.object(params.listing),
+      tx.object(params.venue),
+      wrapToObject(tx, params.coin),
+      wrapToObject(tx, params.buyersKiosk),
       tx.object(params.whitelistCertificate),
     ],
     [params.nftType, params.coinType ?? SUI_TYPE]
@@ -151,6 +193,7 @@ export const buildRequestToJoinMarketplaceTx = (
       packageObjectId: params.packageObjectId,
       moduleName: "listing",
       fun: "request_to_join_marketplace",
+      transaction: params.transaction,
     },
     (tx) => [tx.object(params.marketplace), tx.object(params.listing)],
     []
@@ -165,6 +208,7 @@ export const buildAcceptListingRequestTx = (
       packageObjectId: params.packageObjectId,
       moduleName: "listing",
       fun: "accept_listing_request",
+      transaction: params.transaction,
     },
     (tx) => [tx.object(params.marketplace), tx.object(params.listing)],
     []
@@ -177,6 +221,7 @@ export const buildEnableSalesTx = (params: BuildEnableSalesParams) => {
       packageObjectId: params.packageObjectId,
       moduleName: "listing",
       fun: "sale_on",
+      transaction: params.transaction,
     },
     (tx) => [tx.object(params.listing), tx.object(params.venue)],
     []
@@ -189,6 +234,7 @@ export const buildDisableSalesTx = (params: BuildEnableSalesParams) => {
       packageObjectId: params.packageObjectId,
       moduleName: "listing",
       fun: "sale_off",
+      transaction: params.transaction,
     },
     (tx) => [tx.object(params.listing), tx.object(params.venue)],
     []
@@ -201,6 +247,7 @@ export const buildCreateFlatFeeTx = (params: BuildCreateFlatFeeParams) => {
       packageObjectId: params.packageObjectId,
       moduleName: "flat_fee",
       fun: "init_fee",
+      transaction: params.transaction,
     },
     (tx) => [tx.pure(params.rate)],
     []
@@ -213,6 +260,7 @@ export const buildInitMarketplaceTx = (params: BuildInitMarketplaceParams) => {
       packageObjectId: params.packageObjectId,
       moduleName: "marketplace",
       fun: "init_marketplace",
+      transaction: params.transaction,
     },
     (tx) => [
       tx.object(params.admin),
@@ -229,6 +277,7 @@ export const buildInitListingTx = (params: BuildInitListingParams) => {
       packageObjectId: params.packageObjectId,
       moduleName: "listing",
       fun: "init_listing",
+      transaction: params.transaction,
     },
     (tx) => [tx.object(params.listingAdmin), tx.object(params.receiver)],
     []
@@ -241,6 +290,7 @@ export const buildInitWarehouseTx = (params: BuildInitWarehouseParams) => {
       packageObjectId: params.packageObjectId,
       moduleName: "warehouse",
       fun: "init_warehouse",
+      transaction: params.transaction,
     },
     () => [],
     [params.nftType]
@@ -255,6 +305,7 @@ export const buildAddWarehouseToListingTx = (
       packageObjectId: params.packageObjectId,
       moduleName: "listing",
       fun: "add_warehouse",
+      transaction: params.transaction,
     },
     (tx) => [tx.object(params.listing), tx.object(params.warehouse)],
     [params.nftType]

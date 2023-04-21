@@ -10,7 +10,10 @@ import {
   depositTx, 
   disableDepositsOfCollectionTx, 
   enableAnyDepositTx, 
+<<<<<<< HEAD
   getObjectIdTx, 
+=======
+>>>>>>> e4bc2577590678f28f56469f9cacad39bed326d6
   newKioskTx, 
   removeAuthTransferAsOwnerTx, 
   removeAuthTransferTx, 
