@@ -193,6 +193,7 @@ export const buildRequestToJoinMarketplaceTx = (
       packageObjectId: params.packageObjectId,
       moduleName: "listing",
       fun: "request_to_join_marketplace",
+      transaction: params.transaction,
     },
     (tx) => [tx.object(params.marketplace), tx.object(params.listing)],
     []
@@ -207,6 +208,7 @@ export const buildAcceptListingRequestTx = (
       packageObjectId: params.packageObjectId,
       moduleName: "listing",
       fun: "accept_listing_request",
+      transaction: params.transaction,
     },
     (tx) => [tx.object(params.marketplace), tx.object(params.listing)],
     []
@@ -219,6 +221,7 @@ export const buildEnableSalesTx = (params: BuildEnableSalesParams) => {
       packageObjectId: params.packageObjectId,
       moduleName: "listing",
       fun: "sale_on",
+      transaction: params.transaction,
     },
     (tx) => [tx.object(params.listing), tx.object(params.venue)],
     []
@@ -231,6 +234,7 @@ export const buildDisableSalesTx = (params: BuildEnableSalesParams) => {
       packageObjectId: params.packageObjectId,
       moduleName: "listing",
       fun: "sale_off",
+      transaction: params.transaction,
     },
     (tx) => [tx.object(params.listing), tx.object(params.venue)],
     []
@@ -243,6 +247,7 @@ export const buildCreateFlatFeeTx = (params: BuildCreateFlatFeeParams) => {
       packageObjectId: params.packageObjectId,
       moduleName: "flat_fee",
       fun: "init_fee",
+      transaction: params.transaction,
     },
     (tx) => [tx.pure(params.rate)],
     []
@@ -255,6 +260,7 @@ export const buildInitMarketplaceTx = (params: BuildInitMarketplaceParams) => {
       packageObjectId: params.packageObjectId,
       moduleName: "marketplace",
       fun: "init_marketplace",
+      transaction: params.transaction,
     },
     (tx) => [
       tx.object(params.admin),
@@ -271,6 +277,7 @@ export const buildInitListingTx = (params: BuildInitListingParams) => {
       packageObjectId: params.packageObjectId,
       moduleName: "listing",
       fun: "init_listing",
+      transaction: params.transaction,
     },
     (tx) => [tx.object(params.listingAdmin), tx.object(params.receiver)],
     []
@@ -283,6 +290,7 @@ export const buildInitWarehouseTx = (params: BuildInitWarehouseParams) => {
       packageObjectId: params.packageObjectId,
       moduleName: "warehouse",
       fun: "init_warehouse",
+      transaction: params.transaction,
     },
     () => [],
     [params.nftType]
@@ -297,6 +305,7 @@ export const buildAddWarehouseToListingTx = (
       packageObjectId: params.packageObjectId,
       moduleName: "listing",
       fun: "add_warehouse",
+      transaction: params.transaction,
     },
     (tx) => [tx.object(params.listing), tx.object(params.warehouse)],
     [params.nftType]

@@ -85,6 +85,7 @@ export class NftClient {
     parser: SuiObjectParser<DataModel>
   ): Promise<DataModel[]> => {
     const parsedObjects = objects
+      .filter((_) => !!_.data)
       .map((_) => {
         return parser.parser(_);
       })
@@ -335,36 +336,36 @@ export class NftClient {
 
     const bags = resolveBags
       ? await Promise.all(
-          nfts.map(async (_) => {
-            const content = _.bagId
-              ? await this.getBagContent(_.bagId)
-              : await this.getDynamicFields(_.id);
+        nfts.map(async (_) => {
+          const content = _.bagId
+            ? await this.getBagContent(_.bagId)
+            : await this.getDynamicFields(_.id);
 
-            return {
-              nftId: _.id,
-              content: parseDynamicDomains(content),
-            };
-          })
-        )
+          return {
+            nftId: _.id,
+            content: parseDynamicDomains(content),
+          };
+        })
+      )
       : [];
     const bagsByNftId = toMap(bags, (_) => _.nftId);
 
     return nfts.map((nft) => {
       const fields = bagsByNftId.get(nft.id);
-      return {
+      const a: ArtNft = {
         logicalOwner: nft.logicalOwner,
         name: fields?.content.name ?? nft.name,
         description: fields?.content.description ?? "",
         url: fields?.content.url ?? nft.url,
         attributes: fields?.content.attributes ?? {},
         packageModule: nft.packageModule,
-        packageObjectId: nft.packageObjectId,
         packageModuleClassName: nft.packageModuleClassName,
         id: nft.id,
         rawResponse: nft.rawResponse,
         ownerAddress: nft.ownerAddress,
         collectionPackageObjectId: nft.collectionPackageObjectId,
       };
+      return a;
     });
   };
 
