@@ -9,7 +9,7 @@ export interface OwnerToken {
 }
 
 export interface Kiosk {
-   id: string,
+   id: { id: string },
    profits: {value: number},
    owner: string,
    item_count: number,
