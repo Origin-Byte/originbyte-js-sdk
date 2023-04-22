@@ -195,7 +195,9 @@ export const LimitedFixedPriceMarketParser: SuiObjectParser<LimitedFixedPriceMar
         price: fields.value.fields.price,
         inventoryId: fields.value.fields.inventory_id,
         limit: parseFloat(fields.value.fields.limit),
-        addresses: fields.value.fields.addresses,
+        addresses: (fields.value.fields.addresses.fields.contents as { fields: { key: string, value: string } }[]).reduce(
+          (acc, address) => acc.set(address.fields.key, parseInt(address.fields.value, 10)), new Map<string, number>()
+        ),
         marketType: "limited_fixed_price",
       };
     }
