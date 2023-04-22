@@ -10,6 +10,7 @@ import {
   depositTx, 
   disableDepositsOfCollectionTx, 
   enableAnyDepositTx, 
+  getObjectIdTx, 
   newKioskTx, 
   removeAuthTransferAsOwnerTx, 
   removeAuthTransferTx, 
@@ -40,6 +41,8 @@ export class KioskFullClient extends KioskReadClient {
   }
 
   static createKioskTx = createKioskTx;
+
+  static getObjectIdTx = getObjectIdTx;
 
   static newKioskTx = newKioskTx;
 

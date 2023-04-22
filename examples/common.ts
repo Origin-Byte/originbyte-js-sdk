@@ -82,7 +82,7 @@ export const keypair = process.env.WALLET_PK ? Ed25519Keypair.fromSecretKey(hexS
 
 export const provider = new JsonRpcProvider(
   // new Connection({ fullnode: "https://fullnode.devnet.sui.io" })
-  new Connection({ fullnode: "https://explorer-rpc.testnet.sui.io/" })
+  new Connection({ fullnode: "https://testnet.suiet.app" })
 );
 export const signer = new RawSigner(keypair, provider);
 export const client = new NftClient(provider);
