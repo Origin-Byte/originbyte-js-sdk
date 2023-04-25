@@ -203,7 +203,7 @@ export const buildCreateFlatFeeTx = (params: BuildCreateFlatFeeParams) => {
   return txObj(
     {
       packageObjectId: params.packageObjectId,
-      moduleName: "launchpad",
+      moduleName: "flat_fee",
       fun: "init_fee",
       transaction: params.transaction,
     },

@@ -259,7 +259,7 @@ export const MarketplaceParser: SuiObjectParser<Marketplace> = {
   regex: MARKETPLACE_REGEX,
 };
 
-const FLAT_FEE_REGEX = /(0x[a-f0-9]{63,64})::launchpad::FlatFee/;
+const FLAT_FEE_REGEX = /(0x[a-f0-9]{63,64})::flat_fee::FlatFee/;
 
 export const FlatFeeParser: SuiObjectParser<FlatFee> = {
   parser: (data) => {
