@@ -31,8 +31,8 @@ export const createBidTx = (p: CreateBidInput) => {
         "create_bid",
         p,
         (tx) => [
-            tx.object(p.nft), // The parameters are reversed because of a smart contract bug, change it when the fixed version will deployed
             typeof p.buyersKiosk === "string" ? tx.object(p.buyersKiosk) : p.buyersKiosk,
+            tx.object(p.nft),
             tx.pure(String(p.price)),
             wrapToObject(tx, p.wallet)
         ],
@@ -45,8 +45,8 @@ export const createBidWithCommissionTx = async (p: CreateBidWithCommissionInput)
         "create_bid_with_commission",
         p,
         (tx) => [
-            tx.object(p.nft), // The parameters are reversed because of a smart contract bug, change it when the fixed version will deployed
             typeof p.buyersKiosk === "string" ? tx.object(p.buyersKiosk) : p.buyersKiosk,
+            tx.object(p.nft),
             tx.pure(String(p.price)),
             tx.object(p.beneficiary),
             tx.pure(String(p.commission)),
