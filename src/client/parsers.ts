@@ -80,8 +80,12 @@ export const ArtNftParser: SuiObjectParser<ArtNftRaw> = {
         rawResponse: _,
         logicalOwner: content.fields.logical_owner,
         bagId: content.fields.bag?.fields.id.id,
-        url: (typeof display?.data === "object") ? (display?.data.image_url ?? content.fields.url) : content.fields.url,
-        name: (typeof display?.data === "object") ? (display?.data.name ?? content.fields.name) : content.fields.name,
+        url: (typeof display?.data === "object" && display?.data !== null) ?
+          (display?.data.image_url ?? content.fields.url) :
+          content.fields.url,
+        name: (typeof display?.data === "object" && display?.data !== null) ?
+          (display?.data.name ?? content.fields.name) :
+          content.fields.name,
       };
 
       if (!result.url) {
@@ -150,7 +154,7 @@ export const OrderbookParser = getEmptyParser(ORDER_BOOK_REGEX);
 
 export const FIXED_PRICE_MARKET_REGEX =
   // eslint-disable-next-line max-len
-  /0x2::dynamic_field::Field<(0x[a-f0-9]{63,64})::utils::Marker<0x[a-f0-9]{63,64}::fixed_price::FixedPriceMarket<0x2::sui::SUI>>, 0x[a-f0-9]{63,64}::fixed_price::FixedPriceMarket<0x2::sui::SUI>>/;
+  /0x2::dynamic_field::Field<(0x[a-f0-9]{63,64})::venue::Key, 0x[a-f0-9]{63,64}::fixed_price::FixedPriceMarket</;
 
 export const FixedPriceMarketParser: SuiObjectParser<FixedPriceMarket> = {
   parser: (_) => {
@@ -176,7 +180,7 @@ export const FixedPriceMarketParser: SuiObjectParser<FixedPriceMarket> = {
 
 export const LIMITED_FIXED_PRICE_MARKET_REGEX =
   // eslint-disable-next-line max-len
-  /0x2::dynamic_field::Field<(0x[a-f0-9]{63,64})::utils::Marker<0x[a-f0-9]{63,64}::limited_fixed_price::LimitedFixedPriceMarket<0x2::sui::SUI>>, 0x[a-f0-9]{63,64}::limited_fixed_price::LimitedFixedPriceMarket<0x2::sui::SUI>>/;
+  /0x2::dynamic_field::Field<(0x[a-f0-9]{63,64})::venue::Key, 0x[a-f0-9]{63,64}::limited_fixed_price::LimitedFixedPriceMarket</;
 
 export const LimitedFixedPriceMarketParser: SuiObjectParser<LimitedFixedPriceMarket> =
 {
@@ -195,7 +199,9 @@ export const LimitedFixedPriceMarketParser: SuiObjectParser<LimitedFixedPriceMar
         price: fields.value.fields.price,
         inventoryId: fields.value.fields.inventory_id,
         limit: parseFloat(fields.value.fields.limit),
-        addresses: fields.value.fields.addresses,
+        addresses: (fields.value.fields.addresses.fields.contents as { fields: { key: string, value: string } }[]).reduce(
+          (acc, address) => acc.set(address.fields.key, parseInt(address.fields.value, 10)), new Map<string, number>()
+        ),
         marketType: "limited_fixed_price",
       };
     }
