@@ -154,7 +154,7 @@ export const OrderbookParser = getEmptyParser(ORDER_BOOK_REGEX);
 
 export const FIXED_PRICE_MARKET_REGEX =
   // eslint-disable-next-line max-len
-  /0x2::dynamic_field::Field<(0x[a-f0-9]{63,64})::utils::Marker<0x[a-f0-9]{63,64}::fixed_price::FixedPriceMarket<0x2::sui::SUI>>, 0x[a-f0-9]{63,64}::fixed_price::FixedPriceMarket<0x2::sui::SUI>>/;
+  /0x2::dynamic_field::Field<(0x[a-f0-9]{63,64})::venue::Key, 0x[a-f0-9]{63,64}:fixed_price::FixedPriceMarket</;
 
 export const FixedPriceMarketParser: SuiObjectParser<FixedPriceMarket> = {
   parser: (_) => {
@@ -180,7 +180,7 @@ export const FixedPriceMarketParser: SuiObjectParser<FixedPriceMarket> = {
 
 export const LIMITED_FIXED_PRICE_MARKET_REGEX =
   // eslint-disable-next-line max-len
-  /0x2::dynamic_field::Field<(0x[a-f0-9]{63,64})::utils::Marker<0x[a-f0-9]{63,64}::limited_fixed_price::LimitedFixedPriceMarket<0x2::sui::SUI>>, 0x[a-f0-9]{63,64}::limited_fixed_price::LimitedFixedPriceMarket<0x2::sui::SUI>>/;
+  /0x2::dynamic_field::Field<(0x[a-f0-9]{63,64})::venue::Key, 0x[a-f0-9]{63,64}::limited_fixed_price::LimitedFixedPriceMarket</;
 
 export const LimitedFixedPriceMarketParser: SuiObjectParser<LimitedFixedPriceMarket> =
 {
