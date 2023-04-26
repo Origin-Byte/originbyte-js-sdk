@@ -28,6 +28,7 @@ jobs:
           registry-url: https://registry.npmjs.org/
       - run: npm config set '//registry.npmjs.org/:_authToken' "${NODE_AUTH_TOKEN}"
       - run: yarn install --frozen-lockfile
+      - run: npm config ls -l
       - run: npm publish
         env:
           NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
