@@ -296,7 +296,7 @@ export const buyNftTx = (
       t.object(p.orderbook),
       t.object(p.nft),
       t.pure(String(p.price)),
-      t.object(p.wallet),
+      typeof p.wallet === "string" ? t.object(p.wallet) : p.wallet,
       t.object(p.sellerSafe),
       t.object(p.buyerSafe),
       t.object(p.allowlist),
@@ -315,7 +315,7 @@ export const createSafeAndBuyNftTx = (
       t.object(p.orderbook),
       t.object(p.nft),
       t.pure(String(p.price)),
-      t.object(p.wallet),
+      typeof p.wallet === "string" ? t.object(p.wallet) : p.wallet,
       t.object(p.sellerSafe),
       t.object(p.allowlist),
     ],
@@ -333,7 +333,7 @@ export const buyGenericNftTx = (
       t.object(p.orderbook),
       t.object(p.nft),
       t.pure(String(p.price)),
-      t.object(p.wallet),
+      typeof p.wallet === "string" ? t.object(p.wallet) : p.wallet,
       t.object(p.sellerSafe),
       t.object(p.buyerSafe),
     ],
@@ -402,7 +402,7 @@ export const editBidTx = (
       t.object(p.buyerSafe),
       t.pure(String(p.oldPrice)),
       t.pure(String(p.newPrice)),
-      t.object(p.wallet),
+      typeof p.wallet === "string" ? t.object(p.wallet) : p.wallet
     ],
     [p.collection, p.ft]
   );
@@ -449,7 +449,7 @@ export const createBidTx = (
       t.object(p.orderbook),
       t.object(p.buyerSafe),
       t.pure(String(p.price)),
-      t.object(p.wallet),
+      typeof p.wallet === "string" ? t.object(p.wallet) : p.wallet
     ],
     [p.collection, p.ft]
   );
@@ -467,7 +467,7 @@ export const createBidWithCommissionTx = (
       t.pure(String(p.price)),
       t.object(p.beneficiary),
       t.pure(String(p.commission)),
-      t.object(p.wallet),
+      typeof p.wallet === "string" ? t.object(p.wallet) : p.wallet
     ],
     [p.collection, p.ft]
   );
@@ -484,7 +484,7 @@ export const createSafeAndBidWithCommissionTx = (
       t.pure(String(p.price)),
       t.object(p.beneficiary),
       t.pure(String(p.commission)),
-      t.object(p.wallet),
+      typeof p.wallet === "string" ? t.object(p.wallet) : p.wallet
     ],
     [p.collection, p.ft]
   );
@@ -494,7 +494,9 @@ export const cancelBidTx = (p: OrderbookParams & PriceParam & WalletParam) => {
   return txObj(
     "cancel_bid",
     p,
-    (t) => [t.object(p.orderbook), t.pure(String(p.price)), t.object(p.wallet)],
+    (t) => [t.object(p.orderbook), t.pure(String(p.price)), 
+      typeof p.wallet === "string" ? t.object(p.wallet) : p.wallet
+    ],
     [p.collection, p.ft]
   );
 };

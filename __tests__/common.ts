@@ -38,17 +38,17 @@ export const orderbookClient = OrderbookFullClient.fromKeypair(
 );
 
 export async function getGas() {
-  const coins = await provider.getCoinBalancesOwnedByAddress(user);
+  const coins = (await provider.getCoins({owner: user})).data;
 
   if (coins.length === 0) {
     throw new Error(`No gas object for user '${user}'`);
   }
-  const coin = coins[0].details;
+  const coin = coins[0];
   if (typeof coin !== "object" || !("data" in coin)) {
     throw new Error(`Unexpected coin type: ${JSON.stringify(coin)}`);
   }
 
-  return coin.reference.objectId;
+  return coin.coinObjectId;
 }
 
 export async function fetchNfts() {

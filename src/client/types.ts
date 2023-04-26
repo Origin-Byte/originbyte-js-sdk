@@ -28,6 +28,7 @@ export type EmptyRpcResponse = {};
 export type EmptyModel = WithPackageObjectId & WithOwner & WithId & {};
 
 export interface GlobalParams extends Partial<WithPackageObjectId> {
+  packageObjectId?: any;
   moduleName?: string;
   transaction?: TransactionBlock;
 }
@@ -469,9 +470,7 @@ export type BuildBuyNftParams = GlobalParams &
   WithNftType & {
     listing: string;
     venue: string;
-    coin:
-    | string
-    | TransactionResult
+    coin: string | TransactionResult;
     module?: "fixed_price" | "limited_fixed_price";
     coinType?: string;
   };
@@ -557,7 +556,11 @@ export interface NewPriceParam {
 }
 
 export interface WalletParam {
-  wallet: ObjectId;
+  wallet: ObjectId | TransactionResult;
+}
+
+export interface KioskParam {
+  kiosk: ObjectId | TransactionResult;
 }
 
 export interface SellerSafeParam {
@@ -568,6 +571,14 @@ export interface BuyerSafeParam {
   buyerSafe: ObjectId;
 }
 
+export interface BuyersKioskParam {
+  buyersKiosk: ObjectId | TransactionResult;
+}
+
+export interface SellersKioskParam {
+  sellersKiosk: ObjectId;
+}
+
 export interface AllowlistParam {
   allowlist: ObjectId;
 }
@@ -575,6 +586,11 @@ export interface AllowlistParam {
 export interface TradeParam {
   trade: ObjectId;
 }
+
+export interface BidParam {
+  bid: string;
+}
+
 export type BuildCreateFlatFeeParams = WithPackageObjectId & {
   rate: number;
 };

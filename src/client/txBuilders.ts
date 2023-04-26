@@ -15,7 +15,10 @@ import {
   BuildMintNftParams,
   BuildRequestToJoinMarketplaceParams,
   BuildSetLimitMarketLimitParams,
+  BuyersKioskParam,
 } from "./types";
+import { wrapToObject } from "./utils";
+
 
 const SUI_TYPE = "0x2::sui::SUI";
 
@@ -59,7 +62,25 @@ export const buildBuyNftTx = (params: BuildBuyNftParams) => {
     (tx) => [
       tx.object(params.listing),
       tx.object(params.venue),
-      typeof params.coin ==="string" ? tx.object(params.coin) : params.coin
+      wrapToObject(tx, params.coin),
+    ],
+    [params.nftType, params.coinType ?? SUI_TYPE]
+  );
+};
+
+export const buildBuyNftIntoKioskTx = (params: BuildBuyNftParams & BuyersKioskParam) => {
+  return txObj(
+    {
+      packageObjectId: params.collectionPackageId ?? params.packageObjectId,
+      moduleName: params.module ?? "fixed_price",
+      fun: "buy_nft_into_kiosk",
+      transaction: params.transaction,
+    },
+    (tx) => [
+      tx.object(params.listing),
+      tx.object(params.venue),
+      wrapToObject(tx, params.coin),
+      wrapToObject(tx, params.buyersKiosk),
     ],
     [params.nftType, params.coinType ?? SUI_TYPE]
   );
@@ -78,7 +99,28 @@ export const buildBuyWhitelistedNftTx = (
     (tx) => [
       tx.object(params.listing),
       tx.object(params.venue),
-      typeof params.coin ==="string" ? tx.object(params.coin) : params.coin,
+      wrapToObject(tx, params.coin),
+      tx.object(params.whitelistCertificate),
+    ],
+    [params.nftType, params.coinType ?? SUI_TYPE]
+  );
+};
+
+export const buildBuyWhitelistedNftIntoKioskTx = (
+  params: BuildBuyWhitelistedNftParams & BuyersKioskParam
+) => {
+  return txObj(
+    {
+      packageObjectId: params.collectionPackageId ?? params.packageObjectId,
+      moduleName: params.module ?? "fixed_price",
+      fun: "buy_whitelisted_nft_into_kiosk",
+      transaction: params.transaction,
+    },
+    (tx) => [
+      tx.object(params.listing),
+      tx.object(params.venue),
+      wrapToObject(tx, params.coin),
+      wrapToObject(tx, params.buyersKiosk),
       tx.object(params.whitelistCertificate),
     ],
     [params.nftType, params.coinType ?? SUI_TYPE]

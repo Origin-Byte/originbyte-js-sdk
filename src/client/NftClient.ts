@@ -34,6 +34,8 @@ import {
   buildRequestToJoinMarketplaceTx,
   buildSetLimtitedMarketNewLimitTx,
   buildDisableSalesTx,
+  buildBuyNftIntoKioskTx,
+  buildBuyWhitelistedNftIntoKioskTx,
 } from "./txBuilders";
 import {
   ArtNft,
@@ -68,7 +70,10 @@ export class NftClient {
     owner: string,
     parser: SuiObjectParser<DataModel>
   ): Promise<string[]> => {
-    const objectsForWallet = await this.provider.getOwnedObjects({ owner, options: { showType: true } });
+    const objectsForWallet = await this.provider.getOwnedObjects({
+      owner,
+      options: { showType: true },
+    });
 
     return objectsForWallet.data
       .filter((_) => _.data.type.match(parser.regex))
@@ -375,6 +380,10 @@ export class NftClient {
   static buildMintNft = buildMintNftTx;
 
   static buildBuyNft = buildBuyNftTx;
+
+  static buildBuyNftIntoKiosk = buildBuyNftIntoKioskTx;
+
+  static buildBuyWhitelistedNftIntoKiosk = buildBuyWhitelistedNftIntoKioskTx;
 
   static buildEnableSales = buildEnableSalesTx;
 
