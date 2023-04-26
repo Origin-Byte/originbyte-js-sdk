@@ -88,8 +88,7 @@ export const closeBidTx = (p: CloseBidParams) => {
         "close_bid",
         p,
         (tx) => [
-            tx.object(p.bid),
-            tx.object(p.kioskId) // TODO remove it on the next contract deployment
+            tx.object(p.bid)
         ],
         [p.ft]
     )
