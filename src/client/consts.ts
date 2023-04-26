@@ -1,6 +1,7 @@
-export const DEFAULT_PACKAGE_ID = "0x86ed6bc882fa476f20db8d21256a20cc7c841b9e1a37c356daa5406f92412f3c"; 
+export const DEFAULT_PACKAGE_ID = "0x37a79aae50246133e7026dff08c8e47cf65827e909acc4c005f2fa5a1ed5ba85"; 
 export const DEFAULT_SUI_PACKAGE_ID = "0x2";
 export const DEFAULT_SUI_TRANSFER_MODULE = "transfer";
+export const DEFAULT_TRANSFER_REQUEST_MODULE = "ob_transfer_request";
 export const DEFAULT_SAFE_MODULE = "safe";
 export const DEFAULT_KIOSK_MODULE = "ob_kiosk";
 export const DEFAULT_GAS_BUDGET = 100_000;

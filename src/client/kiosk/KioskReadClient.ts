@@ -2,7 +2,7 @@ import { JsonRpcProvider, ObjectId, SuiAddress } from "@mysten/sui.js";
 import { ReadClient } from "../ReadClient";
 import { GlobalParams } from "../types";
 import { DEFAULT_KIOSK_MODULE, DEFAULT_PACKAGE_ID } from "../consts";
-import { Kiosk, KioskNftItem, OwnerToken } from "./types";
+import { Kiosk, OwnerToken } from "./types";
 
 export class KioskReadClient {
   // eslint-disable-next-line
