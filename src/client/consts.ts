@@ -1,4 +1,4 @@
-export const DEFAULT_PACKAGE_ID = "0x2eead14abcb5a228b62a274ad22510555365f3f8e0af01bd6fb5de689f98f325"; 
+export const DEFAULT_PACKAGE_ID = "0x37a79aae50246133e7026dff08c8e47cf65827e909acc4c005f2fa5a1ed5ba85"; 
 export const DEFAULT_SUI_PACKAGE_ID = "0x2";
 export const DEFAULT_SUI_TRANSFER_MODULE = "transfer";
 export const DEFAULT_TRANSFER_REQUEST_MODULE = "ob_transfer_request";
