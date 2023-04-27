@@ -1,12 +1,20 @@
-import { TransactionBlock } from "@mysten/sui.js";
-import { kioskClient, user } from "./common";
+import { client, kioskClient, user } from "./common";
 
 export const getKiosks = async (): Promise<void> => {
-    const transaction = new TransactionBlock();
-    transaction.setGasBudget(20000000);
-    const kiosks = await kioskClient.getWalletKiosks(user);
-    console.log("kiosk:", kiosks);
-}
-// eslint-disable-next-line no-global-assign
+  const kiosks = (await kioskClient.getWalletKiosks(user)) ?? [];
+  console.log("kiosk:", kiosks);
+
+  kiosks.forEach(async (kiosk) => {
+    const dynamicFieldsOfKiosk = await client.getDynamicFields(kiosk.id.id);
+    console.log(`dynamicFieldsOfKiosk ${kiosk.id.id} `, dynamicFieldsOfKiosk);
+
+    console.log(
+      "kioskFields display",
+      dynamicFieldsOfKiosk[0].data?.display,
+      "kioskFields[0].data?.content",
+      dynamicFieldsOfKiosk[0].data?.content
+    );
+  });
+};
 
 getKiosks();
