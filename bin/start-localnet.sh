@@ -24,4 +24,9 @@ if [ ! -f "${localnet_dir}/network.yaml" ]; then
     $sui_bin genesis -f --working-dir "${localnet_dir}"
 fi
 
+echo ${SUI_TAG}
+echo ${sui_bin}
+
+$sui_bin --version
+
 $sui_bin start --network.config "${localnet_dir}/network.yaml"

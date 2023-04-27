@@ -1,3 +1,3 @@
-export SUI_TAG="devnet-0.27.0"
-export SUI_VERSION="sui 0.27.0-598f106"
-export NFT_PROTOCOL_REV=e5893612eb470848474e01c7e12bf53681392b8b
+export SUI_TAG="devnet-0.31.0"
+export SUI_VERSION="sui 0.31.0-a63f425-dirty"
+export NFT_PROTOCOL_REV=2874810ebb50e65b026a9b25f6b2d968968c0298

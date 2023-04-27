@@ -1,0 +1,12 @@
+services:
+  # setup-test-env:
+  #     platform: linux/x86_64
+  #     build: ./
+  #     command: ./bin/stupid.sh
+  #     # command: sleep 5; ./bin/setup-test-env.sh
+  localnet:
+    platform: linux/x86_64
+    build: ./
+    # command: ls /bin
+    # command: ./bin/stupid.sh
+    command: ./bin/start-localnet.sh
