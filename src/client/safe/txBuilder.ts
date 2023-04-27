@@ -8,8 +8,7 @@ import {
   TransferCapParam,
 } from "../types";
 import { DEFAULT_PACKAGE_ID, DEFAULT_SAFE_MODULE } from "../consts";
-import { TransactionResult } from "../orderbook/txBuilder";
-import { txObj as txCommon } from "../../transaction";
+import { txObj as txCommon, TransactionResult } from "../../transaction";
 
 export type NftParams = GlobalParams & NftParam & SafeParam;
 export type AuthParams = GlobalParams & SafeParam & AuthParam;
