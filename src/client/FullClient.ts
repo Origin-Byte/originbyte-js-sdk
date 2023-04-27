@@ -6,7 +6,7 @@ import {
   SignerWithProvider,
   TransactionEffects,
 } from "@mysten/sui.js";
-import { TransactionResult } from "./orderbook/txBuilder";
+import { TransactionResult } from "../transaction";
 import { ReadClient } from "./ReadClient";
 
 export class FullClient extends ReadClient {
