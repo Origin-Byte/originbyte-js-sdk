@@ -1,44 +1,60 @@
-import { SUI_TYPE_ARG } from "@mysten/sui.js";
+import { SUI_TYPE_ARG, TransactionBlock } from "@mysten/sui.js";
 import {
   ORDERBOOK_ID,
   orderbookClient,
   COLLECTION_ID_NAME,
   user,
   safeClient,
+  signer,
+  kioskClient,
 } from "./common";
+import { OrderbookFullClient } from "../src";
 
 export const editAsk = async () => {
-  const ownerCaps = await safeClient.fetchOwnerCapsIds(user);
-  const safeIdsByOwnerCap = await Promise.all(
-    ownerCaps.map(async (ownerCap) => safeClient.fetchOwnerCapSafeId(ownerCap))
-  );
+  const pubkeyAddress = await signer.getAddress();
+  console.log("Address: ", pubkeyAddress);
 
-  const safe = safeIdsByOwnerCap[0];
-  const safeState = await safeClient.fetchSafe(safe);
-
-  const listedNfts = safeState.nfts.filter(
-    (el) => !!el.isExclusivelyListed && el.transferCapsCount > 0
-  );
-
-  const nft = listedNfts[0]?.id;
-  const sellerSafe = safe;
-
-  const orderbookState = await orderbookClient.fetchOrderbook(ORDERBOOK_ID);
-  const ask = orderbookState.asks.find((el) => el.transferCap.nft === nft);
-
-  if (!ask) {
-    console.log("Such NFT is not listed in provided orderbook");
+  const kiosks = await kioskClient.getWalletKiosks(pubkeyAddress);
+  if (kiosks.length === 0) {
+    console.error("No kiosks found");
     return;
   }
 
-  const result = await orderbookClient.editAsk({
+  const kiosk = kiosks[0];
+  const orderbook = await orderbookClient.fetchOrderbook(ORDERBOOK_ID, true);
+  console.log("orderbook", orderbook);
+
+  if (orderbook.asks.length === 0) {
+    console.error("No asks found");
+    return;
+  }
+
+  const askToEdit = orderbook.asks.find((ask) => ask.kiosk === kiosk.id.id);
+
+  if (askToEdit === undefined) {
+    console.error("No asks from user in the orderbook found");
+    return;
+  }
+
+  let tx = new TransactionBlock();
+
+  const { nft, kiosk: sellersKiosk, price } = askToEdit;
+
+  [tx] = OrderbookFullClient.editAskTx({
+    sellersKiosk,
     collection: COLLECTION_ID_NAME,
     ft: SUI_TYPE_ARG,
     nft,
     orderbook: ORDERBOOK_ID,
-    oldPrice: ask.price,
-    newPrice: 10,
-    sellerSafe,
+    oldPrice: price,
+    newPrice: 275_000_000,
+    transaction: tx,
+  });
+
+  tx.setGasBudget(100_000_000);
+  const result = await signer.signAndExecuteTransactionBlock({
+    transactionBlock: tx,
+    options: { showEffects: true },
   });
 
   console.log("result: ", result);
