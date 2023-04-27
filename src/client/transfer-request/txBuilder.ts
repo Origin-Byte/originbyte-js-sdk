@@ -29,7 +29,7 @@ function txObj(
 export const confirmTx = (params: ConfirmParams) => {
   txObj(
     "confirm_transfer",
-    {...params, moduleName: "transfer_allowlist"},
+    {...params, moduleName: "transfer_allowlist", packageObjectId: "0x2eead14abcb5a228b62a274ad22510555365f3f8e0af01bd6fb5de689f98f325"},
     (tx) => [
       tx.object(params.allowListId),
       typeof params.transferRequest === "string" ? tx.object(params.transferRequest) : params.transferRequest
@@ -38,7 +38,7 @@ export const confirmTx = (params: ConfirmParams) => {
   );
   txObj(
     "confirm_transfer",
-    {...params, moduleName: "royalty_strategy_bps"},
+    {...params, moduleName: "royalty_strategy_bps",  packageObjectId: "0x2eead14abcb5a228b62a274ad22510555365f3f8e0af01bd6fb5de689f98f325"},
     (tx) => [
       tx.object(params.bpsRoyaltyStrategy),
       typeof params.transferRequest === "string" ? tx.object(params.transferRequest) : params.transferRequest
@@ -48,22 +48,12 @@ export const confirmTx = (params: ConfirmParams) => {
       params.ft
     ]
   );
-  const policy = txObj(
-    "init_policy",
-    params,
-    (tx) => [
-      tx.object(params.publisherId)
-    ],
-    [
-      params.transferRequestType
-    ]
-  )[1];
   return txObj(
     "confirm", 
     params, 
     (tx) => [
       typeof params.transferRequest === "string" ? tx.object(params.transferRequest) : params.transferRequest,
-      policy
+      tx.object(params.policyId)
     ],
     [
       params.transferRequestType,
