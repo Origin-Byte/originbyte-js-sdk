@@ -42,7 +42,7 @@ export class KioskReadClient {
       showType: true,
       showContent: true
     }, {
-      Package: this.package
+      Package: p.packageObjectId || this.package
     }));
     console.debug("objs", objs);
     return objs
