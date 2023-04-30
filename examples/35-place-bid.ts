@@ -36,13 +36,6 @@ export const placeBid = async () => {
 
     transaction.transferObjects([coin], transaction.pure(user));
 
-    if(kioskIdTransaction) {
-        KioskFullClient.shareKioskTx({
-            transaction,
-            kiosk: kioskIdTransaction
-        });
-    }
-
     transaction.setGasBudget(2_000_000_000);
 
     await signer.signAndExecuteTransactionBlock({

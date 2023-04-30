@@ -9,6 +9,9 @@ export * from "./safe/SafeFullClient";
 export * from "./bidding/BiddingContractFullClient";
 export * from "./bidding/types";
 
+export * from "./transfer-request/TransferRequestFullClient";
+export * from "./transfer-request/types";
+
 export * from "./kiosk/KioskFullClient";
 export * from "./kiosk/types";
 

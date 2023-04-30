@@ -21,7 +21,7 @@ export const mnemonic =
 // Step 0 - Publish
 
 export const PACKAGE_OBJECT_ID =
-  "0x86ed6bc882fa476f20db8d21256a20cc7c841b9e1a37c356daa5406f92412f3c"; // Change to your deployed contract
+  "0x37a79aae50246133e7026dff08c8e47cf65827e909acc4c005f2fa5a1ed5ba85"; // Change to your deployed contract
 export const COLLECTION_ID =
   "0x8be1aceaa7d4ebf1db11382d4ca1c4c8a358fe08771244f85ce62202ec28b68f"; // Change to your deployed contract
 export const COLLECTION_ID_NAME = `${COLLECTION_ID}::suitraders::SUITRADERS`;

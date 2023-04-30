@@ -44,6 +44,7 @@ export class KioskReadClient {
     }, {
       Package: p.packageObjectId || this.package
     }));
+    console.debug("objs", objs);
     return objs
       .filter((o) => o.data.type === ownerTokenType)
       .map((o) => (o.data.content as any)?.fields as OwnerToken);
