@@ -19,6 +19,7 @@ module.exports = {
     "import/extensions": "off",
     "no-unused-vars": "warn",
     "arrow-body-style": "off",
+    "class-methods-use-this": "warn",
     "max-len": ["error", { code: 140 }],
     "no-shadow": "off",
     "@typescript-eslint/no-shadow": ["error"],

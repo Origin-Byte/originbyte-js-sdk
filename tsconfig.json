@@ -12,7 +12,11 @@
     "noImplicitAny": true,
     "forceConsistentCasingInFileNames": true,
     "noUnusedLocals": true,
-    "pretty": true
+    "pretty": true,
+    "skipLibCheck": true
   },
-  "include": ["src"]
+  "include": ["src"],
+  "exclude": [
+    "node_modules/@types/babel__traverse"
+  ]
 }
