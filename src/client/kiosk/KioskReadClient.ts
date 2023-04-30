@@ -42,7 +42,7 @@ export class KioskReadClient {
       showType: true,
       showContent: true
     }, {
-      Package: this.package
+      Package: p.packageObjectId || this.package
     }));
     return objs
       .filter((o) => o.data.type === ownerTokenType)
