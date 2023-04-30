@@ -154,7 +154,7 @@ export const OrderbookParser = getEmptyParser(ORDER_BOOK_REGEX);
 
 export const FIXED_PRICE_MARKET_REGEX =
   // eslint-disable-next-line max-len
-  /0x2::dynamic_field::Field<(0x[a-f0-9]{63,64})::limited_fixed_price::MarketKey, 0x[a-f0-9]{63,64}::fixed_price::FixedPriceMarket</;
+  /0x2::dynamic_field::Field<(0x[a-f0-9]{63,64})::fixed_price::MarketKey, 0x[a-f0-9]{63,64}::fixed_price::FixedPriceMarket</;
 
 export const FixedPriceMarketParser: SuiObjectParser<FixedPriceMarket> = {
   parser: (_) => {
