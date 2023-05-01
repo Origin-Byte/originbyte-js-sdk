@@ -92,10 +92,7 @@ export class OrderbookFullClient extends OrderbookReadClient {
       })
     );
 
-    return {
-      orderbook: effects.created[0].reference.objectId,
-      effects,
-    };
+    return effects
   }
 
   public async createAsk(p: {
