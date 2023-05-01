@@ -62,7 +62,7 @@ export const sellNftFromKioskTx = (p: SellNftFromKiosk) => {
         p,
         (tx) => [
             tx.object(p.bid),
-            tx.object(p.sellersKiosk),
+            wrapToObject(tx, p.sellersKiosk),
             wrapToObject(tx, p.buyersKiosk),
             tx.object(p.nft)
         ],

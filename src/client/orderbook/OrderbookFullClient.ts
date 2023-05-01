@@ -3,14 +3,11 @@ import {
   ObjectId,
   JsonRpcProvider,
   SuiAddress,
-  TransactionEffects,
 } from "@mysten/sui.js";
 import { FullClient } from "../FullClient";
 import { GlobalParams } from "../types";
-import { parseObjectOwner } from "../utils";
 import { OrderbookReadClient } from "./OrderbookReadClient";
 import {
-  buyGenericNftTx,
   buyNftTx,
   cancelAskTx,
   cancelBidTx,
@@ -19,26 +16,19 @@ import {
   createBidTx,
   createBidWithCommissionTx,
   newOrderbookTx,
-  finishTradeOfGenericNftTx,
   finishTradeTx,
-  listNftTx,
-  depositAndlistNftTx,
-  createSafeAndDepositAndListNftTx,
-  depositAndListNftWithCommissionTx,
-  createSafeAndDepositAndListNftWithCommissionTx,
-  createSafeAndBuyNftTx,
-  cancelAskAndDiscardTransferCapTx,
   editAskTx,
-  listNftWithCommissionTx,
-  listMultipleNftsWithCommissionTx,
   editBidTx,
-  createSafeAndBidWithCommissionTx,
   createProtectionTx,
   CreateProtectionParams,
   createUnprotectedOrderbookTx,
   createUnprotectedTx,
   shareOrderbookTx,
+  marketBuyTx,
+  marketSellTx,
 } from "./txBuilder";
+
+import { TransactionResult } from "../../transaction";
 
 export class OrderbookFullClient extends OrderbookReadClient {
   constructor(
@@ -74,46 +64,25 @@ export class OrderbookFullClient extends OrderbookReadClient {
 
   static createAskWithCommissionTx = createAskWithCommissionTx;
 
-  static listNftTx = listNftTx;
-
-  static listNftWithCommissionTx = listNftWithCommissionTx;
-
-  static listMultipleNftsWithCommissionTx = listMultipleNftsWithCommissionTx;
-
-  static depositAndlistNftTx = depositAndlistNftTx;
-
-  static createSafeAndDepositAndListNftTx = createSafeAndDepositAndListNftTx;
-
-  static depositAndListNftWithCommissionTx = depositAndListNftWithCommissionTx;
-
-  static createSafeAndDepositAndListNftWithCommissionTx =
-    createSafeAndDepositAndListNftWithCommissionTx;
-
-  static buyNftTx = buyNftTx;
-
-  static createSafeAndBuyNftTx = createSafeAndBuyNftTx;
-
-  static buyGenericNftTx = buyGenericNftTx;
-
   static cancelAskTx = cancelAskTx;
-
-  static cancelAskAndDiscardTransferCapTx = cancelAskAndDiscardTransferCapTx;
 
   static editAskTx = editAskTx;
 
   static editBidTx = editBidTx;
 
-  static finishTradeTx = finishTradeTx;
-
-  static finishTradeOfGenericNft = finishTradeOfGenericNftTx;
-
   static createBidTx = createBidTx;
 
   static createBidWithCommissionTx = createBidWithCommissionTx;
 
-  static createSafeAndBidWithCommissionTx = createSafeAndBidWithCommissionTx;
-
   static cancelBidTx = cancelBidTx;
+
+  static buyNftTx = buyNftTx;
+
+  static finishTradeTx = finishTradeTx;
+
+  static marketBuyTx = marketBuyTx;
+
+  static marketSellTx = marketSellTx;
 
   public async createProtection(p: CreateProtectionParams) {
     const effects = await this.client.sendTxWaitForEffects(
@@ -123,19 +92,16 @@ export class OrderbookFullClient extends OrderbookReadClient {
       })
     );
 
-    return {
-      orderbook: effects.created[0].reference.objectId,
-      effects,
-    };
+    return effects
   }
 
   public async createAsk(p: {
     collection: string;
     ft: string;
     orderbook: ObjectId;
+    sellersKiosk: ObjectId | TransactionResult;
     price: number;
-    sellerSafe: ObjectId;
-    transferCap: ObjectId;
+    nft: ObjectId;
   }) {
     const effects = await this.client.sendTxWaitForEffects(
       createAskTx({
@@ -144,22 +110,18 @@ export class OrderbookFullClient extends OrderbookReadClient {
       })
     );
 
-    return {
-      // undefined if trade not executed instantly
-      trade: effects.created?.find(Boolean)?.reference.objectId,
-      effects,
-    };
+    return effects;
   }
 
   public async createAskWithCommission(p: {
-    beneficiary: SuiAddress;
     collection: string;
-    commission: number;
-    ft: string;
     orderbook: ObjectId;
     price: number;
-    sellerSafe: ObjectId;
-    transferCap: ObjectId;
+    sellersKiosk: ObjectId | TransactionResult;
+    nft: ObjectId;
+    ft: string;
+    beneficiary: SuiAddress;
+    commission: number;
   }) {
     const effects = await this.client.sendTxWaitForEffects(
       createAskWithCommissionTx({
@@ -168,198 +130,19 @@ export class OrderbookFullClient extends OrderbookReadClient {
       })
     );
 
-    return {
-      // undefined if trade not executed instantly
-      trade: effects.created?.find(Boolean)?.reference.objectId,
-      effects,
-    };
-  }
-
-  public async listNft(p: {
-    collection: string;
-    ft: string;
-    orderbook: ObjectId;
-    price: number;
-    nft: ObjectId;
-    sellerSafe: ObjectId;
-    ownerCap: ObjectId;
-  }) {
-    const effects = await this.client.sendTxWaitForEffects(
-      listNftTx({
-        ...this.opts,
-        ...p,
-      })
-    );
-
-    return {
-      // undefined if trade not executed instantly
-      trade: effects.created?.find(Boolean)?.reference.objectId,
-      effects,
-    };
-  }
-
-  public async listNftWithCommission(p: {
-    beneficiary: SuiAddress;
-    commission: number;
-    collection: string;
-    ft: string;
-    orderbook: ObjectId;
-    price: number;
-    nft: ObjectId;
-    sellerSafe: ObjectId;
-    ownerCap: ObjectId;
-  }) {
-    const effects = await this.client.sendTxWaitForEffects(
-      listNftWithCommissionTx({
-        ...this.opts,
-        ...p,
-      })
-    );
-
-    return {
-      // undefined if trade not executed instantly
-      trade: effects.created?.find(Boolean)?.reference.objectId,
-      effects,
-    };
-  }
-
-  public async listMultipleNftsWithCommission(p: {
-    beneficiary: SuiAddress;
-    commissions: number[];
-    collection: string;
-    ft: string;
-    orderbook: ObjectId;
-    prices: number[];
-    nfts: ObjectId[];
-    sellerSafe: ObjectId;
-    ownerCap: ObjectId;
-  }) {
-    if (
-      !(
-        p.commissions.length === p.nfts.length &&
-        p.prices.length === p.nfts.length
-      )
-    ) {
-      throw new Error(
-        "The length of provided lists (commissions & nfts & prices) do not match with each together"
-      );
-    }
-
-    return this.client.sendTxWaitForEffects(
-      listMultipleNftsWithCommissionTx({
-        ...this.opts,
-        ...p,
-      })
-    );
-  }
-
-  public async depositAndListNft(p: {
-    collection: string;
-    ft: string;
-    nftType: string;
-    orderbook: ObjectId;
-    price: number;
-    nft: ObjectId;
-    sellerSafe: ObjectId;
-    ownerCap: ObjectId;
-  }) {
-    const effects = await this.client.sendTxWaitForEffects(
-      depositAndlistNftTx({
-        ...this.opts,
-        ...p,
-      })
-    );
-
-    return {
-      // undefined if trade not executed instantly
-      trade: effects.created?.find(Boolean)?.reference.objectId,
-      effects,
-    };
-  }
-
-  public async depositAndListNftWithCommission(p: {
-    beneficiary: SuiAddress;
-    commission: number;
-    collection: string;
-    ft: string;
-    nftType: string;
-    orderbook: ObjectId;
-    price: number;
-    nft: ObjectId;
-    sellerSafe: ObjectId;
-    ownerCap: ObjectId;
-  }) {
-    const effects = await this.client.sendTxWaitForEffects(
-      depositAndListNftWithCommissionTx({
-        ...this.opts,
-        ...p,
-      })
-    );
-
-    return {
-      // undefined if trade not executed instantly
-      trade: effects.created?.find(Boolean)?.reference.objectId,
-      effects,
-    };
-  }
-
-  public async createSafeAndDepositAndListNft(p: {
-    collection: string;
-    ft: string;
-    nftType: string;
-    orderbook: ObjectId;
-    price: number;
-    nft: ObjectId;
-  }) {
-    const effects = await this.client.sendTxWaitForEffects(
-      createSafeAndDepositAndListNftTx({
-        ...this.opts,
-        ...p,
-      })
-    );
-
-    return {
-      // undefined if trade not executed instantly
-      trade: effects.created?.find(Boolean)?.reference.objectId,
-      effects,
-    };
-  }
-
-  public async createSafeAndDepositAndListNftWithCommission(p: {
-    beneficiary: SuiAddress;
-    commission: number;
-    collection: string;
-    ft: string;
-    nftType: string;
-    orderbook: ObjectId;
-    price: number;
-    nft: ObjectId;
-  }) {
-    const effects = await this.client.sendTxWaitForEffects(
-      createSafeAndDepositAndListNftWithCommissionTx({
-        ...this.opts,
-        ...p,
-      })
-    );
-
-    return {
-      // undefined if trade not executed instantly
-      trade: effects.created?.find(Boolean)?.reference.objectId,
-      effects,
-    };
+    return effects;
   }
 
   public async buyNft(p: {
-    allowlist: ObjectId;
-    buyerSafe: ObjectId;
+    orderbook: ObjectId;
+    sellersKiosk: ObjectId | TransactionResult;
+    buyersKiosk: ObjectId | TransactionResult;
     collection: string;
     ft: string;
     nft: ObjectId;
-    orderbook: ObjectId;
     price: number;
-    sellerSafe: ObjectId;
-    wallet: ObjectId;
-  }): Promise<{ tradePayments: ObjectId[]; effects: TransactionEffects }> {
+    wallet: ObjectId | TransactionResult;
+  }) {
     const effects = await this.client.sendTxWaitForEffects(
       buyNftTx({
         ...this.opts,
@@ -367,71 +150,16 @@ export class OrderbookFullClient extends OrderbookReadClient {
       })
     );
 
-    const tradePayments = effects.created
-      .filter((obj) => parseObjectOwner(obj.owner) === "shared")
-      .map((obj) => obj.reference.objectId);
-
-    return {
-      tradePayments,
-      effects,
-    };
-  }
-
-  public async createSafeAndBuyNft(p: {
-    allowlist: ObjectId;
-    collection: string;
-    ft: string;
-    nft: ObjectId;
-    orderbook: ObjectId;
-    price: number;
-    sellerSafe: ObjectId;
-    wallet: ObjectId;
-  }): Promise<{ tradePayments: ObjectId[]; effects: TransactionEffects }> {
-    const effects = await this.client.sendTxWaitForEffects(
-      createSafeAndBuyNftTx({
-        ...this.opts,
-        ...p,
-      })
-    );
-
-    const tradePayments = effects.created
-      .filter((obj) => parseObjectOwner(obj.owner) === "shared")
-      .map((obj) => obj.reference.objectId);
-
-    return {
-      tradePayments,
-      effects,
-    };
-  }
-
-  public async buyGenericNft(p: {
-    buyerSafe: ObjectId;
-    collection: string;
-    ft: string;
-    nft: ObjectId;
-    orderbook: ObjectId;
-    price: number;
-    sellerSafe: ObjectId;
-    wallet: ObjectId;
-  }) {
-    const effects = await this.client.sendTxWaitForEffects(
-      buyGenericNftTx({
-        ...this.opts,
-        ...p,
-      })
-    );
-
-    return {
-      effects,
-    };
+    return effects;
   }
 
   public async cancelAsk(p: {
+    orderbook: ObjectId;
+    sellersKiosk: ObjectId | TransactionResult;
+    price: number;
+    nft: ObjectId;
     collection: string;
     ft: string;
-    nft: ObjectId;
-    orderbook: ObjectId;
-    price: number;
   }) {
     return this.client.sendTxWaitForEffects(
       cancelAskTx({
@@ -441,30 +169,14 @@ export class OrderbookFullClient extends OrderbookReadClient {
     );
   }
 
-  public async cancelAskAndDiscardTransferCap(p: {
-    collection: string;
-    ft: string;
-    nft: ObjectId;
-    orderbook: ObjectId;
-    price: number;
-    sellerSafe: ObjectId;
-  }) {
-    return this.client.sendTxWaitForEffects(
-      cancelAskAndDiscardTransferCapTx({
-        ...this.opts,
-        ...p,
-      })
-    );
-  }
-
   public async editAsk(p: {
+    orderbook: ObjectId;
+    sellersKiosk: ObjectId | TransactionResult;
     collection: string;
     ft: string;
     nft: ObjectId;
-    orderbook: ObjectId;
     oldPrice: number;
     newPrice: number;
-    sellerSafe: ObjectId;
   }) {
     return this.client.sendTxWaitForEffects(
       editAskTx({
@@ -475,13 +187,13 @@ export class OrderbookFullClient extends OrderbookReadClient {
   }
 
   public async editBid(p: {
+    orderbook: ObjectId;
+    buyersKiosk: ObjectId | TransactionResult;
     collection: string;
     ft: string;
-    orderbook: ObjectId;
     oldPrice: number;
     newPrice: number;
-    buyerSafe: ObjectId;
-    wallet: ObjectId;
+    wallet: ObjectId | TransactionResult;
   }) {
     return this.client.sendTxWaitForEffects(
       editBidTx({
@@ -496,7 +208,7 @@ export class OrderbookFullClient extends OrderbookReadClient {
     ft: string;
     orderbook: ObjectId;
     price: number;
-    wallet: ObjectId;
+    wallet: ObjectId | TransactionResult;
   }) {
     return this.client.sendTxWaitForEffects(
       cancelBidTx({
@@ -507,13 +219,13 @@ export class OrderbookFullClient extends OrderbookReadClient {
   }
 
   public async finishTrade(p: {
-    allowlist: ObjectId;
-    buyerSafe: ObjectId;
+    orderbook: ObjectId;
     collection: string;
     ft: string;
-    sellerSafe: ObjectId;
+    buyersKiosk: ObjectId | TransactionResult;
+    sellersKiosk: ObjectId | TransactionResult;
     trade: ObjectId;
-  }): Promise<{ tradePayments: ObjectId[]; effects: TransactionEffects }> {
+  }) {
     const effects = await this.client.sendTxWaitForEffects(
       finishTradeTx({
         ...this.opts,
@@ -521,35 +233,16 @@ export class OrderbookFullClient extends OrderbookReadClient {
       })
     );
 
-    const tradePayments = effects.created
-      .filter((obj) => parseObjectOwner(obj.owner) === "shared")
-      .map((obj) => obj.reference.objectId);
-
-    return { tradePayments, effects };
-  }
-
-  public async finishTradeOfGenericNft(p: {
-    buyerSafe: ObjectId;
-    collection: string;
-    ft: string;
-    sellerSafe: ObjectId;
-    trade: ObjectId;
-  }) {
-    return this.client.sendTxWaitForEffects(
-      finishTradeOfGenericNftTx({
-        ...this.opts,
-        ...p,
-      })
-    );
+    return effects;
   }
 
   public async createBid(p: {
-    buyerSafe: ObjectId;
+    buyersKiosk: ObjectId | TransactionResult;
     collection: string;
     ft: string;
     orderbook: ObjectId;
     price: number;
-    wallet: ObjectId;
+    wallet: ObjectId | TransactionResult;
   }) {
     const effects = await this.client.sendTxWaitForEffects(
       createBidTx({
@@ -558,22 +251,18 @@ export class OrderbookFullClient extends OrderbookReadClient {
       })
     );
 
-    return {
-      // undefined if trade not executed instantly
-      trade: effects.created?.find(Boolean)?.reference.objectId,
-      effects,
-    };
+    return effects;
   }
 
   public async createBidWithCommission(p: {
-    beneficiary: SuiAddress;
-    buyerSafe: ObjectId;
-    collection: string;
-    commission: number;
-    ft: string;
     orderbook: ObjectId;
+    buyersKiosk: ObjectId | TransactionResult;
+    collection: string;
+    ft: string;
     price: number;
-    wallet: ObjectId;
+    wallet: ObjectId | TransactionResult;
+    beneficiary: SuiAddress;
+    commission: number;
   }) {
     const effects = await this.client.sendTxWaitForEffects(
       createBidWithCommissionTx({
@@ -582,27 +271,42 @@ export class OrderbookFullClient extends OrderbookReadClient {
       })
     );
 
-    return {
-      // undefined if trade not executed instantly
-      trade: effects.created?.find(Boolean)?.reference.objectId,
-      effects,
-    };
+    return effects;
   }
 
-  public async createSafeAndBidWithCommission(p: {
-    beneficiary: SuiAddress;
-    collection: string;
-    commission: number;
-    ft: string;
+  public async marketBuy(p: {
     orderbook: ObjectId;
+    buyersKiosk: ObjectId | TransactionResult;
+    wallet: ObjectId | TransactionResult;
     price: number;
-    wallet: ObjectId;
+    collection: string;
+    ft: string;
   }) {
-    return this.client.sendTxWaitForEffects(
-      createSafeAndBidWithCommissionTx({
+    const effects = await this.client.sendTxWaitForEffects(
+      marketBuyTx({
         ...this.opts,
         ...p,
       })
     );
+
+    return effects;
+  }
+
+  public async marketSell(p: {
+    orderbook: ObjectId;
+    sellersKiosk: ObjectId | TransactionResult;
+    price: number;
+    nft: ObjectId;
+    collection: string;
+    ft: string;
+  }) {
+    const effects = await this.client.sendTxWaitForEffects(
+      marketSellTx({
+        ...this.opts,
+        ...p,
+      })
+    );
+
+    return effects;
   }
 }

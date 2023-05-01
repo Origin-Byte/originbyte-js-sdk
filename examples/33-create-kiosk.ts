@@ -11,7 +11,7 @@ export const createKiosk = async (): Promise<void> => {
         kiosk
     })
 
-    transaction.setGasBudget(2_000_000_000);
+    transaction.setGasBudget(200_000_000);
 
     await signer.signAndExecuteTransactionBlock({
         transactionBlock: transaction,

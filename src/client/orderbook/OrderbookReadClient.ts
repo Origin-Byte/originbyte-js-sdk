@@ -25,15 +25,16 @@ export interface AskCommissionState {
 
 export interface AskState {
   owner: SuiAddress;
+  kiosk: ObjectId;
+  nft: ObjectId;
   price: number;
-  transferCap: TransferCapState;
   commission?: AskCommissionState;
 }
 
 export interface BidState {
-  offer: number;
   owner: SuiAddress;
-  safe: ObjectId;
+  kiosk: ObjectId;
+  offer: number;
   commission?: {
     beneficiary: SuiAddress;
     cut: number;
@@ -188,11 +189,11 @@ export class OrderbookReadClient {
   ): Promise<OrderbookState> {
     const details = await this.client.getObject(orderbookId);
 
-    if (typeof details !== "object" || !("data" in details)) {
+    if (typeof details !== "object" || !("content" in details)) {
       throw new Error("Cannot fetch owner cap details");
     }
 
-    const { fields } = details.data as any;
+    const { fields } = details.content as any;
 
     const protectedActions = {
       buyNft: fields.protected_actions.fields.buy_nft,
@@ -209,8 +210,9 @@ export class OrderbookReadClient {
         ...priceLevel.fields.v.map((a: any) => {
           return {
             owner: a.fields.owner,
+            kiosk: a.fields.kiosk_id,
+            nft: a.fields.nft_id,
             price,
-            transferCap: transformTransferCap(a.fields.transfer_cap),
             commission: a.fields.commission
               ? {
                   beneficiary: a.fields.commission.fields.beneficiary,
@@ -230,7 +232,7 @@ export class OrderbookReadClient {
           return {
             offer,
             owner: b.fields.owner,
-            safe: b.fields.safe,
+            kiosk: b.fields.kiosk,
             commission: b.fields.commission
               ? {
                   beneficiary: b.fields.commission.fields.beneficiary,
@@ -254,6 +256,10 @@ export class OrderbookReadClient {
     };
   }
 
+  /**
+   * Legacy method - use with caution!
+   * This method will be removed in future versions and may not work properly in its current state.
+   */
   public async fetchTradeIntermediary(
     trade: ObjectId
   ): Promise<TradeIntermediaryState> {
@@ -275,6 +281,11 @@ export class OrderbookReadClient {
     };
   }
 
+  /**
+   * Fetch orderbook events, but may require patching to ensure proper functionality.
+   * @note This method may not work correctly in its current state and should be reviewed before use.
+   * @todo Patch this method to address any known issues and ensure proper functionality.
+   */
   public async fetchEvents(p: {
     packageId: ObjectId;
     module?: string;
@@ -295,7 +306,7 @@ export class OrderbookReadClient {
           module: p.module || DEFAULT_ORDERBOOK_MODULE,
         },
       },
-      cursor: p.cursor || null as any,
+      cursor: p.cursor || (null as any),
       limit: p.limit || DEFAULT_PAGINATION_LIMIT,
       order: p.order || "ascending",
     });
@@ -313,6 +324,11 @@ export class OrderbookReadClient {
     };
   }
 
+  /**
+   * Subscribes for orderbook events, but may require patching to ensure proper functionality.
+   * @note This method may not work correctly in its current state and should be reviewed before use.
+   * @todo Patch this method to address any known issues and ensure proper functionality.
+   */
   public subscribeToEvents(
     p: { packageId: ObjectId; module?: string },
     // eslint-disable-next-line

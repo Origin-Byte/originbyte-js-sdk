@@ -576,7 +576,7 @@ export interface BuyersKioskParam {
 }
 
 export interface SellersKioskParam {
-  sellersKiosk: ObjectId;
+  sellersKiosk: ObjectId | TransactionResult;
 }
 
 export interface AllowlistParam {

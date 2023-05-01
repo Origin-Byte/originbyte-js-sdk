@@ -1,7 +1,6 @@
 import { TransactionBlock } from "@mysten/sui.js";
 import { TransactionBlockArgument, TransactionResult , txObj as txCommon } from "../../transaction";
 import { GlobalParams } from "../types";
-import { DEFAULT_TRANSFER_REQUEST_MODULE } from "../consts";
 import { ConfirmParams } from "./types";
 
 function txObj(
@@ -15,8 +14,8 @@ function txObj(
   // eslint-disable-next-line no-undef
   return txCommon(
     {
-      packageObjectId: p.packageObjectId ?? "0xa37b19d59b762ff0b03a790b48b918cb3b194eec795f0af212e1c199070efabd",
-      moduleName: p.moduleName ?? DEFAULT_TRANSFER_REQUEST_MODULE,
+      packageObjectId: p.packageObjectId,
+      moduleName: p.moduleName,
       fun,
       transaction: p.transaction,
     },

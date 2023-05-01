@@ -9,7 +9,7 @@ import {
 } from "./common";
 import { OrderbookFullClient } from "../src";
 
-export const editAsk = async () => {
+export const editBid = async () => {
   const pubkeyAddress = await signer.getAddress();
   console.log("Address: ", pubkeyAddress);
 
@@ -23,34 +23,37 @@ export const editAsk = async () => {
   const orderbook = await orderbookClient.fetchOrderbook(ORDERBOOK_ID, true);
   console.log("orderbook", orderbook);
 
-  if (orderbook.asks.length === 0) {
-    console.error("No asks found");
+  if (orderbook.bids.length === 0) {
+    // console.error("No bids found");
     return;
   }
 
-  const askToEdit = orderbook.asks.find((ask) => ask.kiosk === kiosk.id.id);
+  const bidToEdit = orderbook.bids.find((bid) => bid.kiosk === kiosk.id.id);
 
-  if (askToEdit === undefined) {
-    console.error("No asks from user in the orderbook found");
+  if (bidToEdit === undefined) {
+    console.error("No bids from user in the orderbook found");
     return;
   }
 
   let tx = new TransactionBlock();
+  const coinCreationResult = tx.splitCoins(tx.gas, [tx.pure(100_000_000)]);
 
-  const { nft, kiosk: sellersKiosk, price } = askToEdit;
-
-  [tx] = OrderbookFullClient.editAskTx({
+  [tx] = OrderbookFullClient.editBidTx({
     packageObjectId: ORDERBOOK_PACKAGE_ID,
-    sellersKiosk,
+    buyersKiosk: kiosk.id.id,
     collection: COLLECTION_ID_NAME,
     ft: SUI_TYPE_ARG,
-    nft,
     orderbook: ORDERBOOK_ID,
-    oldPrice: price,
-    newPrice: 275_000_000,
+    oldPrice: bidToEdit.offer,
+    newPrice: 25_000_000,
+    wallet: coinCreationResult,
     transaction: tx,
   });
 
+  const transferRes = tx.transferObjects(
+    [coinCreationResult],
+    tx.pure(pubkeyAddress)
+  );
   tx.setGasBudget(100_000_000);
   const result = await signer.signAndExecuteTransactionBlock({
     transactionBlock: tx,
@@ -60,4 +63,4 @@ export const editAsk = async () => {
   console.log("result: ", result);
 };
 
-editAsk();
+editBid();

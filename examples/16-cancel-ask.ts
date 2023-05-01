@@ -1,15 +1,15 @@
 import { SUI_TYPE_ARG, TransactionBlock } from "@mysten/sui.js";
 import {
   ORDERBOOK_ID,
-  orderbookClient,
   COLLECTION_ID_NAME,
   signer,
+  orderbookClient,
   getKiosks,
   ORDERBOOK_PACKAGE_ID,
 } from "./common";
 import { OrderbookFullClient } from "../src";
 
-export const editAsk = async () => {
+export const cancelAsk = async () => {
   const pubkeyAddress = await signer.getAddress();
   console.log("Address: ", pubkeyAddress);
 
@@ -28,27 +28,23 @@ export const editAsk = async () => {
     return;
   }
 
-  const askToEdit = orderbook.asks.find((ask) => ask.kiosk === kiosk.id.id);
+  const askToCancel = orderbook.asks.find((ask) => ask.kiosk === kiosk.id.id);
 
-  if (askToEdit === undefined) {
+  if (askToCancel === undefined) {
     console.error("No asks from user in the orderbook found");
     return;
   }
 
   let tx = new TransactionBlock();
 
-  const { nft, kiosk: sellersKiosk, price } = askToEdit;
-
-  [tx] = OrderbookFullClient.editAskTx({
+  [tx] = OrderbookFullClient.cancelAskTx({
     packageObjectId: ORDERBOOK_PACKAGE_ID,
-    sellersKiosk,
+    sellersKiosk: kiosks[0].id.id,
+    nft: askToCancel.nft,
     collection: COLLECTION_ID_NAME,
     ft: SUI_TYPE_ARG,
-    nft,
     orderbook: ORDERBOOK_ID,
-    oldPrice: price,
-    newPrice: 275_000_000,
-    transaction: tx,
+    price: askToCancel.price,
   });
 
   tx.setGasBudget(100_000_000);
@@ -60,4 +56,4 @@ export const editAsk = async () => {
   console.log("result: ", result);
 };
 
-editAsk();
+cancelAsk();
