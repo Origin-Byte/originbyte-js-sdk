@@ -29,7 +29,7 @@ function txObj(
 export const confirmTx = (params: ConfirmParams) => {
   txObj(
     "confirm_transfer",
-    {...params, moduleName: "transfer_allowlist", packageObjectId: "0x2eead14abcb5a228b62a274ad22510555365f3f8e0af01bd6fb5de689f98f325"},
+    {...params, moduleName: "transfer_allowlist", packageObjectId: "0xd624568412019443dbea9c4e97a6c474cececa7e9daef307457cb34dd04eee0d"},
     (tx) => [
       tx.object(params.allowListId),
       typeof params.transferRequest === "string" ? tx.object(params.transferRequest) : params.transferRequest
@@ -38,7 +38,7 @@ export const confirmTx = (params: ConfirmParams) => {
   );
   txObj(
     "confirm_transfer",
-    {...params, moduleName: "royalty_strategy_bps",  packageObjectId: "0x2eead14abcb5a228b62a274ad22510555365f3f8e0af01bd6fb5de689f98f325"},
+    {...params, moduleName: "royalty_strategy_bps",  packageObjectId: "0xd624568412019443dbea9c4e97a6c474cececa7e9daef307457cb34dd04eee0d"},
     (tx) => [
       tx.object(params.bpsRoyaltyStrategy),
       typeof params.transferRequest === "string" ? tx.object(params.transferRequest) : params.transferRequest
@@ -50,7 +50,7 @@ export const confirmTx = (params: ConfirmParams) => {
   );
   return txObj(
     "confirm", 
-    params, 
+    { ...params, packageObjectId: "0x33324b87a09f5b2928d8d62a00eb66f93baa8d7545330c8c8ca15da2c80cbc82", },
     (tx) => [
       typeof params.transferRequest === "string" ? tx.object(params.transferRequest) : params.transferRequest,
       tx.object(params.policyId)
