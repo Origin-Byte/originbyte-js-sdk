@@ -28,13 +28,6 @@ export const placeAsk = async () => {
   console.log("kioskFields: ", kioskFields);
 
   const orderbookState = await orderbookClient.fetchOrderbook(ORDERBOOK_ID);
-  // const nftIdsInAsks: { [key: ObjectId]: ObjectId } = orderbookState.asks
-  //   .map((el) => el.nft)
-  //   .reduce((acc, el) => {
-  //     acc[el] = el;
-  //     return acc;
-  //   }, {});
-
   const nftIdsMapInOrderbook = toMap(orderbookState.asks, (el => el.nft))
 
   const nftsFromKiosk = kioskFields

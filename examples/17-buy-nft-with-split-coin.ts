@@ -9,7 +9,6 @@ import {
   ALLOW_LIST_ID,
   TRANSFER_REQUEST_POLICY_ID,
   CONTRACT_BPS_ROYALTY_STRATEGY_ID,
-  TRANSFER_REQUEST_POLICY_TYPE,
 } from "./common";
 import { OrderbookFullClient, TransferRequestFullClient } from "../src";
 
@@ -59,8 +58,6 @@ export const buyNFT = async () => {
     orderbook: ORDERBOOK_ID,
     price: askPrice,
     wallet: coinCreationResult,
-    // wallet:
-    //   "0x23274f1a55f67e3ad7dc8eacf91bc78a2ba2284f03a39c9c46bc58571d6b082f",
     transaction: tx,
   });
   tx = txBuyNftBlock;
@@ -82,7 +79,6 @@ export const buyNFT = async () => {
   tx.setGasBudget(100_000_000);
 
   console.log("tx: ", tx.blockData);
-  // console.log("tx: ", tx.blockData.transactions[1]);
 
   const result = await signer.signAndExecuteTransactionBlock({
     transactionBlock: tx,
