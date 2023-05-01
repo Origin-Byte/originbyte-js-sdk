@@ -324,6 +324,7 @@ export class NftClient {
     return {
       ...inventory,
       nfts: parsedFields.nfts,
+      totalDeposited: parsedFields.totalDeposited,
     };
   };
 

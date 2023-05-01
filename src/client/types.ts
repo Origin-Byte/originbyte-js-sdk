@@ -300,6 +300,7 @@ export type InventoryDofRpcResponse = {
 
 export type InventoryContent = WithId & {
   nfts: string[];
+  totalDeposited: number;
 };
 
 export type Venue = WithRawResponse &

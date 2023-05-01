@@ -379,6 +379,7 @@ export const InventoryDofParser: SuiObjectParser<InventoryContent> = {
     return {
       nfts: "fields" in _.data.content ? _.data.content.fields.value.fields.nfts : [],
       id: _.data.objectId,
+      totalDeposited: "fields" in _.data.content ? parseFloat(_.data.content.fields.value.fields.total_deposited) : 0,
     };
   },
 };
