@@ -15,12 +15,12 @@ export class KioskReadClient {
     //
   }
 
-  public static fromProvider(provider: JsonRpcProvider) {
-    return new KioskReadClient(new ReadClient(provider));
+  public static fromProvider(provider: JsonRpcProvider, opts: Partial<GlobalParams>) {
+    return new KioskReadClient(new ReadClient(provider), opts);
   }
 
-  public static fromRpcUrl(url: string) {
-    return new KioskReadClient(ReadClient.fromRpcUrl(url));
+  public static fromRpcUrl(url: string, opts: Partial<GlobalParams>) {
+    return new KioskReadClient(ReadClient.fromRpcUrl(url), opts);
   }
 
   public get package() {

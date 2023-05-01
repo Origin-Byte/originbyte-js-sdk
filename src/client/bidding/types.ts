@@ -39,6 +39,4 @@ export interface SellNft extends GlobalParams, FTParam, NftParam, BuyersKioskPar
     bid: ObjectId
 }
 
-export interface CloseBidParams extends GlobalParams, BidParam, FTParam {
-    kioskId: string
-}
+export interface CloseBidParams extends GlobalParams, BidParam, FTParam {}
