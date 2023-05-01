@@ -3,13 +3,15 @@ import {
   ORDERBOOK_ID,
   orderbookClient,
   COLLECTION_ID_NAME,
-  getSafeAndOwnerCap,
-  getGas,
-  ALLOW_LIST_ID,
-  kioskClient,
   signer,
+  getKiosks,
+  ORDERBOOK_PACKAGE_ID,
+  ALLOW_LIST_ID,
+  TRANSFER_REQUEST_POLICY_ID,
+  CONTRACT_BPS_ROYALTY_STRATEGY_ID,
+  TRANSFER_REQUEST_POLICY_TYPE,
 } from "./common";
-import { OrderbookFullClient } from "../src";
+import { OrderbookFullClient, TransferRequestFullClient } from "../src";
 
 export const buyNFT = async () => {
   const pubkeyAddress = await signer.getAddress();
@@ -32,7 +34,7 @@ export const buyNFT = async () => {
     return;
   }
 
-  const kiosks = await kioskClient.getWalletKiosks(pubkeyAddress);
+  const kiosks = await getKiosks();
   if (kiosks.length === 0) {
     console.error("No kiosks found");
     return;
@@ -45,9 +47,10 @@ export const buyNFT = async () => {
   const askPrice = ask.price;
 
   let tx = new TransactionBlock();
-  // const coinCreationResult = tx.splitCoins(tx.gas, [tx.pure(askPrice)]);
+  const coinCreationResult = tx.splitCoins(tx.gas, [tx.pure(askPrice)]);
 
-  [tx] = OrderbookFullClient.buyNftTx({
+  const [txBuyNftBlock, buyNftResult] = OrderbookFullClient.buyNftTx({
+    packageObjectId: ORDERBOOK_PACKAGE_ID,
     sellersKiosk,
     buyersKiosk: kiosk.id.id,
     collection: COLLECTION_ID_NAME,
@@ -55,20 +58,31 @@ export const buyNFT = async () => {
     nft,
     orderbook: ORDERBOOK_ID,
     price: askPrice,
-    // wallet: coinCreationResult,
-    wallet:
-      "0x25750263a91cdd03f516689d09609897ee942428b246a3a3b59e35e7198eb5cd",
+    wallet: coinCreationResult,
+    // wallet:
+    //   "0x23274f1a55f67e3ad7dc8eacf91bc78a2ba2284f03a39c9c46bc58571d6b082f",
     transaction: tx,
   });
+  tx = txBuyNftBlock;
 
-  // const transferRes = tx.transferObjects(
-  //   [coinCreationResult],
-  //   tx.pure(pubkeyAddress)
-  // );
+  TransferRequestFullClient.confirmTx({
+    transaction: tx,
+    transferRequest: buyNftResult,
+    allowListId: ALLOW_LIST_ID,
+    policyId: TRANSFER_REQUEST_POLICY_ID,
+    bpsRoyaltyStrategy: CONTRACT_BPS_ROYALTY_STRATEGY_ID,
+    ft: SUI_TYPE_ARG,
+    transferRequestType: COLLECTION_ID_NAME,
+  });
+
+  const transferRes = tx.transferObjects(
+    [coinCreationResult],
+    tx.pure(pubkeyAddress)
+  );
   tx.setGasBudget(100_000_000);
 
   console.log("tx: ", tx.blockData);
-  console.log("tx: ", tx.blockData.transactions[1]);
+  // console.log("tx: ", tx.blockData.transactions[1]);
 
   const result = await signer.signAndExecuteTransactionBlock({
     transactionBlock: tx,

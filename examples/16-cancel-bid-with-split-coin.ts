@@ -2,10 +2,10 @@ import { SUI_TYPE_ARG, TransactionBlock } from "@mysten/sui.js";
 import {
   ORDERBOOK_ID,
   COLLECTION_ID_NAME,
-  kioskClient,
   signer,
-  client,
   orderbookClient,
+  getKiosks,
+  ORDERBOOK_PACKAGE_ID,
 } from "./common";
 import { OrderbookFullClient } from "../src";
 
@@ -13,7 +13,7 @@ export const cancelBid = async () => {
   const pubkeyAddress = await signer.getAddress();
   console.log("Address: ", pubkeyAddress);
 
-  const kiosks = await kioskClient.getWalletKiosks(pubkeyAddress);
+  const kiosks = await getKiosks();
   if (kiosks.length === 0) {
     console.error("No kiosks found");
     return;
@@ -40,6 +40,7 @@ export const cancelBid = async () => {
   const coinCreationResult = tx.splitCoins(tx.gas, [tx.pure(100_000_000)]);
 
   [tx] = OrderbookFullClient.cancelBidTx({
+    packageObjectId: ORDERBOOK_PACKAGE_ID,
     wallet: coinCreationResult,
     collection: COLLECTION_ID_NAME,
     ft: SUI_TYPE_ARG,

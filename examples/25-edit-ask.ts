@@ -3,10 +3,9 @@ import {
   ORDERBOOK_ID,
   orderbookClient,
   COLLECTION_ID_NAME,
-  user,
-  safeClient,
   signer,
-  kioskClient,
+  getKiosks,
+  ORDERBOOK_PACKAGE_ID,
 } from "./common";
 import { OrderbookFullClient } from "../src";
 
@@ -14,7 +13,7 @@ export const editAsk = async () => {
   const pubkeyAddress = await signer.getAddress();
   console.log("Address: ", pubkeyAddress);
 
-  const kiosks = await kioskClient.getWalletKiosks(pubkeyAddress);
+  const kiosks = await getKiosks();
   if (kiosks.length === 0) {
     console.error("No kiosks found");
     return;
@@ -41,6 +40,7 @@ export const editAsk = async () => {
   const { nft, kiosk: sellersKiosk, price } = askToEdit;
 
   [tx] = OrderbookFullClient.editAskTx({
+    packageObjectId: ORDERBOOK_PACKAGE_ID,
     sellersKiosk,
     collection: COLLECTION_ID_NAME,
     ft: SUI_TYPE_ARG,

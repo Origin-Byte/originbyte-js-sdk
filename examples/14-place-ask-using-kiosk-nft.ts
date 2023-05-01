@@ -2,9 +2,10 @@ import { SUI_TYPE_ARG, TransactionBlock } from "@mysten/sui.js";
 import {
   ORDERBOOK_ID,
   COLLECTION_ID_NAME,
-  kioskClient,
   signer,
   client,
+  getKiosks,
+  ORDERBOOK_PACKAGE_ID,
 } from "./common";
 import { OrderbookFullClient } from "../src";
 
@@ -12,7 +13,7 @@ export const placeAsk = async () => {
   const pubkeyAddress = await signer.getAddress();
   console.log("Address: ", pubkeyAddress);
 
-  const kiosks = await kioskClient.getWalletKiosks(pubkeyAddress);
+  const kiosks = await getKiosks()
 
   if (kiosks.length === 0) {
     console.error("No kiosks found");
@@ -60,6 +61,7 @@ export const placeAsk = async () => {
   let tx = new TransactionBlock();
 
   [tx] = OrderbookFullClient.createAskTx({
+    packageObjectId: ORDERBOOK_PACKAGE_ID,
     sellersKiosk: kiosks[0].id.id,
     nft,
     collection: COLLECTION_ID_NAME,

@@ -5,6 +5,7 @@ export const fetchOrderbook = async () => {
 
   console.log("ORDERBOOK_ID: ", ORDERBOOK_ID);
   console.log("orderbookState: ", JSON.stringify(orderbookState));
+  console.log("orderbookState: ", orderbookState)
 };
 
 fetchOrderbook();
