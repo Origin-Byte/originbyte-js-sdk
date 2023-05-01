@@ -3,29 +3,31 @@ import { BiddingContractClient, TransferRequestFullClient } from "../src";
 import { signer } from "./common";
 
 const sellNft = async () => {
-    const nftId = "0x2348d7d2ff8640ccf0652e3816a22805c90c0274ac0163e964d1f7dd10fdab42";
+    const nftId = "0x2ea383137c90c07fe46ba53b85010d5bf4c79c403590a2c59706db6a724d42fc";
     const transaction = new TransactionBlock();
     transaction.setGasBudget(2_000_000_000);
     const transferRequest = BiddingContractClient.sellNftFromKioskTx({
-        packageObjectId: "0xda5ce01d0e365f2aac8df7d85d1cdfe271fd75db338daf248132991d74c2f1c8",
+        packageObjectId: "0xd34b56feab8ec4e31e32b30564e1d6b11eb32f2985c3fbb85b5be715df006536",
         transaction,
-        sellersKiosk: "0xb2edabd927abaa3ec96e45fd17ff308f4a31dd93975a5bee3d3a439681f242e6",
-        bid: "0xabb3fc781b80169f1e2dc9af7e755139dc4ec2b3fd1c2edefec0ca6c6f19b858",
-        buyersKiosk: "0x7f023e73b136f3ddf59d8fb5099b4ab0bd79a935f733ee2ee8471fe388230dc6",
+        sellersKiosk: "0xabd99fcc4295899342fde765e758ad724ca1baa90bec7dbba6af777f9483f94f",
+        bid: "0x31045b89422ac100cb5c3ca4495395c34291a9730a31693584f2582f9b3270ba",
+        buyersKiosk: "0x4c1992360d60a8b1628aa734bdc844d52d999f00f7bc75a705518780fa11be36",
         ft: SUI_TYPE_ARG,
         // eslint-disable-next-line max-len
-        nftType: "0x12a6b2cdc56c0506bf1d0a61822f6ac7e49150056272c15b5fa0f898a94caeae::clutchynfts::ClutchyNft",
+        nftType: "0xc64714be5cb0c9c9ab6c349964b18eb11b9739155dd1dfd9af0abe2d71eebb86::clutchynfts::ClutchyNft",
         nft: nftId
     })[1];
 
     TransferRequestFullClient.confirmTx({
         transaction,
+        requestContractId: "0x33324b87a09f5b2928d8d62a00eb66f93baa8d7545330c8c8ca15da2c80cbc82",
+        nftProtocolContractId: "0xd624568412019443dbea9c4e97a6c474cececa7e9daef307457cb34dd04eee0d",
         transferRequest,
-        allowListId: "0x93585b915cc6b8dd38904d0fd8398f871ef1aa34001f938aa0a7bb1d1321ab0a",
-        policyId: "0x95d893d25315d6cf5fec3be2c296d87d4d7e1b274a97aa41690e30c4f204b12b",
-        bpsRoyaltyStrategy: "0x750c4e897f39f10027d7aec8f28442ead1132d6b249d97cd8419dcfaf791da20",
+        allowListId: "0x641dcb7bf80a537e46e29e27c637f639ba8f644d5daf396e2b212b9bbe6c0383",
+        policyId: "0x82fc231d6aa2488a4420099841476e658ef1ce39aae557efca5fddc7da156929",
+        bpsRoyaltyStrategy: "0x721b29839f5c93329afc040316128272679363774440f3f8d596079d62446e24",
         ft: SUI_TYPE_ARG,
-        transferRequestType: "0x48a968571e9665929f4ec54e0e102d7432dde1312fd704b231b450591b51fa90::clutchynfts::ClutchyNFT"
+        transferRequestType: "0xc64714be5cb0c9c9ab6c349964b18eb11b9739155dd1dfd9af0abe2d71eebb86::clutchynfts::ClutchyNft"
     });
 
     await signer.signAndExecuteTransactionBlock({
