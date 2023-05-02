@@ -87,8 +87,8 @@ export class KioskReadClient {
   /*
   Returns all the nfts that are contained in every kiosk connected to a specific address
   */
-  public async getAllNftKioskAssociations(user: SuiAddress) {
-    const kiosks = await this.getWalletKiosks(user);
+  public async getAllNftKioskAssociations(user: SuiAddress, p: Partial<GlobalParams> = {}) {
+    const kiosks = await this.getWalletKiosks(user, p);
     return (await Promise.all(kiosks.map((kiosk) => this.getKioskNfts((kiosk.id as any).id)))).flat();
   }
 
