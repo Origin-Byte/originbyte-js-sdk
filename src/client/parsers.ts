@@ -16,7 +16,6 @@ import {
   Marketplace,
   MintCap,
   NftCollection,
-  RoyaltyDomain,
   SuiObjectParser,
   SymbolDomainBagRpcResponse,
   TagRpcResponse,
@@ -404,8 +403,9 @@ const ATTRIBUTES_DOMAIN_REGEX =
 export const parseDynamicDomains = (domains: SuiObjectResponse[]) => {
   const response: Partial<CollectionDomains> = {};
   const royaltyDomain = domains.find((d) =>
-    isTypeMatchRegex(d, ROYALTY_DOMAIN_REGEX)
+  isTypeMatchRegex(d, ROYALTY_DOMAIN_REGEX)
   );
+
   const symbolDomain = domains.find((d) =>
     isTypeMatchRegex(d, SYMBOL_DOMAIN_REGEX)
   );
@@ -422,13 +422,7 @@ export const parseDynamicDomains = (domains: SuiObjectResponse[]) => {
   );
 
   if (royaltyDomain && "fields" in royaltyDomain.data.content) {
-    const { fields } = royaltyDomain.data.content;
-    response.royaltyAggregationBagId = (
-      fields as RoyaltyDomain
-    ).value.fields.aggregations.id;
-    response.royaltyStrategiesBagId = (
-      fields as RoyaltyDomain
-    ).value.fields.aggregations.id;
+    response.royaltyStrategies = royaltyDomain.data.content.fields.value.fields.strategies.fields.contents ?? [];
   }
 
   if (symbolDomain && "fields" in royaltyDomain.data.content) {

@@ -385,20 +385,14 @@ export type ArtNft = ArtNftRaw &  {
 }
 
 export interface CollectionDomains {
-  royaltyAggregationBagId: string;
-  royaltyStrategiesBagId: string;
-  tagsBagId: string;
   symbol: string;
   url: string;
   name: string;
   description: string;
   tags: string[];
   attributes: { [key: string]: string };
-
-  royalties: {
-    who: string;
-    bps: number;
-  }[];
+  tagsBagId: string;
+  royaltyStrategies: string[];
 }
 
 // Requests
