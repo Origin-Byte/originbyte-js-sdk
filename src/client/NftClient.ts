@@ -36,6 +36,7 @@ import {
   buildDisableSalesTx,
   buildBuyNftIntoKioskTx,
   buildBuyWhitelistedNftIntoKioskTx,
+  buildSetMarketPriceTx,
 } from "./txBuilders";
 import {
   ArtNft,
@@ -412,6 +413,8 @@ export class NftClient {
   static buildBuyWhitelistedNft = buildBuyWhitelistedNftTx;
 
   static buildIssueWhitelistCertificate = buildIssueWhitelistCertificateTx;
+
+  static buildSetMarketPriceTx = buildSetMarketPriceTx;
 
   private mergeAuthoritiesWithCollections = (
     collections: NftCollection[],

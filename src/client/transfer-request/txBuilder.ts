@@ -1,7 +1,7 @@
 import { TransactionBlock } from "@mysten/sui.js";
 import { TransactionBlockArgument, TransactionResult , txObj as txCommon } from "../../transaction";
 import { GlobalParams } from "../types";
-import { ConfirmParams } from "./types";
+import { BuildInserCollectionToAllowListParams, ConfirmParams } from "./types";
 
 function txObj(
   fun: string,
@@ -48,8 +48,8 @@ export const confirmTx = (params: ConfirmParams) => {
     ]
   );
   return txObj(
-    "confirm", 
-    {...params, moduleName: "transfer_request", packageObjectId: params.requestContractId}, 
+    "confirm",
+    {...params, moduleName: "transfer_request", packageObjectId: params.requestContractId},
     (tx) => [
       typeof params.transferRequest === "string" ? tx.object(params.transferRequest) : params.transferRequest,
       tx.object(params.policyId)
@@ -57,6 +57,20 @@ export const confirmTx = (params: ConfirmParams) => {
     [
       params.transferRequestType,
       params.ft
+    ]
+  )
+}
+
+export const buildInserCollectionToAllowListTx = (params: BuildInserCollectionToAllowListParams) => {
+  return txObj(
+    "insert_collection",
+    { moduleName: "allowlist", packageObjectId: params.allowlist, transaction: params.transaction },
+    (tx) => [
+      typeof params.allowlist === "string" ? tx.object(params.allowlist) : params.allowlist,
+      typeof params.publisher === "string" ? tx.object(params.publisher) : params.publisher,
+    ],
+    [
+      params.nftType,
     ]
   )
 }

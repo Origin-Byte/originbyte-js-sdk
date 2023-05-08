@@ -106,9 +106,7 @@ export const keypair = process.env.WALLET_PK
   : Ed25519Keypair.deriveKeypair(mnemonic);
 
 export const provider = new JsonRpcProvider(
-  // new Connection({ fullnode: "https://fullnode.testnet.sui.io" })
-  // new Connection({ fullnode: "https://testnet.suiet.app" })
-  new Connection({ fullnode: "https://clutchy.io/testnet-blockvision-rpc" })
+  new Connection({ fullnode: "https://sui-rpc-mainnet.testnet-pride.com" })
 );
 export const signer = new RawSigner(keypair, provider);
 export const client = new NftClient(provider);

@@ -27,10 +27,13 @@ export interface WithOwner {
 export type EmptyRpcResponse = {};
 export type EmptyModel = WithPackageObjectId & WithOwner & WithId & {};
 
-export interface GlobalParams extends Partial<WithPackageObjectId> {
+export type TransactionParams = {
+  transaction?: TransactionBlock;
+}
+
+export interface GlobalParams extends Partial<WithPackageObjectId>, TransactionParams {
   packageObjectId?: any;
   moduleName?: string;
-  transaction?: TransactionBlock;
 }
 
 export type WithCollectionPackageId = {
@@ -656,4 +659,18 @@ export type BuildIsueWhitelistCertificateParams = WithPackageObjectId & {
   listing: string;
   venue: string;
   recipient: string;
+};
+
+export type BuildSetMarketPriceParams = WithPackageObjectId & {
+  listing: string;
+  venue: string;
+  price: number;
+  module?: "fixed_price" | "limited_fixed_price";
+  coinType?: string;
+};
+
+export type BuildProceedFeesParams = WithPackageObjectId & {
+  listing: string;
+  marketplace: string;
+  coinType?: string;
 };
