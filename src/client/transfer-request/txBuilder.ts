@@ -64,7 +64,7 @@ export const confirmTx = (params: ConfirmParams) => {
 export const buildInserCollectionToAllowListTx = (params: BuildInserCollectionToAllowListParams) => {
   return txObj(
     "insert_collection",
-    { moduleName: "allowlist", packageObjectId: params.allowlist, transaction: params.transaction },
+    { moduleName: "allowlist", packageObjectId: params.allowlistPackageId, transaction: params.transaction },
     (tx) => [
       typeof params.allowlist === "string" ? tx.object(params.allowlist) : params.allowlist,
       typeof params.publisher === "string" ? tx.object(params.publisher) : params.publisher,

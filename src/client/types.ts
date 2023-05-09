@@ -32,7 +32,7 @@ export type TransactionParams = {
 }
 
 export interface GlobalParams extends Partial<WithPackageObjectId>, TransactionParams {
-  packageObjectId?: any;
+  packageObjectId?: string;
   moduleName?: string;
 }
 
@@ -668,3 +668,13 @@ export type BuildProceedFeesParams = WithPackageObjectId & {
   marketplace: string;
   coinType?: string;
 };
+
+export type BuildDistributeRoyaltiesParams = WithPackageObjectId & {
+  nftType: string;
+  coinType?: string;
+  collection: string;
+}
+
+export type BuildCollectRoyaltiesParams = BuildDistributeRoyaltiesParams & {
+  royaltyStrategy: string;
+}
