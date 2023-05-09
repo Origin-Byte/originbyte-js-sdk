@@ -379,7 +379,7 @@ interface ArtNftFull extends ProtocolData, WithRawResponse, WithId {
 
 export type ArtNftRaw = Omit<ArtNftFull, "packageObjectId">;
 
-export type ArtNft = ArtNftRaw &  {
+export type ArtNft = ArtNftRaw & {
   description?: string;
   attributes: { [c: string]: string };
 }
@@ -672,9 +672,10 @@ export type BuildProceedFeesParams = WithPackageObjectId & {
 export type BuildDistributeRoyaltiesParams = WithPackageObjectId & {
   nftType: string;
   coinType?: string;
-  collection: string;
+  collection: string | TransactionResult;
 }
 
 export type BuildCollectRoyaltiesParams = BuildDistributeRoyaltiesParams & {
-  royaltyStrategy: string;
+
+  royaltyStrategy: string | TransactionResult;
 }

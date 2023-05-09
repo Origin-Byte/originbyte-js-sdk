@@ -4,7 +4,9 @@ import {
   BuildAddWarehouseToListingParams,
   BuildBuyNftParams,
   BuildBuyWhitelistedNftParams,
+  BuildCollectRoyaltiesParams,
   BuildCreateFlatFeeParams,
+  BuildDistributeRoyaltiesParams,
   BuildEnableSalesParams,
   BuildInitLimitedVenueParams,
   BuildInitListingParams,
@@ -369,5 +371,41 @@ export const buildProceedFees = (
       tx.object(params.listing),
     ],
     [params.coinType ?? SUI_TYPE]
+  );
+};
+
+export const buildDistributeRoyaltiesTx = (
+  params: BuildDistributeRoyaltiesParams
+) => {
+  return txObj(
+    {
+      packageObjectId: params.packageObjectId,
+      moduleName:  "royalty",
+      fun: "distribute_royalties",
+      transaction: params.transaction,
+    },
+    (tx) => [
+      wrapToObject(tx, params.collection),
+    ],
+    [params.nftType, params.coinType ?? SUI_TYPE]
+  );
+};
+
+
+export const buildCollectRoyaltiesTx = (
+  params: BuildCollectRoyaltiesParams
+) => {
+  return txObj(
+    {
+      packageObjectId: params.packageObjectId,
+      moduleName:  "royalty_strategy_bps",
+      fun: "collect_royalties",
+      transaction: params.transaction,
+    },
+    (tx) => [
+      wrapToObject(tx, params.collection),
+      wrapToObject(tx, params.royaltyStrategy),
+    ],
+    [params.nftType, params.coinType ?? SUI_TYPE]
   );
 };
