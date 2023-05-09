@@ -1,5 +1,6 @@
 /* eslint-disable camelcase */
 import {
+  JsonRpcProvider,
   ObjectId,
   SuiAddress,
   SuiObjectResponse,
@@ -679,3 +680,8 @@ export type BuildCollectRoyaltiesParams = BuildDistributeRoyaltiesParams & {
 
   royaltyStrategy: string | TransactionResult;
 }
+export type ArrElement<ArrType> = ArrType extends readonly (infer ElementType)[] ? ElementType : never;
+
+export type DynFieldArrPromise = ReturnType<JsonRpcProvider["getDynamicFields"]>;
+export type DynFieldArr = Awaited<DynFieldArrPromise>;
+export type DynField = ArrElement<DynFieldArr["data"]>;
