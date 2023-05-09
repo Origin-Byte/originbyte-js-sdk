@@ -7,6 +7,7 @@ import {
   SuiObjectDataOptions,
 } from "@mysten/sui.js";
 import { TESTNET_URL } from "./consts";
+import { DynField } from "./types";
 
 export class ReadClient {
   // eslint-disable-next-line
@@ -59,9 +60,26 @@ export class ReadClient {
   }
 
   public async getDynamicFields(id: ObjectId) {
-    const {data} = await this.provider.getDynamicFields({
+    const dynamicFields: DynField[] = []
+
+    // eslint-disable-next-line prefer-const
+    let {data, hasNextPage, nextCursor} = await this.provider.getDynamicFields({
       parentId: id,
     });
-    return data;
+    dynamicFields.push(...data)
+
+    while(hasNextPage) {
+      // eslint-disable-next-line no-await-in-loop
+      const result = await this.provider.getDynamicFields({
+        parentId: id,
+        cursor: nextCursor,
+      });
+
+      hasNextPage = result.hasNextPage;
+      nextCursor = result.nextCursor;
+      dynamicFields.push(...result.data)
+    }
+
+    return dynamicFields;
   }
 }
