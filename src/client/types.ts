@@ -28,10 +28,13 @@ export interface WithOwner {
 export type EmptyRpcResponse = {};
 export type EmptyModel = WithPackageObjectId & WithOwner & WithId & {};
 
-export interface GlobalParams extends Partial<WithPackageObjectId> {
-  packageObjectId?: any;
-  moduleName?: string;
+export type TransactionParams = {
   transaction?: TransactionBlock;
+}
+
+export interface GlobalParams extends Partial<WithPackageObjectId>, TransactionParams {
+  packageObjectId?: string;
+  moduleName?: string;
 }
 
 export type WithCollectionPackageId = {
@@ -377,26 +380,20 @@ interface ArtNftFull extends ProtocolData, WithRawResponse, WithId {
 
 export type ArtNftRaw = Omit<ArtNftFull, "packageObjectId">;
 
-export type ArtNft = ArtNftRaw &  {
+export type ArtNft = ArtNftRaw & {
   description?: string;
   attributes: { [c: string]: string };
 }
 
 export interface CollectionDomains {
-  royaltyAggregationBagId: string;
-  royaltyStrategiesBagId: string;
-  tagsBagId: string;
   symbol: string;
   url: string;
   name: string;
   description: string;
   tags: string[];
   attributes: { [key: string]: string };
-
-  royalties: {
-    who: string;
-    bps: number;
-  }[];
+  tagsBagId: string;
+  royaltyStrategies: string[];
 }
 
 // Requests
@@ -659,6 +656,30 @@ export type BuildIsueWhitelistCertificateParams = WithPackageObjectId & {
   recipient: string;
 };
 
+export type BuildSetMarketPriceParams = WithPackageObjectId & {
+  listing: string;
+  venue: string;
+  price: number;
+  module?: "fixed_price" | "limited_fixed_price";
+  coinType?: string;
+};
+
+export type BuildProceedFeesParams = WithPackageObjectId & {
+  listing: string;
+  marketplace: string;
+  coinType?: string;
+};
+
+export type BuildDistributeRoyaltiesParams = WithPackageObjectId & {
+  nftType: string;
+  coinType?: string;
+  collection: string | TransactionResult;
+}
+
+export type BuildCollectRoyaltiesParams = BuildDistributeRoyaltiesParams & {
+
+  royaltyStrategy: string | TransactionResult;
+}
 export type ArrElement<ArrType> = ArrType extends readonly (infer ElementType)[] ? ElementType : never;
 
 export type DynFieldArrPromise = ReturnType<JsonRpcProvider["getDynamicFields"]>;

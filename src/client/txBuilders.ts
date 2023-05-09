@@ -4,7 +4,9 @@ import {
   BuildAddWarehouseToListingParams,
   BuildBuyNftParams,
   BuildBuyWhitelistedNftParams,
+  BuildCollectRoyaltiesParams,
   BuildCreateFlatFeeParams,
+  BuildDistributeRoyaltiesParams,
   BuildEnableSalesParams,
   BuildInitLimitedVenueParams,
   BuildInitListingParams,
@@ -13,8 +15,10 @@ import {
   BuildInitWarehouseParams,
   BuildIsueWhitelistCertificateParams,
   BuildMintNftParams,
+  BuildProceedFeesParams,
   BuildRequestToJoinMarketplaceParams,
   BuildSetLimitMarketLimitParams,
+  BuildSetMarketPriceParams,
   BuyersKioskParam,
 } from "./types";
 import { wrapToObject } from "./utils";
@@ -328,5 +332,80 @@ export const buildIssueWhitelistCertificateTx = (
       tx.object(params.recipient),
     ],
     []
+  );
+};
+
+
+export const buildSetMarketPriceTx = (
+  params: BuildSetMarketPriceParams
+) => {
+  return txObj(
+    {
+      packageObjectId: params.packageObjectId,
+      moduleName: params.module ?? "limited_fixed_price",
+      fun: "set_limit",
+      transaction: params.transaction,
+    },
+    (tx) => [
+      tx.object(params.listing),
+      tx.object(params.venue),
+      tx.pure(params.price),
+    ],
+    [params.coinType ?? SUI_TYPE]
+  );
+};
+
+
+export const buildProceedFees = (
+  params: BuildProceedFeesParams
+) => {
+  return txObj(
+    {
+      packageObjectId: params.packageObjectId,
+      moduleName:  "flat_fee",
+      fun: "collect_proceeds_and_fees",
+      transaction: params.transaction,
+    },
+    (tx) => [
+      tx.object(params.marketplace),
+      tx.object(params.listing),
+    ],
+    [params.coinType ?? SUI_TYPE]
+  );
+};
+
+export const buildDistributeRoyaltiesTx = (
+  params: BuildDistributeRoyaltiesParams
+) => {
+  return txObj(
+    {
+      packageObjectId: params.packageObjectId,
+      moduleName:  "royalty",
+      fun: "distribute_royalties",
+      transaction: params.transaction,
+    },
+    (tx) => [
+      wrapToObject(tx, params.collection),
+    ],
+    [params.nftType, params.coinType ?? SUI_TYPE]
+  );
+};
+
+
+export const buildCollectRoyaltiesTx = (
+  params: BuildCollectRoyaltiesParams
+) => {
+  return txObj(
+    {
+      packageObjectId: params.packageObjectId,
+      moduleName:  "royalty_strategy_bps",
+      fun: "collect_royalties",
+      transaction: params.transaction,
+    },
+    (tx) => [
+      wrapToObject(tx, params.collection),
+      wrapToObject(tx, params.royaltyStrategy),
+    ],
+    [params.nftType, params.coinType ?? SUI_TYPE]
   );
 };

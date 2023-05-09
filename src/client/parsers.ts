@@ -16,7 +16,6 @@ import {
   Marketplace,
   MintCap,
   NftCollection,
-  RoyaltyDomain,
   SuiObjectParser,
   SymbolDomainBagRpcResponse,
   TagRpcResponse,
@@ -368,16 +367,16 @@ export const InventoryParser: SuiObjectParser<Inventory> = {
     return undefined;
   },
 };
-
+// 0x2::dynamic_field::Field<0xc74531639fadfb02d30f05f37de4cf1e1149ed8d23658edd089004830068180b::inventory::WarehouseKey
 const INVENTORY_DOF_REGEX =
   // eslint-disable-next-line max-len
-  /0x2::dynamic_field::Field<(0x[a-f0-9]{63,64})::utils::Marker<(0x[a-f0-9]{63,64})::warehouse::Warehouse<(0x[a-f0-9]{63,64})::[a-zA-Z_]{1,}::[a-zA-Z_]{1,}>>, (0x[a-f0-9]{63,64})::warehouse::Warehouse<(0x[a-f0-9]{63,64})::[a-zA-Z_]{1,}::[a-zA-Z_]{1,}>>/;
+  /0x2::dynamic_field::Field<(0x[a-f0-9]{63,64})::inventory::WarehouseKey, (0x[a-f0-9]{63,64})::warehouse::Warehouse<(0x[a-f0-9]{63,64})::[a-zA-Z_]{1,}::[a-zA-Z_]{1,}>>/;
 
 export const InventoryDofParser: SuiObjectParser<InventoryContent> = {
   regex: INVENTORY_DOF_REGEX,
   parser: (_) => {
     return {
-      nfts: "fields" in _.data.content ? _.data.content.fields.value.fields.nfts : [],
+      nfts: "fields" in _.data.content ? _.data.content.fields.value.fields.nfts.fields.vec_0 : [],
       id: _.data.objectId,
     };
   },
@@ -404,8 +403,9 @@ const ATTRIBUTES_DOMAIN_REGEX =
 export const parseDynamicDomains = (domains: SuiObjectResponse[]) => {
   const response: Partial<CollectionDomains> = {};
   const royaltyDomain = domains.find((d) =>
-    isTypeMatchRegex(d, ROYALTY_DOMAIN_REGEX)
+  isTypeMatchRegex(d, ROYALTY_DOMAIN_REGEX)
   );
+
   const symbolDomain = domains.find((d) =>
     isTypeMatchRegex(d, SYMBOL_DOMAIN_REGEX)
   );
@@ -422,13 +422,7 @@ export const parseDynamicDomains = (domains: SuiObjectResponse[]) => {
   );
 
   if (royaltyDomain && "fields" in royaltyDomain.data.content) {
-    const { fields } = royaltyDomain.data.content;
-    response.royaltyAggregationBagId = (
-      fields as RoyaltyDomain
-    ).value.fields.aggregations.id;
-    response.royaltyStrategiesBagId = (
-      fields as RoyaltyDomain
-    ).value.fields.aggregations.id;
+    response.royaltyStrategies = royaltyDomain.data.content.fields.value.fields.strategies.fields.contents ?? [];
   }
 
   if (symbolDomain && "fields" in royaltyDomain.data.content) {
