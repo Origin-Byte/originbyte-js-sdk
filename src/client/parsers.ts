@@ -98,7 +98,7 @@ export const ArtNftParser: SuiObjectParser<ArtNftRaw> = {
 };
 
 const COLLECTION_REGEX =
-  /^(0x[a-f0-9]{63,64})::collection::Collection<(0x[a-f0-9]{63,64}::[a-zA-Z_]{1,}::[a-zA-Z_]{1,}(.*))>$/;
+  /^(0x[a-f0-9]{63,64})::collection::Collection<(0x[a-f0-9]{63,64}::[a-zA-Z_0-9]{1,}::[a-zA-Z_0-9]{1,}(.*))>$/;
 
 export const CollectionParser: SuiObjectParser<NftCollection> = {
   parser: (_) => {
@@ -342,7 +342,7 @@ export const WarehouseParser: SuiObjectParser<Warehouse> = {
 };
 
 const INVENTORY_REGEX =
-  /(0x[a-f0-9]{63,64})::inventory::Inventory<((0x[a-f0-9]{63,64})::([a-zA-Z_]{1,})::([a-zA-Z_]{1,})(.*))>/;
+  /(0x[a-f0-9]{63,64})::inventory::Inventory<((0x[a-f0-9]{63,64})::([a-zA-Z_0-9]{1,})::([a-zA-Z_0-9]{1,})(.*))>/;
 
 export const InventoryParser: SuiObjectParser<Inventory> = {
   regex: INVENTORY_REGEX,
