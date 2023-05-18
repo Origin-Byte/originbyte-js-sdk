@@ -4,6 +4,8 @@ import { GlobalParams } from "../types";
 import { DEFAULT_KIOSK_MODULE, DEFAULT_PACKAGE_ID } from "../consts";
 import { Kiosk, OwnerToken } from "./types";
 
+const KIOSK_ITEM_TYPE = "0x0000000000000000000000000000000000000000000000000000000000000002::kiosk::Item";
+
 export class KioskReadClient {
   // eslint-disable-next-line
   constructor(
@@ -35,9 +37,8 @@ export class KioskReadClient {
     user: SuiAddress,
     p: Partial<GlobalParams> = {}
   ): Promise<OwnerToken[]> {
-    const ownerTokenType = `${p.packageObjectId || this.package}::${
-      p.moduleName || this.module
-    }::OwnerToken`;
+    const ownerTokenType = `::${p.moduleName || this.module
+      }::OwnerToken`;
     const objs = (await this.client.getObjects(user, {
       showType: true,
       showContent: true
@@ -45,7 +46,7 @@ export class KioskReadClient {
       Package: p.packageObjectId || this.package
     }));
     return objs
-      .filter((o) => o.data.type === ownerTokenType)
+      .filter((o) => o.data.type.endsWith(ownerTokenType))
       .map((o) => (o.data.content as any)?.fields as OwnerToken);
   }
 
@@ -60,7 +61,7 @@ export class KioskReadClient {
 
   public async getWalletKiosk(user: SuiAddress, p: Partial<GlobalParams> = {}): Promise<Kiosk | undefined> {
     const ownerTokens = await this.fetchOwnerTokens(user, p);
-    if(ownerTokens.length > 0) {
+    if (ownerTokens.length > 0) {
       return this.fetchKiosk(ownerTokens[0].kiosk);
     }
     return undefined;
@@ -68,20 +69,20 @@ export class KioskReadClient {
 
   public async getWalletKioskId(user: SuiAddress, p: Partial<GlobalParams> = {}) {
     const ownerTokens = await this.fetchOwnerTokens(user, p);
-    if(ownerTokens.length > 0) {
+    if (ownerTokens.length > 0) {
       return ownerTokens[0].kiosk;
     }
     return undefined;
   }
 
   /*
-  Returns all the nfts for a specific kiosks 
+  Returns all the nfts for a specific kiosks
   */
   public async getKioskNfts(kioskId: ObjectId, p: Partial<GlobalParams> = {}) {
     const kiosk = await this.client.getDynamicFields(kioskId);
-    return kiosk.filter((item) => 
-      item.name.type === "0x2::kiosk::Item"
-    ).map((item) => ({kioskId, nft: item.name.value.id}));
+    return kiosk.filter((item) =>
+      item.name.type === KIOSK_ITEM_TYPE
+    ).map((item) => ({ kioskId, nft: item.name.value.id }));
   }
 
   /*

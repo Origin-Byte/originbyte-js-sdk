@@ -29,7 +29,7 @@ export class ReadClient {
   public async getObjects(owner: SuiAddress, options?: SuiObjectDataOptions, filter?: SuiObjectDataFilter) {
     const items = [];
     // eslint-disable-next-line prefer-const
-    let {hasNextPage, nextCursor, data} = await this.getPaginatedObjects(owner, filter, options); 
+    let {hasNextPage, nextCursor, data} = await this.getPaginatedObjects(owner, filter, options);
     items.push(...data);
     while (hasNextPage) {
       // eslint-disable-next-line no-await-in-loop
@@ -37,14 +37,14 @@ export class ReadClient {
       hasNextPage = result.hasNextPage;
       nextCursor = result.nextCursor;
       items.push(...result.data);
-    } 
+    }
     return items;
   }
 
   public async getPaginatedObjects(owner: SuiAddress, filter?: SuiObjectDataFilter, options?: SuiObjectDataOptions, cursor: any = null) {
     return this.provider.getOwnedObjects({
       owner,
-      filter,
+      // filter,
       cursor,
       options
     });
