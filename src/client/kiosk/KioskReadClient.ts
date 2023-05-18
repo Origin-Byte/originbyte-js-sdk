@@ -37,7 +37,7 @@ export class KioskReadClient {
     user: SuiAddress,
     p: Partial<GlobalParams> = {}
   ): Promise<OwnerToken[]> {
-    const ownerTokenType = `::${p.moduleName || this.module
+    const ownerTokenType = `${p.packageObjectId || this.package}::${p.moduleName || this.module
       }::OwnerToken`;
     const objs = (await this.client.getObjects(user, {
       showType: true,
@@ -46,7 +46,7 @@ export class KioskReadClient {
       Package: p.packageObjectId || this.package
     }));
     return objs
-      .filter((o) => o.data.type.endsWith(ownerTokenType))
+      .filter((o) => o.data.type === ownerTokenType)
       .map((o) => (o.data.content as any)?.fields as OwnerToken);
   }
 
