@@ -52,7 +52,7 @@ const getEmptyParser = (regex: RegExp): SuiObjectParser<EmptyModel> => ({
 });
 
 const ART_NFT_REGEX =
-  /^(0x[a-f0-9]{63,64})::([a-zA-Z_]{1,})::([a-zA-Z_]{1,})$/;
+  /^(0x[a-f0-9]{63,64})::([a-zA-Z_0-9]{1,})::([a-zA-Z_0-9]{1,})$/;
 
 export const ArtNftParser: SuiObjectParser<ArtNftRaw> = {
   parser: (_) => {
