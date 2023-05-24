@@ -85,6 +85,9 @@ export const ArtNftParser: SuiObjectParser<ArtNftRaw> = {
         name: (typeof display?.data === "object" && display?.data !== null) ?
           (display?.data.name ?? content.fields.name) :
           content.fields.name,
+        description: (typeof display?.data === "object" && display?.data !== null) ?
+          (display?.data.description ?? content.fields.description) :
+          content.fields.description,
       };
 
       if (!result.url) {

@@ -358,7 +358,7 @@ export class NftClient {
       const a: ArtNft = {
         logicalOwner: nft.logicalOwner,
         name: fields?.content.name ?? nft.name,
-        description: fields?.content.description ?? "",
+        description: fields?.content.description ?? nft.description,
         url: fields?.content.url ?? nft.url,
         attributes: fields?.content.attributes ?? {},
         packageModule: nft.packageModule,

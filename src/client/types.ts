@@ -375,6 +375,7 @@ interface ArtNftFull extends ProtocolData, WithRawResponse, WithId {
   bagId?: string;
   ownerAddress: string;
   name?: string;
+  description?: string;
   url?: string;
 }
 
