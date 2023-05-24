@@ -121,7 +121,7 @@ export const createAskWithCommissionTx = (
       t.object(p.orderbook),
       wrapToObject(t, p.sellersKiosk),
       t.pure(String(p.price)),
-      t.object(p.nft),
+      t.pure(p.nft),
       t.object(p.beneficiary),
       t.pure(String(p.commission)),
     ],
