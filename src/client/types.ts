@@ -370,6 +370,7 @@ export interface NftCollection extends WithId {
 }
 
 interface ArtNftFull extends ProtocolData, WithRawResponse, WithId {
+  attributes: { [c: string]: string }
   logicalOwner: string;
   collectionPackageObjectId: string;
   bagId?: string;

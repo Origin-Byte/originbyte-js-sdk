@@ -360,7 +360,7 @@ export class NftClient {
         name: fields?.content.name ?? nft.name,
         description: fields?.content.description ?? nft.description,
         url: fields?.content.url ?? nft.url,
-        attributes: fields?.content.attributes ?? {},
+        attributes: fields?.content.attributes ?? nft.attributes,
         packageModule: nft.packageModule,
         packageModuleClassName: nft.packageModuleClassName,
         id: nft.id,
